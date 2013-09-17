@@ -1,0 +1,52 @@
+{
+	"name": "grunt-nautilus",
+	"description": "Modular application Javascripting and Compassing",
+	"version": "0.1.0",
+	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
+	"author": {
+		"name": "Brandon Kitajchuk",
+		"email": "kitajchuk@gmail.com",
+		"url": "http://github.com/kitajchuk"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/kitajchuk/grunt-nautilus.git"
+	},
+	"bugs": {
+		"url": "https://github.com/kitajchuk/grunt-nautilus/issues"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/kitajchuk/grunt-nautilus/blob/master/LICENSE-MIT"
+		}
+	],
+	"main": "Gruntfile.js",
+	"engines": {
+		"node": ">= 0.8.0"
+	},
+	"scripts": {
+		"test": "grunt test"
+	},
+	"dependencies": {
+		"grunt": "~0.4.1",
+		"grunt-contrib-clean": "~0.4.0",
+		"grunt-contrib-nodeunit": "~0.2.0",
+		"grunt-contrib-jshint": "*"
+	},
+	"devDependencies": {
+		
+	},
+	"peerDependencies": {
+		"grunt": "~0.4.1",
+		"grunt-contrib-concat": "*",
+		"grunt-contrib-uglify": "*",
+		"grunt-contrib-qunit": "*",
+		"grunt-contrib-jshint": "*",
+		"grunt-contrib-watch": "*",
+		"grunt-contrib-compass": "*"
+	},
+	"keywords": [
+		"gruntplugin"
+	]
+}
