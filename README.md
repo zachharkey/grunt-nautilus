@@ -11,8 +11,6 @@ grunt-nautilus
 [grunt-contrib-watch]: http://github.com/gruntjs/grunt-contrib-watch
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
 
-> Still being developed...
-
 
 
 ## Philosophy
