@@ -52,7 +52,8 @@ module.exports = function ( grunt ) {
 	 * 
 	 * Register the "nautilus" task
 	 * @usage: grunt nautilus:build
-	 * @usage: grunt nautilus:core:script --app-js
+	 * @usage: grunt nautilus:compass:[development, production]
+	 * @usage: grunt nautilus:appjs:[core, util, feature]:namespace
 	 *
 	 * @task: watch
 	 * @task: build
@@ -60,20 +61,19 @@ module.exports = function ( grunt ) {
 	 * @task: jshint
 	 * @task: uglify
 	 * @task: compass
+	 * @task: appjs
 	 *
 	 */
-	grunt.registerTask( "nautilus", "", function ( task1, task2 ) {
-		console.log( arguments );
-		
-		if ( grunt.option( "app-js" ) ) {
-			if ( levels.indexOf( task1 ) !== -1 ) {
-				nautilus.createModule( task1, task2 );
+	grunt.registerTask( "nautilus", "", function ( arg1, arg2, arg3 ) {
+		if ( arg1 === "appjs" ) {
+			if ( levels.indexOf( arg1 ) !== -1 ) {
+				nautilus.createModule( arg2, arg3 );
 			}
 			
-		} else if ( nautilus.isTask( task1 ) && typeof nautilus[ task1 ] === "function" ) {
-			var task = nautilus[ task1 ];
+		} else if ( nautilus.isTask( arg1 ) && typeof nautilus[ arg1 ] === "function" ) {
+			var task = nautilus[ arg1 ];
 			
-			task( task2 );
+			task( arg2 );
 			
 		} else {
 			grunt.fail.fatal( "invalid arguments and options" );
