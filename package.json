@@ -1,6 +1,6 @@
 {
 	"name": "grunt-nautilus",
-	"description": "Modular application Javascripting and Compassing",
+	"description": "A grunt plugin for modular app-js development",
 	"version": "0.1.0",
 	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
 	"author": {
