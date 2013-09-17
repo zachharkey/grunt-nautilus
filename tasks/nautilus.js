@@ -66,14 +66,14 @@ module.exports = function ( grunt ) {
 	 */
 	grunt.registerTask( "nautilus", "", function ( arg1, arg2, arg3 ) {
 		if ( arg1 === "appjs" ) {
-			if ( levels.indexOf( arg1 ) !== -1 ) {
+			if ( levels.indexOf( arg2 ) !== -1 ) {
 				nautilus.createModule( arg2, arg3 );
 			}
 			
 		} else if ( nautilus.isTask( arg1 ) && typeof nautilus[ arg1 ] === "function" ) {
 			var task = nautilus[ arg1 ];
 			
-			task( arg2 );
+			task( arg2, arg3 );
 			
 		} else {
 			grunt.fail.fatal( "invalid arguments and options" );

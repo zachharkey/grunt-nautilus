@@ -82,12 +82,14 @@ module.exports = function ( grunt ) {
 								? config.jsRoot+"/app/feature/app."+module+".js"
 								: config.jsRoot+"/app/util/app."+module+".js",
 				fileExists = grunt.file.exists( file ),
-				fileData = {data: {
-					module: module,
-					arguments: ["window", "window.app"],
-					parameters: ["window", "app", "undefined"]
-				}},
-				template = ( level === "util" ) ? "/app-util.js" : "/app-core-feature.js",
+				fileData = {
+					data: {
+						module: module,
+						arguments: ["window", "window.app"],
+						parameters: ["window", "app", "undefined"]
+					}
+				},
+				template = ( level === "util" ) ? appJsDir+"/app-util.js" : appJsDir+"/app-core-feature.js",
 				contents;
 			
 			if ( fileExists && !grunt.option( "force" ) ) {
@@ -102,7 +104,7 @@ module.exports = function ( grunt ) {
 			fileData.data.arguments = fileData.data.arguments.join( ", " );
 			fileData.data.parameters = fileData.data.parameters.join( ", " );
 			
-			template = grunt.file.read( appJsDir+template );
+			template = grunt.file.read( template );
 			contents = grunt.template.process( template, fileData );
 			
 			grunt.file.write( file, contents );
@@ -232,37 +234,11 @@ module.exports = function ( grunt ) {
 		 * 
 		 * Nautilus.prototype.scan
 		 *
-		 * Scan app-js and start the feature building.
+		 * Scan app-js and start the feature dependency building.
 		 *
 		 */
 		this.scan = function () {
-			var config = grunt.config.get( "nautilus" );
 			
-			grunt.file.recurse( config.jsRoot+"/app", function ( abspath, rootdir, subdir, filename ) {
-				var match = filename.match( rAppJs );
-				
-				if ( match && match[ 1 ] ) {
-					var feature = match[ 1 ];
-					var contents = grunt.file.read( abspath );
-					var deps = contents.match( rDeps );
-					
-					if ( deps && deps[ 1 ] ) {
-						deps = deps[ 1 ].split( "," );
-						
-						var concats = "";
-						
-						for ( var i = 0, len = deps.length; i < len; i++ ) {
-							var scripts = grunt.file.match( {}, "app."+deps[ i ]+".js", [
-								config.jsRoot,
-								config.jsRoot+"/app",
-								config.jsRoot+"/app/util"
-							]);
-							
-							grunt.log.writeln( scripts );
-						}
-					}
-				}
-			});
 		};
 		
 		/*!
@@ -383,8 +359,6 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		grunt.event.on( "watch", function ( action, filepath ) {
-			
-			grunt.log.writeln( "[Nautilus]: Watched "+filepath );
 			
 		});
 	};
