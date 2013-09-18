@@ -3,6 +3,7 @@
 	"description": "A grunt plugin for modular app-js development",
 	"version": "0.2.1",
 	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
+	"readmeFilename": "README.md",
 	"author": {
 		"name": "Brandon Kitajchuk",
 		"email": "kitajchuk@gmail.com",
@@ -46,11 +47,27 @@
 		"grunt-contrib-compass": "~0.5.0"
 	},
 	"keywords": [
+		"grunt",
 		"gruntplugin",
 		"javascript",
 		"compass",
-		"web",
-		"development",
-		"tool"
+		"application",
+		"app",
+		"tool",
+		"webapp",
+		"sass",
+		"agile",
+		"template",
+		"module",
+		"project",
+		"scaffold",
+		"app-js",
+		"concat",
+		"jshint",
+		"watch",
+		"uglify",
+		"build",
+		"deploy",
+		"modular"
 	]
 }
