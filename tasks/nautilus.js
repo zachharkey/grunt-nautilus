@@ -45,18 +45,19 @@ module.exports = function ( grunt ) {
 	 * Register the "nautilus" task
 	 * @usage: grunt nautilus:build
 	 * @usage: grunt nautilus:compass:[development, production]
-	 * @usage: grunt nautilus:appjs:[core, util, feature]:namespace
+	 * @usage: grunt nautilus:appjs:[core, util, feature]:[module]
 	 *
 	 * @task: watch
 	 * @task: build
 	 * @task: deploy
 	 * @task: jshint
 	 * @task: uglify
+	 * @task: concat
 	 * @task: compass
 	 * @task: appjs
 	 *
 	 */
-	grunt.registerTask( "nautilus", "", function ( arg1, arg2, arg3 ) {
+	grunt.registerTask( "nautilus", "A grunt plugin for modular app-js development", function ( arg1, arg2, arg3 ) {
 		if ( arg1 === "appjs" ) {
 			if ( levels.indexOf( arg2 ) !== -1 ) {
 				nautilus.createModule( arg2, arg3 );
