@@ -6,7 +6,6 @@ grunt-nautilus
 [grunt]: http://github.com/gruntjs/grunt
 [grunt-contrib-concat]: http://github.com/gruntjs/grunt-contrib-concat
 [grunt-contrib-uglify]: http://github.com/gruntjs/grunt-contrib-uglify
-[grunt-contrib-qunit]: http://github.com/gruntjs/grunt-contrib-qunit
 [grunt-contrib-jshint]: http://github.com/gruntjs/grunt-contrib-jshint
 [grunt-contrib-watch]: http://github.com/gruntjs/grunt-contrib-watch
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
@@ -37,7 +36,6 @@ grunt-nautilus will install the following peer dependency packages:
 - [grunt][]
 - [grunt-contrib-concat][]
 - [grunt-contrib-uglify][]
-- [grunt-contrib-qunit][]
 - [grunt-contrib-jshint][]
 - [grunt-contrib-watch][]
 - [grunt-contrib-compass][]
@@ -131,7 +129,7 @@ You interface with grunt-nautilus via the `nautilus` task. The following are ava
 - `grunt nautilus:build`
 - `grunt nautilus:deploy`
 - `grunt nautilus:compass:[development, production]`
-- `grunt nautilus:appjs:[core, feature, util]:[namespace]`
+- `grunt nautilus:appjs:[core, feature, util]:[module]`
 
 Most of these are pretty self explanatory, but lets cover the cool things some of them do. For instance, running the `build` task will compile compass and javascript for development environments. Using the `deploy` task will do the same but for production/staging environments.
 
@@ -307,18 +305,18 @@ var document = window.document;
 
 ### appjs task
 
-The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core, feature and util`. The `namespace` argument is used to name the module as it will exist on the global `app` object. If you were to run the following:
+The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core, feature and util`. The `module` argument is used to name the module as it will exist on the global `app` object. If you were to run the following:
 
 ```
-grunt nautilus:appjs:util:lazyload
+grunt nautilus:appjs:feature:home
 ```
 
-You would get the following at `js/app/util/app.lazyload.js`:
+You would get the following at `js/app/feature/app.home.js`:
 
 ```js
 /*!
  *
- * App: util.lazyload
+ * App: home
  *
  * A nice description of what this script does...
  *
@@ -339,9 +337,11 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app.util = app.extend( app.util, {
-	lazyload: {
-		
+app = app.extend({
+	home: {
+		init: function () {
+			app.log( "Initialized app.home", app.home );
+		}
 	}
 });
 
@@ -349,7 +349,7 @@ app.util = app.extend( app.util, {
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.log( "app.util.lazyload: ", app.util.lazyload );
+app.home.init();
 
 
 })( window, window.app );
@@ -357,7 +357,7 @@ app.log( "app.util.lazyload: ", app.util.lazyload );
 
 ### appjs dependency building
 
-By default, grunt-nautilus will look at all your feature scripts and compile each one individually with its dependencies. Using the `@deps` flag in the head comment of your app-js files allows all dependency files to be found. The compiled files are placed in the `dist` foler. This action hooks into the following tasks:
+By default, grunt-nautilus will look at all your feature scripts and compile each one individually with its dependencies. Using the `@deps` flag in the head comment of your app-js files allows all dependency files to be found. The compiled files are placed in the `dist` folder. For instance, the above home feature would be compiled with its dependencies and written as `js/dist/home.js`. This action hooks into the following tasks:
 
 - `grunt nautilus:build`
 - `grunt nautilus:deploy`
