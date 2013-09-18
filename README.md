@@ -6,7 +6,6 @@ grunt-nautilus
 [grunt]: http://github.com/gruntjs/grunt
 [grunt-contrib-concat]: http://github.com/gruntjs/grunt-contrib-concat
 [grunt-contrib-uglify]: http://github.com/gruntjs/grunt-contrib-uglify
-[grunt-contrib-qunit]: http://github.com/gruntjs/grunt-contrib-qunit
 [grunt-contrib-jshint]: http://github.com/gruntjs/grunt-contrib-jshint
 [grunt-contrib-watch]: http://github.com/gruntjs/grunt-contrib-watch
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
@@ -37,7 +36,6 @@ grunt-nautilus will install the following peer dependency packages:
 - [grunt][]
 - [grunt-contrib-concat][]
 - [grunt-contrib-uglify][]
-- [grunt-contrib-qunit][]
 - [grunt-contrib-jshint][]
 - [grunt-contrib-watch][]
 - [grunt-contrib-compass][]
