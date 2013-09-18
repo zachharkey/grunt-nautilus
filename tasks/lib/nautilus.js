@@ -99,16 +99,22 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var extend = function ( o1, o2, force ) {
+			var ret = {};
+			
+			for ( var prop in o1 ) {
+				ret[ prop ] = o1[ prop ];
+			}
+			
 			for ( var prop in o2 ) {
-				if ( o1[ prop ] && !force ) {
+				if ( ret[ prop ] && !force ) {
 					continue;
 					
 				} else {
-					o1[ prop ] = o2[ prop ];
+					ret[ prop ] = o2[ prop ];
 				}
 			}
 			
-			return o1;
+			return ret;
 		};
 		
 		/*!
@@ -118,7 +124,7 @@ module.exports = function ( grunt ) {
 		 */
 		var createModule = function ( level, module ) {
 			var appJsDir = require( "path" ).join( __dirname, "../../app-js" ),
-				config = grunt.config.get( "nautilus" ),
+				config = grunt.config.get( "nautilus" ).options,
 				file = ( level === "core" )
 							? config.jsRoot+"/app/app."+module+".js"
 							: ( level === "feature" )
@@ -161,7 +167,7 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var findDependency = function ( dep, file ) {
-			var config = grunt.config.get( "nautilus" ),
+			var config = grunt.config.get( "nautilus" ).options,
 				ret;
 			
 			if ( grunt.file.exists( config.jsRoot+"/app/"+dep+".js" ) ) {
@@ -235,7 +241,7 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var getFeatureJsConfig = function ( env ) {
-			var config = grunt.config.get( "nautilus" ),
+			var config = grunt.config.get( "nautilus" ).options,
 				task = ( env === "development" )
 						? "concat"
 						: "uglify",
@@ -277,7 +283,7 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var combineFeatureJs = function ( env ) {
-			var config = grunt.config.get( "nautilus" ),
+			var config = grunt.config.get( "nautilus" ).options,
 				features = getFeatureJsConfig( env ),
 				task = ( env === "development" ) ? "concat" : "uglify",
 				jsBanner = config.jsBanner,
@@ -377,14 +383,28 @@ module.exports = function ( grunt ) {
 		 * using the grunt-init-gruntnautilus template.
 		 *
 		 */
-		this.config = function () {
-			var config = grunt.config.get( "nautilus" ),
-				js2Watch = [
-					config.jsRoot+"/vendor/**/*.js",
-					config.jsRoot+"/lib/**/*.js",
-					config.jsRoot+"/app/**/*.js"
+		this.config = function ( options ) {
+			var js2Watch = [
+					options.jsRoot+"/vendor/**/*.js",
+					options.jsRoot+"/lib/**/*.js",
+					options.jsAppRoot+"/**/*.js"
 				],
-				sass2Watch = config.compassConfig.development.options.sassDir+"/**/*.scss";
+				sass2Watch = options.compassConfig.options.sassDir+"/**/*.scss",
+				compassOptions = {
+					development: {
+						options: extend(
+							options.compassConfig.options,
+							options.compassConfig.development.options
+						)
+					},
+					
+					production: {
+						options: extend(
+							options.compassConfig.options,
+							options.compassConfig.production.options
+						)
+					}
+				};
 			
 			uglyConcat = {
 				options: {
@@ -393,7 +413,7 @@ module.exports = function ( grunt ) {
 				
 				scripts: {
 					src: js2Watch,
-					dest: config.jsDistRoot+"/scripts.js"
+					dest: options.jsDistRoot+"/scripts.js"
 				}
 			};
 			
@@ -422,7 +442,7 @@ module.exports = function ( grunt ) {
 				},
 				
 				gruntfile: {
-					src: config.gruntfile
+					src: options.gruntfile
 				},
 				
 				scripts: {
@@ -431,7 +451,7 @@ module.exports = function ( grunt ) {
 			});
 			grunt.config.set( "watch", {
 				gruntfile: {
-					files: config.gruntfile,
+					files: options.gruntfile,
 					tasks: "nautilus:jshint:gruntfile"
 				},
 				
@@ -445,8 +465,8 @@ module.exports = function ( grunt ) {
 					tasks: "nautilus:compass:development"
 				}
 			});
-			grunt.config.set( "banner", config.jsBanner );
-			grunt.config.set( "compass", config.compassConfig );
+			grunt.config.set( "banner", options.jsBanner );
+			grunt.config.set( "compass", compassOptions );
 		};
 		
 		/*!
@@ -476,7 +496,7 @@ module.exports = function ( grunt ) {
 			if ( arg === "development" ) {
 				grunt.task.run( "compass:development" );
 				
-			} else if ( grunt.option( "production" ) ) {
+			} else if ( arg === "production" ) {
 				grunt.task.run( "compass:production" );
 				
 			} else {
@@ -519,6 +539,8 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.concat = function () {
+			combineFeatureJs( "development" );
+			
 			grunt.task.run( "concat" );
 		};
 		
@@ -562,6 +584,8 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.uglify = function () {
+			combineFeatureJs( "production" );
+			
 			grunt.task.run( "uglify" );
 		};
 		

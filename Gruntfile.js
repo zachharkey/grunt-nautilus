@@ -32,73 +32,65 @@ module.exports = function ( grunt ) {
 		
 		// Before generating any new files, remove any previously-created files.
 		clean: {
-			tests: ["tmp"]
+			tests: [
+				"tmp",
+				"test/expected/js/app/app.test.js",
+				"test/expected/js/app/feature/*.js",
+				"test/expected/js/app/util/*.js",
+				"test/expected/js/dist/*.js",
+				"test/expected/css/*.css"
+			]
 		},
 		
 		// Configuration to be run (and then tested).
 		nautilus: {
-			// User definable options.
-			default_options: {
-				options: {
-					jsRoot: "./js",
-					jsBanner: "./js/banner.txt",
-					jsLib: undefined,
-					compass: true,
-					compassConfig: {
-						development: {
-							options: {
-								cssDir: "./css",
-								fontsDir: "./fonts",
-								httpPath: "/",
-								imagesDir: "./img",
-								javascriptsDir: "./js",
-								outputStyle: "expanded",
-								sassDir: "./sass"
-							}
-						},
-						
-						production: {
-							options: {
-								cssDir: "./css",
-								fontsDir: "./fonts",
-								httpPath: "/",
-								imagesDir: "./img",
-								javascriptsDir: "./js",
-								noLineComments: true,
-								outputStyle: "compressed",
-								sassDir: "./sass"
-							}
+			// Default options for testing.
+			options: {
+				gruntfile: "",
+				jsRoot: "test/expected/js",
+				jsAppRoot: "test/expected/js/app",
+				jsDistRoot: "test/expected/js/dist",
+				jsBanner: "",
+				jsLib: undefined,
+				compass: true,
+				compassConfig: {
+					options: {
+						cssDir: "test/expected/css",
+						fontsDir: "test/expected/fonts",
+						force: true,
+						httpPath: "/",
+						imagesDir: "test/expected/img",
+						javascriptsDir: "test/expected/js",
+						noLineComments: true,
+					},
+					
+					development: {
+						options: {
+							environment: "development",
+							outputStyle: "expanded",
+							sassDir: "test/fixtures/sass/dev"
+						}
+					},
+					
+					production: {
+						options: {
+							environment: "production",
+							outputStyle: "compressed",
+							sassDir: "test/fixtures/sass/prod"
 						}
 					}
-				},
-				
-				files: {
-					"tmp/default_options": [
-						"test/fixtures/testing",
-						"test/fixtures/123"
-					]
 				}
 			}
-			
-			/*
-			custom_options: {
-				options: {
-					
-				},
-				
-				files: {
-					"tmp/custom_options": [
-						"test/fixtures/testing",
-						"test/fixtures/123"
-					]
-				}
-			}
-			*/
 		},
 		
 		// Unit tests.
 		nodeunit: {
-			tests: ["test/*_test.js"],
+			appjs: ["test/nautilus_appjs_test.js"],
+			compass: ["test/nautilus_compass_test.js"],
+			concat: ["test/nautilus_concat_test.js"],
+			uglify: ["test/nautilus_uglify_test.js"],
+			build: ["test/nautilus_build_test.js"],
+			deploy: ["test/nautilus_deploy_test.js"]
 		}
 	});
 	
@@ -113,7 +105,39 @@ module.exports = function ( grunt ) {
 	
 	// Whenever the "test" task is run, first clean the "tmp" dir, then run this
 	// plugin's task(s), then test the result.
-	grunt.registerTask( "test", ["clean", "nautilus", "nodeunit"] );
+	// Not using a grunt multi-task so running individual tests after each plugin task
+	grunt.registerTask( "test", [
+		"clean",
+		
+		// Test app-js file creations
+		"nautilus:appjs:core:test",
+		"nautilus:appjs:util:test",
+		"nautilus:appjs:feature:test",
+		"nodeunit:appjs",
+		
+		// Test compass compilations
+		"nautilus:compass:development",
+		"nautilus:compass:production",
+		"nodeunit:compass",
+		
+		// Test concat
+		"nautilus:concat",
+		"nodeunit:concat",
+		
+		// Test uglify
+		"nautilus:uglify",
+		"nodeunit:uglify",
+		
+		// Test build
+		"nautilus:build",
+		"nodeunit:build",
+		
+		// Test deploy
+		"nautilus:deploy",
+		"nodeunit:deploy",
+		
+		"clean"
+	]);
 	
 	// By default, lint and run all tests.
 	grunt.registerTask( "default", ["jshint", "test"] );

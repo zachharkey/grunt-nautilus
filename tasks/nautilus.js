@@ -26,38 +26,46 @@ module.exports = function ( grunt ) {
 	
 	/*!
 	 * 
-	 * Load the required plugins.
-	 *
-	 */
-	nautilus.load();
-
-	
-	/*!
-	 * 
-	 * Build the grunt config.
-	 *
-	 */
-	nautilus.config();
-	
-	
-	/*!
-	 * 
 	 * Register the "nautilus" task
 	 * @usage: grunt nautilus:build
 	 * @usage: grunt nautilus:compass:[development, production]
 	 * @usage: grunt nautilus:appjs:[core, util, feature]:[module]
 	 *
-	 * @task: watch
+	 * @task: appjs
 	 * @task: build
 	 * @task: deploy
+	 * @task: watch
 	 * @task: jshint
 	 * @task: uglify
 	 * @task: concat
 	 * @task: compass
-	 * @task: appjs
 	 *
 	 */
 	grunt.registerTask( "nautilus", "A grunt plugin for modular app-js development", function ( arg1, arg2, arg3 ) {
+		var options = this.options();
+		
+		
+		/*!
+		 * 
+		 * Load the required plugins.
+		 *
+		 */
+		nautilus.load();
+	
+		
+		/*!
+		 * 
+		 * Build the grunt config.
+		 *
+		 */
+		nautilus.config( options );
+		
+		
+		/*!
+		 * 
+		 * Parse the arguments.
+		 *
+		 */
 		if ( arg1 === "appjs" ) {
 			if ( levels.indexOf( arg2 ) !== -1 ) {
 				nautilus.createModule( arg2, arg3 );
@@ -69,7 +77,7 @@ module.exports = function ( grunt ) {
 			task( arg2, arg3 );
 			
 		} else {
-			grunt.fail.fatal( "invalid arguments and options" );
+			grunt.fail.warn( "invalid arguments and options. grunt-nautilus has no default task." );
 		}
 	});
 	
