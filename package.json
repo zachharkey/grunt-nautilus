@@ -1,7 +1,7 @@
 {
 	"name": "grunt-nautilus",
 	"description": "A grunt plugin for modular app-js development",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
 	"author": {
 		"name": "Brandon Kitajchuk",
@@ -29,24 +29,28 @@
 		"test": "grunt test"
 	},
 	"dependencies": {
+		"grunt-contrib-uglify": "~0.2.4"
+	},
+	"devDependencies": {
 		"grunt": "~0.4.1",
 		"grunt-contrib-clean": "~0.4.0",
 		"grunt-contrib-nodeunit": "~0.2.0",
-		"grunt-contrib-jshint": "*"
-	},
-	"devDependencies": {
-		
+		"grunt-contrib-jshint": "~0.6.4"
 	},
 	"peerDependencies": {
 		"grunt": "~0.4.1",
-		"grunt-contrib-concat": "*",
-		"grunt-contrib-uglify": "*",
-		"grunt-contrib-qunit": "*",
-		"grunt-contrib-jshint": "*",
-		"grunt-contrib-watch": "*",
-		"grunt-contrib-compass": "*"
+		"grunt-contrib-concat": "~0.3.0",
+		"grunt-contrib-uglify": "~0.2.4",
+		"grunt-contrib-jshint": "~0.6.4",
+		"grunt-contrib-watch": "~0.5.3",
+		"grunt-contrib-compass": "~0.5.0"
 	},
 	"keywords": [
-		"gruntplugin"
+		"gruntplugin",
+		"javascript",
+		"compass",
+		"web",
+		"development",
+		"tool"
 	]
 }

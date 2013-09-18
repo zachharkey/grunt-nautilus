@@ -42,14 +42,6 @@ module.exports = function ( grunt ) {
 	
 	/*!
 	 * 
-	 * Scan for existing app-js.
-	 *
-	 */
-	//nautilus.scan();
-	
-	
-	/*!
-	 * 
 	 * Register the "nautilus" task
 	 * @usage: grunt nautilus:build
 	 * @usage: grunt nautilus:compass:[development, production]

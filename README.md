@@ -355,13 +355,13 @@ app.log( "app.util.lazyload: ", app.util.lazyload );
 })( window, window.app );
 ```
 
+### appjs dependency building
 
+By default, grunt-nautilus will look at all your feature scripts and compile each one individually with its dependencies. Using the `@deps` flag in the head comment of your app-js files allows all dependency files to be found. The compiled files are placed in the `dist` foler. This action hooks into the following tasks:
 
-## Roadmap
-
-### Dependency building
-
-The gist of this feature is that for every `feature` script, grunt-nautilus will parse the dependencies and build individual scripts that house only the required code for that feature. For this to work, you need to specify any file dependencies as a comma separated list in the scripts head comment after the `@deps` key. Default dependencies will be app and app.log.
+- `grunt nautilus:build`
+- `grunt nautilus:deploy`
+- `grunt nautilus:watch`
 
 
 

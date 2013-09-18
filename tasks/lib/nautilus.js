@@ -14,20 +14,50 @@ module.exports = function ( grunt ) {
 	"use strict";
 	
 	
+	/*!
+	 * 
+	 * Load grunt-contrib-uglify.
+	 *
+	 */
+	var uglify = require( "../../node_modules/grunt-contrib-uglify/tasks/lib/uglify.js" ).init( grunt ),
+		uglifyOptions = {
+			banner: "",
+			footer: "",
+			compress: {
+				warnings: false
+			},
+			mangle: {},
+			beautify: false,
+			report: false
+		};
+	
+	
+	/*!
+	 * 
+	 * Nautilus Class object.
+	 *
+	 */
 	var Nautilus = function () {
 		var self = this;
 		
 		/*!
 		 * 
-		 * Keep track of appJs
+		 * Store old concat/uglify config.
 		 *
 		 */
-		var rAppJs = /app\.(.*)\.js/;
-		var rDeps = /\@deps\:\s(.*)(\r|\n)/;
+		var uglyConcat;
 		
 		/*!
 		 * 
-		 * Publicly honored tasks
+		 * Keep track of appJs.
+		 *
+		 */
+		var rFeatureAppJs = /feature\/app\.(.*)\.js/;
+		var rAppJsDeps = /\@deps\:\s(.*)(\r|\n)/;
+		
+		/*!
+		 * 
+		 * Publicly honored tasks.
 		 *
 		 */
 		var tasks = [
@@ -42,7 +72,7 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Supported js libs
+		 * Supported js libs.
 		 *
 		 */
 		var jsLibs = {
@@ -64,13 +94,26 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Default concat
+		 * Basic method extends o2 into o1.
+		 * Use force to override matching keys.
 		 *
 		 */
+		var extend = function ( o1, o2, force ) {
+			for ( var prop in o2 ) {
+				if ( o1[ prop ] && !force ) {
+					continue;
+					
+				} else {
+					o1[ prop ] = o2[ prop ];
+				}
+			}
+			
+			return o1;
+		};
 		
 		/*!
 		 * 
-		 * Internal method to create app-js modules
+		 * Create app-js modules.
 		 *
 		 */
 		var createModule = function ( level, module ) {
@@ -110,6 +153,193 @@ module.exports = function ( grunt ) {
 			grunt.file.write( file, contents );
 			
 			grunt.log.ok( "app-js file created at "+file+"." );
+		};
+		
+		/*!
+		 * 
+		 * Find a dependency file.
+		 *
+		 */
+		var findDependency = function ( dep, file ) {
+			var config = grunt.config.get( "nautilus" ),
+				ret;
+			
+			if ( grunt.file.exists( config.jsRoot+"/app/"+dep+".js" ) ) {
+				ret = config.jsRoot+"/app/"+dep+".js";
+				
+			} else if ( grunt.file.exists( config.jsRoot+"/app/util/"+dep+".js" ) ) {
+				ret = config.jsRoot+"/app/util/"+dep+".js";
+				
+			} else if ( grunt.file.exists( config.jsRoot+"/app/feature/"+dep+".js" ) ) {
+				ret = config.jsRoot+"/app/feature/"+dep+".js";
+				
+			} else {
+				grunt.fail.fatal( "could not file dependency file "+dep+" for file "+file.filename );
+			}
+			
+			return ret;
+		};
+		
+		/*!
+		 * 
+		 * Recursively get all dependency files for a feature script.
+		 *
+		 */
+		var recursiveGetDeps = function ( deps, file ) {
+			deps = deps || [];
+			
+			var js = grunt.file.read( file.abspath ),
+				ds = js.match( rAppJsDeps ),
+				ms = [];
+			
+			if ( ds ) {
+				ds = ds[ 1 ].replace( /\s/g, "" ).split( "," );
+				
+				for ( var i = 0, len = ds.length; i < len; i++ ) {
+					if ( deps.indexOf( ds[ i ] ) === -1 ) {
+						var fIndex = deps.indexOf( file.filename.replace( /\.js/, "" ) ),
+							fInDeps = (fIndex !== -1);
+						
+						if ( fInDeps ) {
+							if ( fIndex === 0 ) {
+								deps.unshift( ds[ i ] );
+								
+							} else {
+								deps.splice( fIndex, 0, ds[ i ] );
+							}
+							
+						} else {
+							deps.push( ds[ i ] );
+						}
+						
+						ms.push( ds[ i ] );
+					}
+				}
+			}
+			
+			if ( ms.length ) {
+				for ( var i = 0, len = ms.length; i < len; i++ ) {
+					deps = recursiveGetDeps( deps, {
+						abspath: findDependency( ms[ i ], file ),
+						filename: ms[ i ]
+					});
+				}
+			}
+			
+			return deps;
+		};
+		
+		/*!
+		 * 
+		 * Build the "config" object for all feature scripts.
+		 *
+		 */
+		var getFeatureJsConfig = function ( env ) {
+			var config = grunt.config.get( "nautilus" ),
+				task = ( env === "development" )
+						? "concat"
+						: "uglify",
+				merge = {},
+				files = [];
+			
+			grunt.file.recurse( config.jsRoot+"/app/feature", function ( abspath, rootdir, subdir, filename ) {
+				var match = abspath.match( rFeatureAppJs );
+				
+				if ( match ) {
+					match = match[ 1 ];
+					
+					files.push({
+						feature: match,
+						abspath: abspath,
+						filename: filename
+					});
+				}
+			});
+			
+			for ( var i = files.length; i--; ) {
+				merge[ files[ i ].feature ] = {
+					src: [config.jsRoot+"/vendor/**/*.js", config.jsRoot+"/lib/**/*.js"].concat(
+						recursiveGetDeps( [], files[ i ] ).map(function ( elem, j ) {
+							return findDependency( elem, files[ j ] );
+							
+						}).concat( [files[ i ].abspath] )
+					),
+					dest: config.jsDistRoot+"/"+files[ i ].feature+".js"
+				};
+			}
+			
+			return merge;
+		};
+		
+		/*!
+		 * 
+		 * Compile feature scripts using concat or uglify.
+		 *
+		 */
+		var combineFeatureJs = function ( env ) {
+			var config = grunt.config.get( "nautilus" ),
+				features = getFeatureJsConfig( env ),
+				task = ( env === "development" ) ? "concat" : "uglify",
+				jsBanner = config.jsBanner,
+				lineBreak = "\n\n\n\n";
+			
+			grunt.log.writeln( "" );
+			grunt.log.ok( "Building feature scripts..." );
+			
+			for ( var f in features ) {
+				var dest = features[ f ].dest,
+					src = features[ f ].src,
+					concat = [],
+					result;
+				
+				for ( var i = 0, iLen = src.length; i < iLen; i++ ) {
+					if ( !grunt.file.exists( src[ i ] ) ) {
+						var files = grunt.file.expand( src[ i ] );
+						
+						for ( var j = 0, jLen = files.length; j < jLen; j++ ) {
+							if ( grunt.file.exists( files[ j ] ) ) {
+								concat.push( files[ j ] );
+							}
+						}
+						
+					} else {
+						concat.push( src[ i ] );
+					}
+				}
+				
+				if ( env === "production" ) {
+					try {
+						result = uglify.minify( concat, dest, uglifyOptions );
+						
+					} catch ( error ) {
+						var throwError = new Error( "Uglification failed." );
+						
+						if ( error.msg ) {
+							err.throwError += ", "+error.msg+".";
+						}
+						
+						throwError.origError = e;
+						
+						grunt.log.warn( "Uglifying source '"+src+"' failed." );
+						
+						grunt.fail.warn( throwError );
+					}
+					
+					result = jsBanner+(jsBanner ? lineBreak : "")+result.min;
+					
+				} else {
+					result = jsBanner+(jsBanner ? lineBreak : "")+concat.map(function ( elem ) {
+						return grunt.file.read( elem );
+						
+					}).join( lineBreak );
+				}
+					
+				grunt.file.write( dest, result );
+					
+				grunt.log.writeln( "File "+dest+" created using "+task+"." );
+			}
+			
+			grunt.log.ok( "Feature scripts built." );
 		};
 		
 		/*!
@@ -157,29 +387,19 @@ module.exports = function ( grunt ) {
 				],
 				sass2Watch = config.compassConfig.development.options.sassDir+"/**/*.scss";
 			
-			grunt.config.set( "concat", {
-				options: {
-					banner: "<%= banner %>",
-					stripBanners: true
-				},
-				
-				scripts: {
-					src: js2Watch,
-					
-					dest: config.jsDistRoot+"/scripts.js"
-				}
-			});
-			grunt.config.set( "uglify", {
+			uglyConcat = {
 				options: {
 					banner: "<%= banner %>"
 				},
 				
 				scripts: {
 					src: js2Watch,
-					
 					dest: config.jsDistRoot+"/scripts.js"
 				}
-			});
+			};
+			
+			grunt.config.set( "concat", uglyConcat );
+			grunt.config.set( "uglify", uglyConcat );
 			grunt.config.set( "jshint", {
 				options: {
 					curly: true,
@@ -228,17 +448,6 @@ module.exports = function ( grunt ) {
 			});
 			grunt.config.set( "banner", config.jsBanner );
 			grunt.config.set( "compass", config.compassConfig );
-		};
-		
-		/*!
-		 * 
-		 * Nautilus.prototype.scan
-		 *
-		 * Scan app-js and start the feature dependency building.
-		 *
-		 */
-		this.scan = function () {
-			
 		};
 		
 		/*!
@@ -322,6 +531,8 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.build = function () {
+			combineFeatureJs( "development" );
+			
 			grunt.task.run([
 				"concat",
 				"compass:development"
@@ -336,6 +547,8 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.deploy = function () {
+			combineFeatureJs( "production" );
+			
 			grunt.task.run([
 				"uglify",
 				"compass:production"
@@ -355,11 +568,18 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Handle event listeners
+		 * Watch for feature files to update
+		 * Build out feature js files with dependencies.
 		 *
 		 */
 		grunt.event.on( "watch", function ( action, filepath ) {
+			var match = filepath.match( rFeatureAppJs );
 			
+			if ( match ) {
+				match = match[ 1 ];
+				
+				combineFeatureJs( "development" );
+			}
 		});
 	};
 	
