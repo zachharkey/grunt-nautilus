@@ -91,7 +91,7 @@ module.exports = function ( grunt ) {
 						javascriptsDir: jsRoot,
 						noLineComments: true,
 						sassDir: sassRoot
-					}
+					},
 					
 					development: {
 						options: {
