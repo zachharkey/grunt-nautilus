@@ -15,6 +15,35 @@
 
 module.exports = function ( grunt ) {
 	
+	// All tests.
+	var allTests = [
+		// Test app-js file creations
+		"nautilus:appjs:core:test",
+		"nautilus:appjs:util:test",
+		"nautilus:appjs:feature:test",
+		"nodeunit:appjs",
+		
+		// Test compass compilations
+		"nautilus:compass:development",
+		"nautilus:compass:production",
+		"nodeunit:compass",
+		
+		// Test concat
+		"nautilus:concat",
+		"nodeunit:concat",
+		
+		// Test uglify
+		"nautilus:uglify",
+		"nodeunit:uglify",
+		
+		// Test build
+		"nautilus:build",
+		"nodeunit:build",
+		
+		// Test deploy
+		"nautilus:deploy",
+		"nodeunit:deploy"
+	];
 	
 	// Project configuration.
 	grunt.initConfig({
@@ -106,38 +135,70 @@ module.exports = function ( grunt ) {
 	// Whenever the "test" task is run, first clean the "tmp" dir, then run this
 	// plugin's task(s), then test the result.
 	// Not using a grunt multi-task so running individual tests after each plugin task
-	grunt.registerTask( "test", [
-		"clean",
+	grunt.registerTask( "test", "Test each nautilus task.", function ( test ) {
+		var jsTasks = [
+				"appjs",
+				"concat",
+				"uglify",
+				"build",
+				"deploy"
+			];
 		
-		// Test app-js file creations
-		"nautilus:appjs:core:test",
-		"nautilus:appjs:util:test",
-		"nautilus:appjs:feature:test",
-		"nodeunit:appjs",
+		// Clean before...
+		grunt.task.run( "clean" );
 		
-		// Test compass compilations
-		"nautilus:compass:development",
-		"nautilus:compass:production",
-		"nodeunit:compass",
+		// No arguments, run all tests
+		if ( !test ) {
+			grunt.task.run( allTests );
+			
+		} else {
+			// Handle app-js related tests
+			// All js tasks will need appjs executed first
+			if ( jsTasks.indexOf( test ) !== -1 ) {
+				grunt.task.run([
+					"nautilus:appjs:core:test",
+					"nautilus:appjs:util:test",
+					"nautilus:appjs:feature:test"
+				]);
+			}
+			
+			// Handle the compass test
+			if ( test === "compass" ) {
+				grunt.task.run([
+					"nautilus:compass:development",
+					"nautilus:compass:production"
+				]);
+			}
+			
+			// Handle other tests
+			// or finish up app-js related tests
+			// excluding appjs itself
+			if ( test !== "appjs" ) {
+				try {
+					grunt.task.run( "nautilus:"+test );
+					
+				} catch ( error ) {
+					var throwError = new Error( "Nautilus test failed." );
+					
+					if ( error.msg ) {
+						throwError.message += ", "+error.msg+".";
+					}
+					
+					throwError.origError = error;
+					
+					grunt.log.warn( "running test "+test+" failed." );
+					
+					grunt.fail.warn( throwError );
+				}
+			}
+			
+			// Run the unit test
+			grunt.task.run( "nodeunit:"+test );
+		}
 		
-		// Test concat
-		"nautilus:concat",
-		"nodeunit:concat",
-		
-		// Test uglify
-		"nautilus:uglify",
-		"nodeunit:uglify",
-		
-		// Test build
-		"nautilus:build",
-		"nodeunit:build",
-		
-		// Test deploy
-		"nautilus:deploy",
-		"nodeunit:deploy",
-		
-		"clean"
-	]);
+		// ... and clean after.
+		grunt.task.run( "clean" );
+	});
 	
 	// By default, lint and run all tests.
 	grunt.registerTask( "default", ["jshint", "test"] );

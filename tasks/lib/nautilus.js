@@ -321,10 +321,10 @@ module.exports = function ( grunt ) {
 						var throwError = new Error( "Uglification failed." );
 						
 						if ( error.msg ) {
-							err.throwError += ", "+error.msg+".";
+							throwError.message += ", "+error.msg+".";
 						}
 						
-						throwError.origError = e;
+						throwError.origError = error;
 						
 						grunt.log.warn( "Uglifying source '"+src+"' failed." );
 						
