@@ -52,7 +52,7 @@ module.exports = function ( grunt ) {
 	// Default paths, change them as needed.
 	var pubRoot = ".",
 		jsRoot = "./js",
-		jsBanner = grunt.file.read( "./js/banner.txt" ),
+		jsBanner = grunt.file.read( "./js/banner" ),
 		appRoot = jsRoot+"/app",
 		distRoot = jsRoot+"/dist",
 		sassRoot = "./sass",
@@ -70,36 +70,41 @@ module.exports = function ( grunt ) {
 		
 		// Nautilus config.
 		nautilus: {
-			gruntfile: "Gruntfile.js",
-			jsRoot: jsRoot,
-			jsAppRoot: appRoot,
-			jsDistRoot: distRoot,
-			jsBanner: jsBanner,
-			jsLib: "undefined",
-			compass: true,
-			compassConfig: {
-				development: {
-					options: {
-						cssDir: cssRoot,
-						fontsDir: fontsRoot,
-						httpPath: "/",
-						imagesDir: imgRoot,
-						javascriptsDir: jsRoot,
-						outputStyle: "expanded",
-						sassDir: sassRoot
-					}
-				},
+			options: {
+				gruntfile: "Gruntfile.js",
+				jsRoot: jsRoot,
+				jsAppRoot: appRoot,
+				jsDistRoot: distRoot,
+				jsBanner: jsBanner,
+				jsLib: undefined,
+				compass: true,
 				
-				production: {
+				// Both dev and prod options will be merged with options
+				// and passed to grunt-contrib-compass correctly.
+				compassConfig: {
 					options: {
 						cssDir: cssRoot,
 						fontsDir: fontsRoot,
+						force: true,
 						httpPath: "/",
 						imagesDir: imgRoot,
 						javascriptsDir: jsRoot,
 						noLineComments: true,
-						outputStyle: "compressed",
 						sassDir: sassRoot
+					}
+					
+					development: {
+						options: {
+							environment: "development",
+							outputStyle: "expanded"
+						}
+					},
+					
+					production: {
+						options: {
+							environment: "production",
+							outputStyle: "compressed"
+						}
 					}
 				}
 			}

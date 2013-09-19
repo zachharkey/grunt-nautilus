@@ -1,7 +1,7 @@
 {
 	"name": "grunt-nautilus",
 	"description": "A grunt plugin for modular app-js development",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
 	"readmeFilename": "README.md",
 	"author": {
