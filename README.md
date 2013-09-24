@@ -2,6 +2,7 @@ grunt-nautilus
 ==============
 
 [compass]: http://compass-style.org
+[ender]: http://ender.jit.su/
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
 [grunt]: http://github.com/gruntjs/grunt
 [grunt-contrib-concat]: http://github.com/gruntjs/grunt-contrib-concat
@@ -9,6 +10,7 @@ grunt-nautilus
 [grunt-contrib-jshint]: http://github.com/gruntjs/grunt-contrib-jshint
 [grunt-contrib-watch]: http://github.com/gruntjs/grunt-contrib-watch
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
+[grunt-ender]: https://github.com/endium/grunt-ender
 
 
 
@@ -20,6 +22,7 @@ After working on so many projects as a UI Developer, both personally and at agen
 - Developers that need a tool to make their Javascript cleaner and more modular
 - Developers that like to use [compass][] to author their css
 - Developers that build websites, webapps and the like
+- And a bonus for developers that like using [ender][]
 
 
 
@@ -40,12 +43,16 @@ grunt-nautilus will install the following peer dependency packages:
 - [grunt-contrib-watch][]
 - [grunt-contrib-compass][]
 
+If you are using the [ender][] js library, an internal, modified version of [grunt-ender][] will be utilized to manage your ender builds.
+
 
 ## Gruntfile
 
-Take a look at your Gruntfile, it looks something like this with variations based on your answers to the grunt-init-gruntnautilus prompts:
+A grunt-init-gruntnautilus Gruntfile with all potential options looks like this:
 
 ```js
+/* global module:false */
+
 module.exports = function ( grunt ) {
 	
 	
@@ -54,6 +61,8 @@ module.exports = function ( grunt ) {
 		jsRoot = "./js",
 		jsBanner = grunt.file.read( "./js/banner" ),
 		appRoot = jsRoot+"/app",
+		libRoot = jsRoot+"/lib",
+		vendorRoot = jsRoot+"/vendor",
 		distRoot = jsRoot+"/dist",
 		sassRoot = "./sass",
 		cssRoot = "./css",
@@ -76,12 +85,22 @@ module.exports = function ( grunt ) {
 				jsAppRoot: appRoot,
 				jsDistRoot: distRoot,
 				jsBanner: jsBanner,
-				jsLib: undefined,
-				compass: true,
+				jsLib: "ender",
+				
+				
+				// Ender config.
+				ender: {
+					options: {
+						output: vendorRoot+"/ender",
+						dependencies: ["jeesh"]
+					}
+				},
+				
 				
 				// Both dev and prod options will be merged with options
 				// and passed to grunt-contrib-compass correctly.
-				compassConfig: {
+				compass: {
+					// Shared options.
 					options: {
 						cssDir: cssRoot,
 						fontsDir: fontsRoot,
@@ -93,6 +112,7 @@ module.exports = function ( grunt ) {
 						sassDir: sassRoot
 					},
 					
+					// Environment specific options.
 					development: {
 						options: {
 							environment: "development",
@@ -125,16 +145,19 @@ The `nautilus` object is pretty basic, just the stuff required to manage your bu
 
 ## Usage
 
-You interface with grunt-nautilus via the `nautilus` task. The following are available to you:
+You can interface with grunt-nautilus via the `nautilus` task, however, the following are available to you at the forefront of grunt commands:
 
-- `grunt nautilus:watch`
-- `grunt nautilus:concat`
-- `grunt nautilus:jshint`
-- `grunt nautilus:uglify`
-- `grunt nautilus:build`
-- `grunt nautilus:deploy`
-- `grunt nautilus:compass:[development, production]`
-- `grunt nautilus:appjs:[core, feature, util]:[module]`
+- `grunt` (default task runs `grunt build`)
+- `grunt watch`
+- `grunt concat`
+- `grunt jshint`
+- `grunt uglify`
+- `grunt build`
+- `grunt deploy`
+- `grunt compass:[development, production]`
+- `grunt appjs:[core, feature, util]:[module]`
+- `grunt ender`
+ - See [grunt-ender][] for info on passing options for this
 
 Most of these are pretty self explanatory, but lets cover the cool things some of them do. For instance, running the `build` task will compile compass and javascript for development environments. Using the `deploy` task will do the same but for production/staging environments.
 
@@ -364,9 +387,9 @@ app.home.init();
 
 By default, grunt-nautilus will look at all your feature scripts and compile each one individually with its dependencies. Using the `@deps` flag in the head comment of your app-js files allows all dependency files to be found. The compiled files are placed in the `dist` folder. For instance, the above home feature would be compiled with its dependencies and written as `js/dist/home.js`. This action hooks into the following tasks:
 
-- `grunt nautilus:build`
-- `grunt nautilus:deploy`
-- `grunt nautilus:watch`
+- `grunt build`
+- `grunt deploy`
+- `grunt watch`
 
 
 

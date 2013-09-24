@@ -9,6 +9,9 @@ npm-debug.log
 # gruntplugin
 ########################
 tmp
+dist
+css
+vendor
 
 
 ########################

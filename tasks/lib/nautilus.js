@@ -61,13 +61,15 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var tasks = [
+			"default",
 			"watch",
 			"build",
 			"deploy",
 			"jshint",
 			"uglify",
 			"concat",
-			"compass"
+			"compass",
+			"ender"
 		];
 		
 		/*!
@@ -366,12 +368,16 @@ module.exports = function ( grunt ) {
 		 * Loads necessary contrib plugins.
 		 *
 		 */
-		this.load = function () {
+		this.load = function ( options ) {
 			grunt.loadNpmTasks( "grunt-contrib-watch" );
 			grunt.loadNpmTasks( "grunt-contrib-concat" );
 			grunt.loadNpmTasks( "grunt-contrib-uglify" );
 			grunt.loadNpmTasks( "grunt-contrib-jshint" );
 			grunt.loadNpmTasks( "grunt-contrib-compass" );
+			
+			if ( options.ender ) {
+				grunt.loadTasks( ".grunt/grunt-ender/tasks" );
+			}
 		};
 		
 		/*!
@@ -389,21 +395,25 @@ module.exports = function ( grunt ) {
 					options.jsRoot+"/lib/**/*.js",
 					options.jsAppRoot+"/**/*.js"
 				],
-				sass2Watch = options.compassConfig.options.sassDir+"/**/*.scss",
+				sass2Watch = options.compass.options.sassDir+"/**/*.scss",
 				compassOptions = {
 					development: {
 						options: extend(
-							options.compassConfig.options,
-							options.compassConfig.development.options
+							options.compass.options,
+							options.compass.development.options
 						)
 					},
 					
 					production: {
 						options: extend(
-							options.compassConfig.options,
-							options.compassConfig.production.options
+							options.compass.options,
+							options.compass.production.options
 						)
 					}
+				},
+				jshintGlobals = {
+					app: true,
+					console: true
 				};
 			
 			uglyConcat = {
@@ -416,6 +426,16 @@ module.exports = function ( grunt ) {
 					dest: options.jsDistRoot+"/scripts.js"
 				}
 			};
+			
+			if ( options.jsLib === "jquery" ) {
+				jshintGlobals.$ = true;
+				jshintGlobals.jQuery = true;
+				
+			} else if ( options.jsLib === "ender" ) {
+				jshintGlobals.$ = true;
+				jshintGlobals.ender = true;
+				jshintGlobals.Ender = true;
+			}
 			
 			grunt.config.set( "concat", uglyConcat );
 			grunt.config.set( "uglify", uglyConcat );
@@ -433,12 +453,7 @@ module.exports = function ( grunt ) {
 					boss: true,
 					eqnull: true,
 					browser: true,
-					globals: {
-						$: true,
-						app: true,
-						jQuery: true,
-						console: true
-					}
+					globals: jshintGlobals
 				},
 				
 				gruntfile: {
@@ -467,6 +482,10 @@ module.exports = function ( grunt ) {
 			});
 			grunt.config.set( "banner", options.jsBanner );
 			grunt.config.set( "compass", compassOptions );
+			
+			if ( options.ender ) {
+				grunt.config.set( "ender", options.ender );
+			}
 		};
 		
 		/*!
@@ -483,6 +502,39 @@ module.exports = function ( grunt ) {
 			}
 			
 			createModule( level, module );
+		};
+		
+		/*!
+		 * 
+		 * Nautilus.prototype.default
+		 *
+		 * Wrapper for simple "build".
+		 *
+		 */
+		this.default = function () {
+			this.build();
+		};
+		
+		/*!
+		 * 
+		 * Nautilus.prototype.watch
+		 *
+		 * Wrapper for "watch".
+		 *
+		 */
+		this.watch = function () {
+			grunt.task.run( "watch" );
+		};
+		
+		/*!
+		 * 
+		 * Nautilus.prototype.ender
+		 *
+		 * Handles Ender's building.
+		 *
+		 */
+		this.ender = function () {
+			grunt.task.run( "ender" );
 		};
 		
 		/*!
@@ -506,7 +558,7 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Nautilus.prototype.build
+		 * Nautilus.prototype.jshint
 		 *
 		 * Wrapper for "jshint".
 		 *
@@ -522,18 +574,7 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Nautilus.prototype.watch
-		 *
-		 * Wrapper for "watch".
-		 *
-		 */
-		this.watch = function () {
-			grunt.task.run( "watch" );
-		};
-		
-		/*!
-		 * 
-		 * Nautilus.prototype.watch
+		 * Nautilus.prototype.concat
 		 *
 		 * Wrapper for "concat".
 		 *
@@ -541,6 +582,7 @@ module.exports = function ( grunt ) {
 		this.concat = function () {
 			combineFeatureJs( "development" );
 			
+			// build ender if applicable...
 			grunt.task.run( "concat" );
 		};
 		
@@ -554,6 +596,7 @@ module.exports = function ( grunt ) {
 		this.build = function () {
 			combineFeatureJs( "development" );
 			
+			// build ender if applicable...
 			grunt.task.run([
 				"concat",
 				"compass:development"
@@ -562,7 +605,7 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Nautilus.prototype.build
+		 * Nautilus.prototype.deploy
 		 *
 		 * Compile scripts/sass for production.
 		 *
@@ -570,6 +613,7 @@ module.exports = function ( grunt ) {
 		this.deploy = function () {
 			combineFeatureJs( "production" );
 			
+			// build ender if applicable...
 			grunt.task.run([
 				"uglify",
 				"compass:production"
@@ -578,7 +622,7 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Nautilus.prototype.build
+		 * Nautilus.prototype.uglify
 		 *
 		 * Wrapper for "uglify".
 		 *
@@ -586,6 +630,7 @@ module.exports = function ( grunt ) {
 		this.uglify = function () {
 			combineFeatureJs( "production" );
 			
+			// build ender if applicable...
 			grunt.task.run( "uglify" );
 		};
 		
@@ -603,6 +648,20 @@ module.exports = function ( grunt ) {
 				
 				combineFeatureJs( "development" );
 			}
+		});
+		
+		/*!
+		 * 
+		 * Listen for ender builds to finish
+		 * Delete .min file as ender.js will compile into grunt build
+		 *
+		 */
+		grunt.event.on( "grunt_ender_build_done", function () {
+			var options = grunt.config.get( "nautilus" ).options;
+			
+			grunt.file.delete( options.ender.options.output+".min.js", {
+				force: true
+			});
 		});
 	};
 	

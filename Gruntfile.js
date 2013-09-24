@@ -44,6 +44,7 @@ module.exports = function ( grunt ) {
 		"nautilus:deploy",
 		"nodeunit:deploy"
 	];
+		
 	
 	// Project configuration.
 	grunt.initConfig({
@@ -67,6 +68,7 @@ module.exports = function ( grunt ) {
 				"test/expected/js/app/feature/*.js",
 				"test/expected/js/app/util/*.js",
 				"test/expected/js/dist/*.js",
+				"test/expected/js/vendor/*.js",
 				"test/expected/css/*.css"
 			]
 		},
@@ -75,14 +77,21 @@ module.exports = function ( grunt ) {
 		nautilus: {
 			// Default options for testing.
 			options: {
-				gruntfile: "",
+				gruntfile: "Gruntfile.js",
 				jsRoot: "test/expected/js",
 				jsAppRoot: "test/expected/js/app",
 				jsDistRoot: "test/expected/js/dist",
 				jsBanner: "",
 				jsLib: undefined,
-				compass: true,
-				compassConfig: {
+				
+				ender: {
+					options: {
+						output: "test/expected/js/vendor/ender",
+						dependencies: ["jeesh"]
+					}
+				},
+				
+				compass: {
 					options: {
 						cssDir: "test/expected/css",
 						fontsDir: "test/expected/fonts",
@@ -119,6 +128,7 @@ module.exports = function ( grunt ) {
 			concat: ["test/nautilus_concat_test.js"],
 			uglify: ["test/nautilus_uglify_test.js"],
 			build: ["test/nautilus_build_test.js"],
+			default: ["test/nautilus_build_test.js"],
 			deploy: ["test/nautilus_deploy_test.js"]
 		}
 	});
@@ -127,22 +137,25 @@ module.exports = function ( grunt ) {
 	// Actually load this plugin's task(s).
 	grunt.loadTasks( "tasks" );
 	
+	
 	// These plugins provide necessary tasks.
 	grunt.loadNpmTasks( "grunt-contrib-clean" );
 	grunt.loadNpmTasks( "grunt-contrib-nodeunit" );
 	grunt.loadNpmTasks( "grunt-contrib-jshint" );
+	
 	
 	// Whenever the "test" task is run, first clean the "tmp" dir, then run this
 	// plugin's task(s), then test the result.
 	// Not using a grunt multi-task so running individual tests after each plugin task
 	grunt.registerTask( "test", "Test each nautilus task.", function ( test ) {
 		var jsTasks = [
-				"appjs",
-				"concat",
-				"uglify",
-				"build",
-				"deploy"
-			];
+			"default",
+			"appjs",
+			"concat",
+			"uglify",
+			"build",
+			"deploy"
+		];
 		
 		// Clean before...
 		grunt.task.run( "clean" );
@@ -199,6 +212,7 @@ module.exports = function ( grunt ) {
 		// ... and clean after.
 		grunt.task.run( "clean" );
 	});
+	
 	
 	// By default, lint and run all tests.
 	grunt.registerTask( "default", ["jshint", "test"] );
