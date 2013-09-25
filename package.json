@@ -1,7 +1,7 @@
 {
 	"name": "grunt-nautilus",
 	"description": "A grunt plugin for modular app-js development",
-	"version": "0.2.7",
+	"version": "0.2.8",
 	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
 	"readmeFilename": "README.md",
 	"author": {
@@ -41,8 +41,7 @@
 		"grunt-contrib-uglify": "~0.2",
 		"grunt-contrib-jshint": "~0.6",
 		"grunt-contrib-watch": "~0.5",
-		"grunt-contrib-compass": "~0.5",
-		"grunt-ender": "~0.2"
+		"grunt-contrib-compass": "~0.5"
 	},
 	"peerDependencies": {
 		"grunt": "~0.4.1",
@@ -50,8 +49,7 @@
 		"grunt-contrib-uglify": "~0.2",
 		"grunt-contrib-jshint": "~0.6",
 		"grunt-contrib-watch": "~0.5",
-		"grunt-contrib-compass": "~0.5",
-		"grunt-ender": "~0.2"
+		"grunt-contrib-compass": "~0.5"
 	},
 	"keywords": [
 		"grunt",
@@ -77,6 +75,8 @@
 		"deploy",
 		"modular",
 		"jquery",
-		"ender"
+		"ender",
+		"scss",
+		"css"
 	]
 }

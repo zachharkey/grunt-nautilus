@@ -19,7 +19,9 @@ module.exports = function ( grunt ) {
 	 * Load grunt-contrib-uglify.
 	 *
 	 */
-	var uglify = require( "../../node_modules/grunt-contrib-uglify/tasks/lib/uglify.js" ).init( grunt ),
+	var path = require( "path" ),
+		enderTasks = path.join( __dirname, "../../.grunt/grunt-ender/tasks" ),
+		uglify = require( "../../node_modules/grunt-contrib-uglify/tasks/lib/uglify.js" ).init( grunt ),
 		uglifyOptions = {
 			banner: "",
 			footer: "",
@@ -376,7 +378,7 @@ module.exports = function ( grunt ) {
 			grunt.loadNpmTasks( "grunt-contrib-compass" );
 			
 			if ( options.ender ) {
-				grunt.loadTasks( ".grunt/grunt-ender/tasks" );
+				grunt.loadTasks( enderTasks );
 			}
 		};
 		
