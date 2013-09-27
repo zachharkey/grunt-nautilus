@@ -1,10 +1,10 @@
 /*!
  *
- * App: util.<%= module %>
+ * App Util: app.util.<%= module %>
  *
  * A nice description of what this script does...
  *
- * @deps: app, app.log
+ * @deps: app
  *
  *
  */
@@ -22,16 +22,10 @@ var document = window.document;
  * App Extensions
 *******************************************************************************/
 app.util = app.extend( app.util, {
-	<%= module %>: {
+	<%= module %>: function () {
 		
 	}
 });
-
-
-/******************************************************************************
- * Execution
-*******************************************************************************/
-app.log( "app.util.<%= module %>: ", app.util.<%= module %> );
 
 
 })( <%= arguments %> );

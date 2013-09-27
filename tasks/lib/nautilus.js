@@ -7,6 +7,10 @@
  * Licensed under the MIT license.
  *
  *
+ * @todo: Support @deps globbing patterns like "app.util.*"
+ * @todo: Consider how regular full script builds work in relation to deps
+ *
+ *
  */
 module.exports = function ( grunt ) {
 	
@@ -19,9 +23,7 @@ module.exports = function ( grunt ) {
 	 * Load grunt-contrib-uglify.
 	 *
 	 */
-	var path = require( "path" ),
-		enderTasks = path.join( __dirname, "../../.grunt/grunt-ender/tasks" ),
-		uglify = require( "../../node_modules/grunt-contrib-uglify/tasks/lib/uglify.js" ).init( grunt ),
+	var uglify = require( "../../node_modules/grunt-contrib-uglify/tasks/lib/uglify.js" ).init( grunt ),
 		uglifyOptions = {
 			banner: "",
 			footer: "",
@@ -51,11 +53,12 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Keep track of appJs.
+		 * Regular expressions.
 		 *
 		 */
 		var rFeatureAppJs = /feature\/app\.(.*)\.js/;
 		var rAppJsDeps = /\@deps\:\s(.*)(\r|\n)/;
+		var rDashHypeAlpha = /[-|_]([a-z]|[0-9])/ig;
 		
 		/*!
 		 * 
@@ -88,12 +91,27 @@ module.exports = function ( grunt ) {
 			ender: {
 				context: "ender",
 				shorthand: "$"
-			},
-			
-			yui: {
-				context: "YUI",
-				shorthand: "Y"
 			}
+		};
+		
+		/*!
+		 *
+		 * Branded logging
+		 *
+		 */
+		var nautilog = function ( type, msg ) {
+			grunt.log[ type ]( "[Nautilog]: "+msg );
+		};
+		
+		/*!
+		 *
+		 * Camel case a hyphenated or underscored string
+		 *
+		 */
+		var camelCase = function ( str ) {
+			return str.replace( rDashHypeAlpha, function ( all, letter ) {
+				return ( ""+letter ).toUpperCase();
+			});
 		};
 		
 		/*!
@@ -103,13 +121,14 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var extend = function ( o1, o2, force ) {
-			var ret = {};
+			var ret = {},
+				prop;
 			
-			for ( var prop in o1 ) {
+			for ( prop in o1 ) {
 				ret[ prop ] = o1[ prop ];
 			}
 			
-			for ( var prop in o2 ) {
+			for ( prop in o2 ) {
 				if ( ret[ prop ] && !force ) {
 					continue;
 					
@@ -127,13 +146,14 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var createModule = function ( level, module ) {
-			var appJsDir = require( "path" ).join( __dirname, "../../app-js" ),
+			var module = camelCase( module ),
+				appJsDir = require( "path" ).join( __dirname, "../../app-js" ),
 				config = grunt.config.get( "nautilus" ).options,
 				file = ( level === "core" )
-							? config.jsRoot+"/app/app."+module+".js"
+							? config.jsRoot+"/app/core/app.core."+module+".js"
 							: ( level === "feature" )
 								? config.jsRoot+"/app/feature/app."+module+".js"
-								: config.jsRoot+"/app/util/app."+module+".js",
+								: config.jsRoot+"/app/util/app.util."+module+".js",
 				fileExists = grunt.file.exists( file ),
 				fileData = {
 					data: {
@@ -142,7 +162,11 @@ module.exports = function ( grunt ) {
 						parameters: ["window", "app", "undefined"]
 					}
 				},
-				template = ( level === "util" ) ? appJsDir+"/app-util.js" : appJsDir+"/app-core-feature.js",
+				template = ( level === "core" )
+							? appJsDir+"/app-core.js"
+							: ( level === "feature" )
+								? appJsDir+"/app-feature.js"
+								: appJsDir+"/app-util.js",
 				contents;
 			
 			if ( fileExists && !grunt.option( "force" ) ) {
@@ -162,7 +186,7 @@ module.exports = function ( grunt ) {
 			
 			grunt.file.write( file, contents );
 			
-			grunt.log.ok( "app-js file created at "+file+"." );
+			nautilog( "ok", "app-js file created at "+file+"." );
 		};
 		
 		/*!
@@ -180,11 +204,14 @@ module.exports = function ( grunt ) {
 			} else if ( grunt.file.exists( config.jsRoot+"/app/util/"+dep+".js" ) ) {
 				ret = config.jsRoot+"/app/util/"+dep+".js";
 				
+			} else if ( grunt.file.exists( config.jsRoot+"/app/core/"+dep+".js" ) ) {
+				ret = config.jsRoot+"/app/core/"+dep+".js";
+				
 			} else if ( grunt.file.exists( config.jsRoot+"/app/feature/"+dep+".js" ) ) {
 				ret = config.jsRoot+"/app/feature/"+dep+".js";
 				
 			} else {
-				grunt.fail.fatal( "could not file dependency file "+dep+" for file "+file.filename );
+				grunt.fail.fatal( "could not find dependency file "+dep+" for file "+file.filename );
 			}
 			
 			return ret;
@@ -249,8 +276,8 @@ module.exports = function ( grunt ) {
 				task = ( env === "development" )
 						? "concat"
 						: "uglify",
-				merge = {},
-				files = [];
+				files = [],
+				ret = {};
 			
 			grunt.file.recurse( config.jsRoot+"/app/feature", function ( abspath, rootdir, subdir, filename ) {
 				var match = abspath.match( rFeatureAppJs );
@@ -267,7 +294,7 @@ module.exports = function ( grunt ) {
 			});
 			
 			for ( var i = files.length; i--; ) {
-				merge[ files[ i ].feature ] = {
+				ret[ files[ i ].feature ] = {
 					src: [config.jsRoot+"/vendor/**/*.js", config.jsRoot+"/lib/**/*.js"].concat(
 						recursiveGetDeps( [], files[ i ] ).map(function ( elem, j ) {
 							return findDependency( elem, files[ j ] );
@@ -278,7 +305,10 @@ module.exports = function ( grunt ) {
 				};
 			}
 			
-			return merge;
+			return {
+				files: ret,
+				count: files.length
+			};
 		};
 		
 		/*!
@@ -289,16 +319,24 @@ module.exports = function ( grunt ) {
 		var combineFeatureJs = function ( env ) {
 			var config = grunt.config.get( "nautilus" ).options,
 				features = getFeatureJsConfig( env ),
+				total = features.count,
+				scripts = features.files,
 				task = ( env === "development" ) ? "concat" : "uglify",
 				jsBanner = config.jsBanner,
 				lineBreak = "\n\n\n\n";
 			
-			grunt.log.writeln( "" );
-			grunt.log.ok( "Building feature scripts..." );
+			if ( !total ) {
+				nautilog( "writeln", "No feature js to build." )
+				
+				return false;
+			}
 			
-			for ( var f in features ) {
-				var dest = features[ f ].dest,
-					src = features[ f ].src,
+			grunt.log.writeln( "" );
+			nautilog( "ok", "Building feature scripts..." );
+			
+			for ( var f in scripts ) {
+				var dest = scripts[ f ].dest,
+					src = scripts[ f ].src,
 					concat = [],
 					result;
 				
@@ -330,7 +368,7 @@ module.exports = function ( grunt ) {
 						
 						throwError.origError = error;
 						
-						grunt.log.warn( "Uglifying source '"+src+"' failed." );
+						nautilog( "warn", "Uglifying source '"+src+"' failed." );
 						
 						grunt.fail.warn( throwError );
 					}
@@ -346,10 +384,32 @@ module.exports = function ( grunt ) {
 					
 				grunt.file.write( dest, result );
 					
-				grunt.log.writeln( "File "+dest+" created using "+task+"." );
+				nautilog( "writeln", "File "+dest+" created using "+task+"." );
 			}
 			
-			grunt.log.ok( "Feature scripts built." );
+			nautilog( "ok", "Feature scripts built." );
+		};
+		
+		/*!
+		 *
+		 * Merge user config with nautilus' internal config settings
+		 *
+		 */
+		var mergeConfig = function ( task, settings ) {
+			var config = grunt.config.get( task );
+			
+			// Not set, so set it
+			if ( !config ) {
+				grunt.config.set( task, settings );
+				
+				nautilog( "writeln", "Setting config options for "+task+"." );
+			
+			// Otherwise merge internal with user config	
+			} else {
+				grunt.config.set( task, extend( config, settings ) );
+				
+				nautilog( "writeln", "Merging config options for "+task+"." );
+			}
 		};
 		
 		/*!
@@ -378,7 +438,7 @@ module.exports = function ( grunt ) {
 			grunt.loadNpmTasks( "grunt-contrib-compass" );
 			
 			if ( options.ender ) {
-				grunt.loadTasks( enderTasks );
+				grunt.loadNpmTasks( "grunt-ender" );
 			}
 		};
 		
@@ -396,6 +456,15 @@ module.exports = function ( grunt ) {
 					options.jsRoot+"/vendor/**/*.js",
 					options.jsRoot+"/lib/**/*.js",
 					options.jsAppRoot+"/**/*.js"
+				],
+				js2Compile = [
+					options.jsRoot+"/vendor/**/*.js",
+					options.jsRoot+"/lib/**/*.js",
+					options.jsAppRoot+"/app.js",
+					options.jsAppRoot+"/util/**/*.js",
+					options.jsAppRoot+"/core/**/*.js",
+					options.jsAppRoot+"/feature/**/*.js",
+					options.jsAppRoot+"/app.site.js"
 				],
 				sass2Watch = options.compass.options.sassDir+"/**/*.scss",
 				compassOptions = {
@@ -424,7 +493,7 @@ module.exports = function ( grunt ) {
 				},
 				
 				scripts: {
-					src: js2Watch,
+					src: js2Compile,
 					dest: options.jsDistRoot+"/scripts.js"
 				}
 			};
@@ -439,9 +508,17 @@ module.exports = function ( grunt ) {
 				jshintGlobals.Ender = true;
 			}
 			
-			grunt.config.set( "concat", uglyConcat );
-			grunt.config.set( "uglify", uglyConcat );
-			grunt.config.set( "jshint", {
+			// Configurable via nautilus config
+			grunt.config.set( "compass", compassOptions );
+			
+			if ( options.ender ) {
+				grunt.config.set( "ender", options.ender );
+			}
+			
+			// Merge with possible user config
+			mergeConfig( "concat", uglyConcat );
+			mergeConfig( "uglify", uglyConcat );
+			mergeConfig( "jshint", {
 				options: {
 					curly: true,
 					eqeqeq: true,
@@ -466,7 +543,7 @@ module.exports = function ( grunt ) {
 					src: js2Watch
 				}
 			});
-			grunt.config.set( "watch", {
+			mergeConfig( "watch", {
 				gruntfile: {
 					files: options.gruntfile,
 					tasks: "nautilus:jshint:gruntfile"
@@ -482,12 +559,7 @@ module.exports = function ( grunt ) {
 					tasks: "nautilus:compass:development"
 				}
 			});
-			grunt.config.set( "banner", options.jsBanner );
-			grunt.config.set( "compass", compassOptions );
-			
-			if ( options.ender ) {
-				grunt.config.set( "ender", options.ender );
-			}
+			mergeConfig( "banner", options.jsBanner );
 		};
 		
 		/*!

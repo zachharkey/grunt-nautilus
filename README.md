@@ -11,12 +11,13 @@ grunt-nautilus
 [grunt-contrib-watch]: http://github.com/gruntjs/grunt-contrib-watch
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
 [grunt-ender]: https://github.com/endium/grunt-ender
+[example.Gruntfile.js]: https://github.com/kitajchuk/grunt-nautilus/blob/master/example.Gruntfile.js
 
 
 
 ## Philosophy
 
-After working on so many projects as a UI Developer, both personally and at agencies, a lot of things have become apparent. First off, as developers we are always growing and changing. Secondly, we reiterate on the same patterns constantly. Not without revision to said patterns, but nonetheless we are always reusing them. At a certain point, when we think we have someting pretty good we find ourselves referencing the last project to start the next project. Some copy/paste maybe? I think so. Well, grunt-nautilus aims to resolve that issue as a tool that does this for you and can grow with you. It's not for everyone. Who is it for? The following:
+After working on so many projects as a UI Developer, both personally and at agencies, a lot of things have become apparent. First off, as developers we are always growing and changing. Secondly, we reiterate on the same patterns constantly. Not without revision to said patterns, but nonetheless we are always reusing them. At a certain point, when we think we have someting pretty good we find ourselves referencing the last project to start the next project. Some copy/paste maybe? I think so. Well, grunt-nautilus aims to resolve that issue as a tool that does this for you and can grow with you. It's not for everyone. Who is it for? I have some ideas:
 
 - Developers that enjoy clean, modular Javascript
 - Developers that need a tool to make their Javascript cleaner and more modular
@@ -48,118 +49,195 @@ If you are using the [ender][] js library, an internal, modified version of [gru
 
 ## Gruntfile
 
-A grunt-init-gruntnautilus Gruntfile with all potential options looks like this:
+A grunt-init-gruntnautilus Gruntfile with all potential options looks like the [example.Gruntfile.js][]. The `nautilus` object is pretty basic, just the stuff required to manage your build processes for Javascript and SASS files.
 
+
+
+## Options
+
+### gruntfile
+
+Type: `string`	
+Default: `Gruntfile.js`		
+The location of your Gruntfile
+
+
+### jsRoot
+
+Type: `string`	
+Default: `./js`		
+The path to your js root directory
+
+
+### jsAppRoot
+
+Type: `string`	
+Default: `./js/app`		
+The path to your app-js root directory
+
+
+### jsDistRoot
+
+Type: `string`	
+Default: `./js/dist`	
+The path where you want your js compiled
+
+
+### jsLib
+
+Type: `string`	
+Default: `undefined`	
+The js library you are using, if any. Can be `jquery` or `ender`
+
+
+### jsAppRoot
+
+Type: `string`	
+Default: `./js/app`	
+The path to your app-js root directory
+
+
+### ender
+
+Type: `object`	
+Default: `undefined`		
+The grunt-ender config settings. See [grunt-ender][] for more on that
+
+
+### compass
+
+Type: `object`	
+The default for this is easiest just to show:	
 ```js
-/* global module:false */
-
-module.exports = function ( grunt ) {
+// Both dev and prod options will be merged with options
+// and passed to grunt-contrib-compass correctly.
+compass: {
+	// Shared options.
+	options: {
+		cssDir: cssRoot,
+		fontsDir: fontsRoot,
+		force: true,
+		httpPath: "/",
+		imagesDir: imgRoot,
+		javascriptsDir: jsRoot,
+		noLineComments: true,
+		sassDir: sassRoot
+	},
 	
-	
-	// Default paths, change them as needed.
-	var pubRoot = ".",
-		jsRoot = "./js",
-		jsBanner = grunt.file.read( "./js/banner" ),
-		appRoot = jsRoot+"/app",
-		libRoot = jsRoot+"/lib",
-		vendorRoot = jsRoot+"/vendor",
-		distRoot = jsRoot+"/dist",
-		sassRoot = "./sass",
-		cssRoot = "./css",
-		fontsRoot = "./fonts",
-		imgRoot = "./img";
-		
-	
-	grunt.initConfig({
-		// Project meta.
-		meta: {
-			version: "0.1.0"
-		},
-		
-		
-		// Nautilus config.
-		nautilus: {
-			options: {
-				gruntfile: "Gruntfile.js",
-				jsRoot: jsRoot,
-				jsAppRoot: appRoot,
-				jsDistRoot: distRoot,
-				jsBanner: jsBanner,
-				jsLib: "ender",
-				
-				
-				// Ender config.
-				ender: {
-					options: {
-						output: vendorRoot+"/ender",
-						dependencies: ["jeesh"]
-					}
-				},
-				
-				
-				// Both dev and prod options will be merged with options
-				// and passed to grunt-contrib-compass correctly.
-				compass: {
-					// Shared options.
-					options: {
-						cssDir: cssRoot,
-						fontsDir: fontsRoot,
-						force: true,
-						httpPath: "/",
-						imagesDir: imgRoot,
-						javascriptsDir: jsRoot,
-						noLineComments: true,
-						sassDir: sassRoot
-					},
-					
-					// Environment specific options.
-					development: {
-						options: {
-							environment: "development",
-							outputStyle: "expanded"
-						}
-					},
-					
-					production: {
-						options: {
-							environment: "production",
-							outputStyle: "compressed"
-						}
-					}
-				}
-			}
+	// Environment specific options.
+	development: {
+		options: {
+			environment: "development",
+			outputStyle: "expanded"
 		}
-	});
+	},
 	
-	
-	// Load the nautilus plugin.
-	grunt.loadNpmTasks( "grunt-nautilus" );
-	
-	
-};
+	production: {
+		options: {
+			environment: "production",
+			outputStyle: "compressed"
+		}
+	}
+}
 ```
 
-The `nautilus` object is pretty basic, just the stuff required to manage your build processes for Javascript and SASS files.
+
+
+## Nautilus task(s)
+
+You can interface with grunt-nautilus via the `nautilus` task. For your typing sanctity, all nautilus tasks are also provided as standalone tasks as well. The following tasks are provided:
+
+### grunt
+
+Executes: `grunt nautilus:build`
+
+
+### watch
+
+Executes: `grunt nautilus:watch`	
+Uses: `grunt-contrib-watch`
+
+This watches your sass and js files.
+
+
+### concat
+
+Executes: `grunt nautilus:concat`	
+Uses: `grunt-contrib-concat`
+
+This concatenates your js files without minifying them.
+
+
+### jshint
+
+Executes: `grunt nautilus:jshint`	
+Uses: `grunt-contrib-jshint`
+
+This lints your js files.
+
+
+### uglify
+
+Executes: `grunt nautilus:uglify`	
+Uses: `grunt-contrib-uglify`
+
+This combines and compiles your js files, minifying the result.
+
+
+### compass
+
+Executes: `grunt nautilus:compass:[environment]`	
+Environment arg: Accepts `development` or `production` by default. You can configure as many as you like though.	
+Uses: `grunt-contrib-compass`
+
+This generates your css files from your sass files using Compass.
+
+
+### ender
+
+Executes: `grunt nautilus:ender`	
+Uses: `grunt-ender`
+
+This manages and generates your ender builds. See [grunt-ender][] for info on passing options for this.
+
+
+### build
+
+Executes: `grunt nautilus:build`	
+Uses: `grunt-contrib-concat`, `grunt-contrib-compass`
+
+This executes the concat and compass tasks together with sandbox development settings.
+
+
+### deploy
+
+Executes: `grunt nautilus:deploy`	
+Uses: `grunt-contrib-uglify`, `grunt-contrib-compass`
+
+This executes the concat and compass tasks together with production/staging box settings.
+
+
+### appjs
+
+Executes: `grunt nautilus:appjs:[level]:[module]`	
+Level args: Either of the following, `core`, `feature` or `util`.	
+Module arg: The name of your appjs module. Names with hyphens and underscores will be camel cased.
+
+This executes the concat and compass tasks together with production/staging box settings.
 
 
 
-## Usage
+## Builds
 
-You can interface with grunt-nautilus via the `nautilus` task, however, the following are available to you at the forefront of grunt commands:
+The files array used to generate your js builds uses this order:
 
-- `grunt` (default task runs `grunt build`)
-- `grunt watch`
-- `grunt concat`
-- `grunt jshint`
-- `grunt uglify`
-- `grunt build`
-- `grunt deploy`
-- `grunt compass:[development, production]`
-- `grunt appjs:[core, feature, util]:[module]`
-- `grunt ender`
- - See [grunt-ender][] for info on passing options for this
-
-Most of these are pretty self explanatory, but lets cover the cool things some of them do. For instance, running the `build` task will compile compass and javascript for development environments. Using the `deploy` task will do the same but for production/staging environments.
+- `vendor/**/*.js`
+- `lib/**/*.js`
+- `app.js`
+- `app/util/**/*.js`
+- `app/core/**/*.js`
+- `app/feature/**/*.js`
+- `app.site.js`
 
 
 
@@ -169,218 +247,29 @@ The app-js model organizes your Javascript in the following manner:
 
 - app/
 	- app.js
-	- app.log.js
 	- app.site.js
+	- core/
 	- feature/
 	- util/
+		- app.util.log.js
 - lib/
 - vendor/
 
-The files within the app directory are yours. The files within the lib direcotry are usually third-party scripts that are either standalone or extensions of vendor scripts. For instance, a jQuery plugin. Lastly, the vendor scripts are for vendor libraries or frameworks like jQuery or Ender. You get some default app setup so lets look at the 3 app-js files that are built out for you:
-
-### app.js
-
-```js
-/*!
- *
- * App: Base
- *
- * Creates global {app}
- *
- *
- */
-(function ( window, undefined ) {
-
-
-"use strict";
-
-
-// Our global, extendable app {Object}
-var app = {};
-
-
-/******************************************************************************
- * App extend method
-*******************************************************************************/
-app.extend = function ( o1, o2 ) {
-	var prop,
-		ret;
-	
-	if ( !o2 ) {
-		for ( prop in o1 ) {
-			app[ prop ] = o1[ prop ];
-		}
-		
-		ret = app;
-		
-	} else {
-		for ( prop in o2 ) {
-			o1[ prop ] = o2[ prop ];
-		}
-		
-		ret = o1;
-	}
-	
-	return ret;
-};
-
-
-/******************************************************************************
- * App utility namespace
-*******************************************************************************/
-app.util = {};
-
-
-/******************************************************************************
- * App support namespace
-*******************************************************************************/
-app.support = {};
-
-
-/******************************************************************************
- * Expose global app {Object}
-*******************************************************************************/
-window.app = app;
-
-
-})( window );
-```
-### app.log.js
-
-```js
-/*!
- *
- * App: Log
- *
- * Simple wrapper for console logging
- *
- * @core
- *
- *
- */
-(function ( window, app, undefined ) {
-
-
-"use strict";
-
-
-/******************************************************************************
- * Console fallback
-*******************************************************************************/
-window.console = window.console || {};
-window.console.log = window.console.log || function () {};
-
-
-/******************************************************************************
- * App Extensions
-*******************************************************************************/
-app = app.extend({
-	log: function () {
-		var args = [].slice.call( arguments, 0 );
-		
-		if ( !args.length ) {
-			args.push( app );
-			
-		} else {
-			args.unshift( "[Appjs]:" );
-		}
-		
-		console.log.apply( console, args );
-	}
-});
-
-
-})( window, window.app );
-```
-
-### app.site.js
-
-```js
-/*!
- *
- * App: Site
- *
- * Sitewide tasks to be included in all script builds
- *
- * @deps: app
- *
- *
- */
-(function ( window, app, undefined ) {
-
-
-"use strict";
-
-
-// Sandbox document
-var document = window.document;
-
-
-/******************************************************************************
- * App Extensions
-*******************************************************************************/
-// Start coding!
-
-
-/******************************************************************************
- * Execution
-*******************************************************************************/
-// Start coding!
-
-
-})( window, window.app );
-```
+The files within the app directory are your application files that you will author. The files within the lib direcotry are usually third-party scripts that are either standalone or extensions of vendor scripts. For instance, a jQuery plugin. Lastly, the vendor scripts are for vendor libraries like jQuery or Ender.
 
 ### appjs task
 
-The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core, feature and util`. The `module` argument is used to name the module as it will exist on the global `app` object. If you were to run the following:
+The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core, feature and util`. The `module` argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
 
 ```
-grunt nautilus:appjs:feature:home
-```
+# Creates app/feature/app.home.js
+grunt appjs:feature:home
 
-You would get the following at `js/app/feature/app.home.js`:
+# Creates app/core/app.core.Class.js
+grunt appjs:core:Class
 
-```js
-/*!
- *
- * App: home
- *
- * A nice description of what this script does...
- *
- * @deps: app, app.log
- *
- *
- */
-(function ( window, app, undefined ) {
-
-
-"use strict";
-
-
-// Sandbox document
-var document = window.document;
-
-
-/******************************************************************************
- * App Extensions
-*******************************************************************************/
-app = app.extend({
-	home: {
-		init: function () {
-			app.log( "Initialized app.home", app.home );
-		}
-	}
-});
-
-
-/******************************************************************************
- * Execution
-*******************************************************************************/
-app.home.init();
-
-
-})( window, window.app );
+# Creates app/util/app.util.async.js
+grunt appjs:util:async
 ```
 
 ### appjs dependency building
