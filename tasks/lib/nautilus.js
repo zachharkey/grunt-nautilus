@@ -727,7 +727,7 @@ module.exports = function ( grunt ) {
 		/*!
 		 * 
 		 * Listen for ender builds to finish
-		 * Delete .min file as ender.js will compile into grunt build
+		 * Delete .min file as ender.js will compile into overall build
 		 *
 		 */
 		grunt.event.on( "grunt_ender_build_done", function () {

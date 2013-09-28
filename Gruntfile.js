@@ -17,7 +17,7 @@ module.exports = function ( grunt ) {
 	
 	// All tests.
 	var allTests = [
-		// Test app-js file creations
+		// Test appjs file creations
 		"nautilus:appjs:core:test",
 		"nautilus:appjs:util:test",
 		"nautilus:appjs:feature:test",
@@ -27,6 +27,10 @@ module.exports = function ( grunt ) {
 		"nautilus:compass:development",
 		"nautilus:compass:production",
 		"nodeunit:compass",
+		
+		// Copy app-js/app-util-log.js
+		// as test/expected/js/app/util/app.util.log.js
+		"copy_appjs:util:app-util-log",
 		
 		// Test concat
 		"nautilus:concat",
@@ -42,7 +46,11 @@ module.exports = function ( grunt ) {
 		
 		// Test deploy
 		"nautilus:deploy",
-		"nodeunit:deploy"
+		"nodeunit:deploy",
+		
+		// Test ender
+		"nautilus:ender",
+		"nodeunit:ender"
 	];
 		
 	
@@ -64,7 +72,7 @@ module.exports = function ( grunt ) {
 		clean: {
 			tests: [
 				"tmp",
-				"test/expected/js/app/app.test.js",
+				"test/expected/js/app/core/*.js",
 				"test/expected/js/app/feature/*.js",
 				"test/expected/js/app/util/*.js",
 				"test/expected/js/dist/*.js",
@@ -129,7 +137,8 @@ module.exports = function ( grunt ) {
 			uglify: ["test/nautilus_uglify_test.js"],
 			build: ["test/nautilus_build_test.js"],
 			default: ["test/nautilus_build_test.js"],
-			deploy: ["test/nautilus_deploy_test.js"]
+			deploy: ["test/nautilus_deploy_test.js"],
+			ender: ["test/nautilus_ender_test.js"]
 		}
 	});
 	
@@ -211,6 +220,15 @@ module.exports = function ( grunt ) {
 		
 		// ... and clean after.
 		grunt.task.run( "clean" );
+	});
+	
+	
+	// Copy app-js files to be utilized for testing
+	grunt.registerTask( "copy_appjs", function ( level, name ) {
+		grunt.file.copy(
+			"app-js/"+name+".js",
+			"test/expected/js/app/"+level+"/"+name.replace( /-/g, "." )+".js"
+		);
 	});
 	
 	

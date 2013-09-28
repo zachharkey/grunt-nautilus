@@ -24,24 +24,13 @@ var grunt = require( "grunt" );
 
 exports.nautilus = {
 	
-	uglify_feature: function ( test ) {
+	ender: function ( test ) {
 		test.expect( 1 );
 		
-		var actual = grunt.file.read( "test/fixtures/js/dist-uglify-test.js" );
-		var expected = grunt.file.read( "test/expected/js/dist/test.js" );
+		var actual = grunt.file.read( "test/fixtures/js/ender-jeesh.js" );
+		var expected = grunt.file.read( "test/expected/js/vendor/ender.js" );
 		
-		test.equal( actual, expected, "Should use grunt-contrib-uglify to concatenate app-js files." );
-		
-		test.done();
-	},
-	
-	uglify_scripts: function ( test ) {
-		test.expect( 1 );
-		
-		var actual = grunt.file.read( "test/fixtures/js/dist-uglify-scripts.js" );
-		var expected = grunt.file.read( "test/expected/js/dist/scripts.js" );
-		
-		test.equal( actual, expected, "Should use grunt-contrib-uglify to compile scripts.js." );
+		test.equal( actual, expected, "Should compile ender's jeesh as ender.js." );
 		
 		test.done();
 	}

@@ -24,7 +24,18 @@ var grunt = require( "grunt" );
 
 exports.nautilus = {
 	
-	build: function ( test ) {
+	build_scripts: function ( test ) {
+		test.expect( 1 );
+		
+		var actual = grunt.file.read( "test/fixtures/js/dist-build-scripts.js" );
+		var expected = grunt.file.read( "test/expected/js/dist/scripts.js" );
+		
+		test.equal( actual, expected, "Should use grunt-contrib-concat to compile scripts.js." );
+		
+		test.done();
+	},
+	
+	build_feature: function ( test ) {
 		test.expect( 1 );
 		
 		var actual = grunt.file.read( "test/fixtures/js/dist-build-test.js" );

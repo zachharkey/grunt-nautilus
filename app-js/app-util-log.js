@@ -1,10 +1,10 @@
 /*!
  *
- * App: Log
+ * App Util: util.log
  *
  * Simple wrapper for console logging
  *
- * @core
+ * @deps: app
  *
  *
  */
@@ -24,7 +24,7 @@ window.console.log = window.console.log || function () {};
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app = app.extend({
+app.util = app.extend( app.util, {
 	log: function () {
 		var args = [].slice.call( arguments, 0 );
 		

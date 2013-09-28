@@ -1,10 +1,10 @@
 /*!
  *
- * App: test
+ * App Feature: app.test
  *
  * A nice description of what this script does...
  *
- * @deps: app, app.log
+ * @deps: app, app.util.log
  *
  *
  */
@@ -24,7 +24,7 @@ var document = window.document;
 app = app.extend({
 	test: {
 		init: function () {
-			app.log( "Initialized app.test", app.test );
+			app.util.log( "Initialized app.test", app.test );
 		}
 	}
 });

@@ -24,13 +24,24 @@ var grunt = require( "grunt" );
 
 exports.nautilus = {
 	
-	deploy: function ( test ) {
+	deploy_feature: function ( test ) {
 		test.expect( 1 );
 		
 		var actual = grunt.file.read( "test/fixtures/js/dist-deploy-test.js" );
 		var expected = grunt.file.read( "test/expected/js/dist/test.js" );
 		
 		test.equal( actual, expected, "Should custom minify using grunt-contrib-uglify all feature app-js files as [module].js in the dist directory." );
+		
+		test.done();
+	},
+	
+	deploy_scripts: function ( test ) {
+		test.expect( 1 );
+		
+		var actual = grunt.file.read( "test/fixtures/js/dist-deploy-scripts.js" );
+		var expected = grunt.file.read( "test/expected/js/dist/scripts.js" );
+		
+		test.equal( actual, expected, "Should use grunt-contrib-uglify to compile scripts.js." );
 		
 		test.done();
 	}

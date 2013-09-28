@@ -1,10 +1,10 @@
 /*!
  *
- * App: util.test
+ * App Util: app.util.test
  *
  * A nice description of what this script does...
  *
- * @deps: app, app.log
+ * @deps: app
  *
  *
  */
@@ -22,16 +22,10 @@ var document = window.document;
  * App Extensions
 *******************************************************************************/
 app.util = app.extend( app.util, {
-	test: {
+	test: function () {
 		
 	}
 });
-
-
-/******************************************************************************
- * Execution
-*******************************************************************************/
-app.log( "app.util.test: ", app.util.test );
 
 
 })( window, window.app );

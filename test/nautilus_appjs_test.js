@@ -27,8 +27,8 @@ exports.nautilus = {
 	appjs_core_test: function ( test ) {
 		test.expect( 1 );
 		
-		var actual = grunt.file.read( "test/fixtures/js/app.core.js" );
-		var expected = grunt.file.read( "test/expected/js/app/app.test.js" );
+		var actual = grunt.file.read( "test/fixtures/js/app-core.js" );
+		var expected = grunt.file.read( "test/expected/js/app/core/app.core.test.js" );
 		
 		test.equal( actual, expected, "Should parse app-js core template into app-js core file." );
 		
@@ -38,8 +38,8 @@ exports.nautilus = {
 	appjs_util_test: function ( test ) {
 		test.expect( 1 );
 		
-		var actual = grunt.file.read( "test/fixtures/js/app.util.js" );
-		var expected = grunt.file.read( "test/expected/js/app/util/app.test.js" );
+		var actual = grunt.file.read( "test/fixtures/js/app-util.js" );
+		var expected = grunt.file.read( "test/expected/js/app/util/app.util.test.js" );
 		
 		test.equal( actual, expected, "Should parse app-js util template into app-js util file." );
 		
@@ -49,7 +49,7 @@ exports.nautilus = {
 	appjs_feature_test: function ( test ) {
 		test.expect( 1 );
 		
-		var actual = grunt.file.read( "test/fixtures/js/app.feature.js" );
+		var actual = grunt.file.read( "test/fixtures/js/app-feature.js" );
 		var expected = grunt.file.read( "test/expected/js/app/feature/app.test.js" );
 		
 		test.equal( actual, expected, "Should parse app-js template into app-js file." );
