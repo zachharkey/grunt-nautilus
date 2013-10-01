@@ -11,7 +11,7 @@
  *
  *
  */
-(function ( window, app, undefined ) {
+(function ( <%= parameters %> ) {
 
 
 "use strict";
@@ -34,4 +34,4 @@ var document = window.document;
 app.core.execFeatures();
 
 
-})( window, window.app );
+})( <%= arguments %> );

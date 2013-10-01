@@ -1,10 +1,10 @@
 /*!
  *
- * App Core: app.core.<%= module %>
+ * App Util: app.util.<%= module %>
  *
  * A nice description of what this script does...
  *
- * @deps: app, app.util.log
+ * @deps: app
  *
  *
  */
@@ -21,11 +21,9 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app.core = app.extend( app.core, {
+app.util = app.core.extend( app.util, {
 	<%= module %>: {
-		init: function () {
-			app.util.log( "Initialized app.core.<%= module %>", app.core.<%= module %> );
-		}
+		
 	}
 });
 
@@ -33,7 +31,7 @@ app.core = app.extend( app.core, {
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.core.<%= module %>.init();
+app.util.log( "Util module", app.util.<%= module %> );
 
 
 })( <%= arguments %> );

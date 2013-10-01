@@ -17,6 +17,10 @@ module.exports = function ( grunt ) {
 	
 	// All tests.
 	var allTests = [
+		// Copy current framework files
+		// Ensures we always use recent versions
+		"refresh",
+		
 		// Test appjs file creations
 		"nautilus:appjs:core:test",
 		"nautilus:appjs:util:test",
@@ -27,10 +31,6 @@ module.exports = function ( grunt ) {
 		"nautilus:compass:development",
 		"nautilus:compass:production",
 		"nodeunit:compass",
-		
-		// Copy app-js/app-util-log.js
-		// as test/expected/js/app/util/app.util.log.js
-		"copy_appjs:util:app-util-log",
 		
 		// Test concat
 		"nautilus:concat",
@@ -224,11 +224,31 @@ module.exports = function ( grunt ) {
 	
 	
 	// Copy app-js files to be utilized for testing
-	grunt.registerTask( "copy_appjs", function ( level, name ) {
+	grunt.registerTask( "refresh", function () {
 		grunt.file.copy(
-			"app-js/"+name+".js",
-			"test/expected/js/app/"+level+"/"+name.replace( /-/g, "." )+".js"
+			"app-js/framework/app.js",
+			"test/expected/js/app/app.js"
 		);
+		
+		grunt.file.copy(
+			"app-js/framework/app.site.js",
+			"test/expected/js/app/app.site.js"
+		);
+		
+		grunt.file.copy(
+			"app-js/framework/app.util.log.js",
+			"test/expected/js/app/util/app.util.log.js"
+		);
+		
+		var tpl = grunt.file.read( "test/expected/js/app/app.site.js" );
+		var cts = grunt.template.process( tpl, {
+			data: {
+				arguments: ["window", "window.app"].join( ", " ),
+				parameters: ["window", "app", "undefined"].join( ", " )
+			}
+		});
+		
+		grunt.file.write( "test/expected/js/app/app.site.js", cts );
 	});
 	
 	

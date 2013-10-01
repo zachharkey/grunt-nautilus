@@ -29,27 +29,21 @@ After working on so many projects as a UI Developer, both personally and at agen
 
 ## Installation
 
-If you haven't already, initialize a new Gruntfile using the [grunt-init-gruntnautilus][] template. This will build what you need to start and you can run the following:
+If you haven't already, initialize a new Gruntfile using the [grunt-init-gruntnautilus][] template. This will create a Gruntfile and a package.json file. To install grunt-nautilus and its peer packages and initialize grunt-nautilus run the following:
 
 ```
+# Installs packages
 npm install
+
+# Initializes grunt-nautilus' setup
+grunt
 ```
 
-grunt-nautilus will install the following peer dependency packages:
+_Note, however, that any grunt command at this point will run the grunt-nautilus initialization and exit_
 
-- [grunt][]
-- [grunt-contrib-concat][]
-- [grunt-contrib-uglify][]
-- [grunt-contrib-jshint][]
-- [grunt-contrib-watch][]
-- [grunt-contrib-compass][]
+### Gruntfile
 
-If you are using the [ender][] js library, an internal, modified version of [grunt-ender][] will be utilized to manage your ender builds.
-
-
-## Gruntfile
-
-A grunt-init-gruntnautilus Gruntfile with all potential options looks like the [example.Gruntfile.js][]. The `nautilus` object is pretty basic, just the stuff required to manage your build processes for Javascript and SASS files.
+A grunt-init-gruntnautilus Gruntfile looks similar to the [example.Gruntfile.js][].
 
 
 
@@ -229,15 +223,23 @@ This executes the concat and compass tasks together with production/staging box 
 
 ## Builds
 
-The files array used to generate your js builds uses this order:
+There are two main files arrays utilized. One is a global `scripts.js`. For this one, any faeture modules you may want included in the build need to be listed as dependencies in `app.site.js`. This array looks like this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
 - `app.js`
 - `app/util/**/*.js`
 - `app/core/**/*.js`
-- `app/feature/**/*.js`
+	- _Any feature modules matched in app.site.js @deps will stack here_
 - `app.site.js`
+
+The other builds are for the feature modules by name. Each feature module will compile with its dependencies to a file named the same as the module's name. For a module name `home` you would get this:
+
+- `vendor/**/*.js`
+- `lib/**/*.js`
+- `app.js`
+	- _Any @deps matched in the app.home.js file will stack here_
+- `app.home.js`
 
 
 
@@ -272,13 +274,34 @@ grunt appjs:core:Class
 grunt appjs:util:async
 ```
 
-### appjs dependency building
+By default, grunt-nautilus will look at all your feature scripts and compile each one individually with its dependencies. Using the `@deps` flag in the head comment of your app-js files allows all dependency files to be found. The compiled files are placed in the `dist` folder. The `app.js` file comes with 3 core methods in it:
 
-By default, grunt-nautilus will look at all your feature scripts and compile each one individually with its dependencies. Using the `@deps` flag in the head comment of your app-js files allows all dependency files to be found. The compiled files are placed in the `dist` folder. For instance, the above home feature would be compiled with its dependencies and written as `js/dist/home.js`. This action hooks into the following tasks:
+```js
+// Executes a module limiting it to one init method call
+app.core.exec( module );
 
-- `grunt build`
-- `grunt deploy`
-- `grunt watch`
+// Extends an object into another
+// Extends an object into app itself if the second paramter is omitted
+app.core.extend( o1, o2 );
+
+// Executes all feature modules found
+app.core.execFeatures();
+```
+
+
+
+## Peer Packages
+
+grunt-nautilus will install the following peer dependency packages:
+
+- [grunt][]
+- [grunt-contrib-concat][]
+- [grunt-contrib-uglify][]
+- [grunt-contrib-jshint][]
+- [grunt-contrib-watch][]
+- [grunt-contrib-compass][]
+
+If you are using the [ender][] js library, an internal, modified version of [grunt-ender][] will be utilized to manage your ender builds.
 
 
 

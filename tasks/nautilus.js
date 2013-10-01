@@ -112,38 +112,52 @@ module.exports = function ( grunt ) {
 	grunt.registerTask( "nautilus", "A grunt plugin for modular app-js development", function ( arg1, arg2, arg3 ) {
 		var options = this.options();
 		
-		
 		/*!
-		 * 
-		 * Load the required plugins.
+		 *
+		 * Test init public
 		 *
 		 */
-		nautilus.load( options );
-	
-		
-		/*!
-		 * 
-		 * Build the grunt config.
-		 *
-		 */
-		nautilus.config( options );
-		
-		
-		/*!
-		 * 
-		 * Parse the arguments.
-		 *
-		 */
-		if ( arg1 === "appjs" ) {
-			if ( levels.indexOf( arg2 ) !== -1 ) {
-				nautilus.createModule( arg2, arg3 );
-			}
+		if ( !grunt.file.exists( options.jsRoot+"/app/app.js" ) ) {
+			nautilus.init( options );
 			
-		} else if ( nautilus.isTask( arg1 ) && typeof nautilus[ arg1 ] === "function" ) {
-			nautilus[ arg1 ].apply( nautilus, [arg2, arg3] );
+			grunt.log.writeln( "" );
+			grunt.log.writeln( "Grunt Nautilus has been initialized. We just created a bunch of files so you don't have to! Check it out and happy grunting!" );
+			grunt.log.writeln( "" );
+			grunt.log.writeln( "- Brandon Lee Kitajchuk" );
 			
 		} else {
-			grunt.fail.warn( "invalid arguments and options. grunt-nautilus has no default task." );
+			/*!
+			 * 
+			 * Load the required plugins.
+			 *
+			 */
+			nautilus.load( options );
+		
+			
+			/*!
+			 * 
+			 * Build the grunt config.
+			 *
+			 */
+			nautilus.config( options );
+			
+			
+			/*!
+			 * 
+			 * Parse the arguments.
+			 *
+			 */
+			if ( arg1 === "appjs" ) {
+				if ( levels.indexOf( arg2 ) !== -1 ) {
+					nautilus.createModule( arg2, arg3 );
+				}
+				
+			} else if ( nautilus.isTask( arg1 ) && typeof nautilus[ arg1 ] === "function" ) {
+				nautilus[ arg1 ].apply( nautilus, [arg2, arg3] );
+				
+			} else {
+				grunt.fail.warn( "invalid arguments and options. grunt-nautilus has no default task." );
+			}
 		}
 	});
 	

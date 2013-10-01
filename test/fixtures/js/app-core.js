@@ -21,11 +21,9 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app.core = app.extend( app.core, {
+app.core = app.core.extend( app.core, {
 	test: {
-		init: function () {
-			app.util.log( "Initialized app.core.test", app.core.test );
-		}
+		
 	}
 });
 
@@ -33,7 +31,7 @@ app.core = app.extend( app.core, {
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.core.test.init();
+app.util.log( "Core module", app.core.test );
 
 
 })( window, window.app );

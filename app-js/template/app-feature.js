@@ -1,17 +1,14 @@
 /*!
  *
- * App: Site
+ * App Feature: app.<%= module %>
  *
- * Sitewide tasks to be included in all script builds.
+ * A nice description of what this script does...
  *
- * If you want any feature script modules to be included
- * in the scripts.js build, list them as dependencies here.
- *
- * @deps: app
+ * @deps: app, app.util.log
  *
  *
  */
-(function ( window, app, undefined ) {
+(function ( <%= parameters %> ) {
 
 
 "use strict";
@@ -24,14 +21,19 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-// Start coding!
+app = app.core.extend({
+	<%= module %>: {
+		init: function () {
+			app.util.log( "Executed feature module @app.<%= module %>", app.<%= module %> );
+		}
+	}
+});
 
 
 /******************************************************************************
  * Execution
 *******************************************************************************/
-// Start coding!
-app.core.execFeatures();
+app.core.exec( "<%= module %>" );
 
 
-})( window, window.app );
+})( <%= arguments %> );

@@ -13,33 +13,13 @@
 
 
 // Our global, extendable app {Object}
-var app = {};
-
-
-/******************************************************************************
- * App extend method
-*******************************************************************************/
-app.extend = function ( o1, o2 ) {
-	var prop,
-		ret;
+var app = {},
 	
-	if ( !o2 ) {
-		for ( prop in o1 ) {
-			app[ prop ] = o1[ prop ];
-		}
-		
-		ret = app;
-		
-	} else {
-		for ( prop in o2 ) {
-			o1[ prop ] = o2[ prop ];
-		}
-		
-		ret = o1;
-	}
+	// Keep track of feature modules
+	features = [],
 	
-	return ret;
-};
+	// Keep track of executed modules
+	executed = [];
 
 
 /******************************************************************************
@@ -58,6 +38,90 @@ app.util = {};
  * App support namespace
 *******************************************************************************/
 app.support = {};
+
+
+/******************************************************************************
+ * App extend method
+*******************************************************************************/
+app.core.extend = function ( o1, o2 ) {
+	var prop,
+		ret;
+	
+	// Absence of o2 defines this
+	// as a feature module
+	if ( !o2 ) {
+		for ( prop in o1 ) {
+			app[ prop ] = o1[ prop ];
+			
+			// Push all found props as a feature
+			// but you should just do one
+			// module namespace per feature script
+			features.push( prop );
+		}
+		
+		ret = app;
+		
+	} else {
+		for ( prop in o2 ) {
+			o1[ prop ] = o2[ prop ];
+		}
+		
+		ret = o1;
+	}
+	
+	return ret;
+};
+
+
+/******************************************************************************
+ * App exec method
+*******************************************************************************/
+app.core.exec = function ( module ) {
+	var moduleName = module;
+	
+	if ( app[ module ] ) {
+		module = app[ module ];
+		
+	} else if ( app.core[ module ] ) {
+		module = app.core[ module ];
+		
+	} else if ( app.util[ module ] ) {
+		module = app.util[ module ];
+		
+	} else {
+		module = undefined;
+	}
+	
+	if ( executed.indexOf( moduleName ) !== -1 ) {
+			app.util.log( "Feature module "+moduleName+" already executed! Backing out..." );
+			
+	} else if ( module && typeof module.init === "function" ) {
+		module.init();
+		
+		executed.push( moduleName );
+	}
+	
+	return module;
+};
+
+
+/******************************************************************************
+ * App execFeatures method
+*******************************************************************************/
+app.core.execFeatures = function () {
+	for ( var i = features.length; i--; ) {
+		var module = features[ i ];
+		
+		if ( executed.indexOf( module ) !== -1 ) {
+			app.util.log( "Feature module "+module+" already executed! Backing out..." );
+			
+		} else if ( app[ module ] && typeof app[ module ].init === "function" ) {
+			app[ module ].init();
+			
+			executed.push( module );
+		}
+	}
+};
 
 
 /******************************************************************************
@@ -93,7 +157,7 @@ window.console.log = window.console.log || function () {};
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app.util = app.extend( app.util, {
+app.util = app.core.extend( app.util, {
 	log: function () {
 		var args = [].slice.call( arguments, 0 );
 		
@@ -133,11 +197,17 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app.util = app.extend( app.util, {
-	test: function () {
+app.util = app.core.extend( app.util, {
+	test: {
 		
 	}
 });
+
+
+/******************************************************************************
+ * Execution
+*******************************************************************************/
+app.util.log( "Util module", app.util.test );
 
 
 })( window, window.app );
@@ -164,11 +234,9 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app.core = app.extend( app.core, {
+app.core = app.core.extend( app.core, {
 	test: {
-		init: function () {
-			app.util.log( "Initialized app.core.test", app.core.test );
-		}
+		
 	}
 });
 
@@ -176,46 +244,7 @@ app.core = app.extend( app.core, {
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.core.test.init();
-
-
-})( window, window.app );
-/*!
- *
- * App Feature: app.test
- *
- * A nice description of what this script does...
- *
- * @deps: app, app.util.log
- *
- *
- */
-(function ( window, app, undefined ) {
-
-
-"use strict";
-
-
-// Sandbox document
-var document = window.document;
-
-
-/******************************************************************************
- * App Extensions
-*******************************************************************************/
-app = app.extend({
-	test: {
-		init: function () {
-			app.util.log( "Initialized app.test", app.test );
-		}
-	}
-});
-
-
-/******************************************************************************
- * Execution
-*******************************************************************************/
-app.test.init();
+app.util.log( "Core module", app.core.test );
 
 
 })( window, window.app );
@@ -223,7 +252,10 @@ app.test.init();
  *
  * App: Site
  *
- * Sitewide tasks to be included in all script builds
+ * Sitewide tasks to be included in all script builds.
+ *
+ * If you want any feature script modules to be included
+ * in the scripts.js build, list them as dependencies here.
  *
  * @deps: app
  *
@@ -249,6 +281,7 @@ var document = window.document;
  * Execution
 *******************************************************************************/
 // Start coding!
+app.core.execFeatures();
 
 
 })( window, window.app );

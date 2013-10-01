@@ -6,7 +6,6 @@ module.exports = function ( grunt ) {
 	// Default paths, change them as needed.
 	var pubRoot = ".",
 		jsRoot = "./js",
-		jsBanner = grunt.file.read( "./js/banner" ),
 		appRoot = jsRoot+"/app",
 		libRoot = jsRoot+"/lib",
 		vendorRoot = jsRoot+"/vendor",
@@ -24,6 +23,23 @@ module.exports = function ( grunt ) {
 		},
 		
 		
+		// Project banner.
+		banner: "
+			/*!\n
+			 * \n
+			 * \n
+			 * PROJECT NAME - v<%= meta.version %> - <%= grunt.template.today('yyyy-mm-dd') %>\n
+			 * @author: AUTHOR NAME\n
+			 * @url: AUTHOR WEBSITE/\n
+			 * Copyright (c) <%= grunt.template.today('yyyy') %>\n
+			 * Licensed MIT\n
+			 * \n
+			 * \n
+			 */\n
+			 \n
+		",
+		
+		
 		// Nautilus config.
 		nautilus: {
 			options: {
@@ -31,17 +47,8 @@ module.exports = function ( grunt ) {
 				jsRoot: jsRoot,
 				jsAppRoot: appRoot,
 				jsDistRoot: distRoot,
-				jsBanner: jsBanner,
-				jsLib: "ender",
+				jsLib: undefined,
 				
-				
-				// Ender config.
-				ender: {
-					options: {
-						output: vendorRoot+"/ender",
-						dependencies: ["jeesh"]
-					}
-				},
 				
 				
 				// Both dev and prod options will be merged with options

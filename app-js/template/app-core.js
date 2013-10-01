@@ -1,6 +1,6 @@
 /*!
  *
- * App Feature: app.<%= module %>
+ * App Core: app.core.<%= module %>
  *
  * A nice description of what this script does...
  *
@@ -21,11 +21,9 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app = app.extend({
+app.core = app.core.extend( app.core, {
 	<%= module %>: {
-		init: function () {
-			app.util.log( "Initialized app.<%= module %>", app.<%= module %> );
-		}
+		
 	}
 });
 
@@ -33,7 +31,7 @@ app = app.extend({
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.<%= module %>.init();
+app.util.log( "Core module", app.core.<%= module %> );
 
 
 })( <%= arguments %> );

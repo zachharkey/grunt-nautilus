@@ -21,10 +21,10 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app = app.extend({
+app = app.core.extend({
 	test: {
 		init: function () {
-			app.util.log( "Initialized app.test", app.test );
+			app.util.log( "Executed feature module @app.test", app.test );
 		}
 	}
 });
@@ -33,7 +33,7 @@ app = app.extend({
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.test.init();
+app.core.exec( "test" );
 
 
 })( window, window.app );
