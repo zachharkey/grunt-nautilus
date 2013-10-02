@@ -7,26 +7,19 @@
  * Licensed under the MIT license.
  *
  *
- * @TODO: Update nodeunit tests
- *
- * ---
- *
- * @todo: Support @deps globbing patterns like "app.util.*"
- * @todo: Add app.util.throttle to app-js repository
- * @todo: Add app.util.search to app-js repository
- * 
- * ---
- * 
- * @note: First attempt at grunt will run nautilus.init()
- * @note: Need to explain the basics of the app-js framework
- * @note: Must list feature modules as deps in app.site.js for scripts.js build
- *
- *
  */
 module.exports = function ( grunt ) {
 	
 	
 	"use strict";
+	
+	
+	/*!
+	 * 
+	 * The app-js-util Class.
+	 *
+	 */
+	var appjs;
 	
 	
 	/*!
@@ -220,114 +213,6 @@ module.exports = function ( grunt ) {
 		};
 		
 		/*!
-		 * 
-		 * Find a dependency file.
-		 *
-		 */
-		var findScriptDependency = function ( dep ) {
-			var config = grunt.config.get( "nautilus" ).options,
-				ret;
-			
-			if ( grunt.file.exists( config.jsRoot+"/app/"+dep+".js" ) ) {
-				ret = config.jsRoot+"/app/"+dep+".js";
-				
-			} else if ( grunt.file.exists( config.jsRoot+"/app/util/"+dep+".js" ) ) {
-				ret = config.jsRoot+"/app/util/"+dep+".js";
-				
-			} else if ( grunt.file.exists( config.jsRoot+"/app/core/"+dep+".js" ) ) {
-				ret = config.jsRoot+"/app/core/"+dep+".js";
-				
-			} else if ( grunt.file.exists( config.jsRoot+"/app/feature/"+dep+".js" ) ) {
-				ret = config.jsRoot+"/app/feature/"+dep+".js";
-				
-			} else {
-				grunt.fail.fatal( "could not find dependency file "+dep );
-			}
-			
-			return ret;
-		};
-		
-		/*!
-		 * 
-		 * Recursively get all dependency files for a feature script.
-		 *
-		 */
-		var recursiveGetScriptDependencies = function ( deps, file ) {
-			deps = deps || [];
-			
-			var ds = getScriptDependencyArray( file.abspath ),
-				ms = [];
-			
-			if ( ds ) {
-				for ( var i = 0, len = ds.length; i < len; i++ ) {
-					if ( deps.indexOf( ds[ i ] ) === -1 ) {
-						var fIndex = deps.indexOf( file.filename.replace( /\.js/, "" ) ),
-							fInDeps = (fIndex !== -1);
-						
-						if ( fInDeps ) {
-							if ( fIndex === 0 ) {
-								deps.unshift( ds[ i ] );
-								
-							} else {
-								deps.splice( fIndex, 0, ds[ i ] );
-							}
-							
-						} else {
-							deps.push( ds[ i ] );
-						}
-						
-						ms.push( ds[ i ] );
-					}
-				}
-			}
-			
-			if ( ms.length ) {
-				for ( var i = 0, len = ms.length; i < len; i++ ) {
-					deps = recursiveGetScriptDependencies( deps, {
-						abspath: findScriptDependency( ms[ i ], file ),
-						filename: ms[ i ]
-					});
-				}
-			}
-			
-			return deps;
-		};
-		
-		/*!
-		 * 
-		 * Build the "config" object for all feature modules.
-		 *
-		 */
-		var getFeatureScriptsConfig = function ( env ) {
-			var config = grunt.config.get( "nautilus" ).options,
-				task = ( env === "development" )
-						? "concat"
-						: "uglify",
-				startScripts = [
-					config.jsRoot+"/vendor/**/*.js",
-					config.jsRoot+"/lib/**/*.js"
-				],
-				endScripts = [config.jsRoot+"/app.site.js"],
-				files = [];
-			
-			grunt.file.recurse( config.jsRoot+"/app/feature", function ( abspath, rootdir, subdir, filename ) {
-				var match = abspath.match( rFeatureAppJs );
-				
-				if ( match ) {
-					match = match[ 1 ];
-					
-					files.push({
-						feature: match,
-						abspath: abspath,
-						filename: filename
-					});
-				}
-			});
-			
-			return mergeScriptFilesArray( startScripts, endScripts, files );
-		};
-		
-		/*!
 		 *
 		 * Merge user config with nautilus' internal config settings.
 		 *
@@ -351,49 +236,6 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Merge the src array scripts with feature dependencies.
-		 *
-		 */
-		var mergeScriptFilesArray = function ( start, end, files ) {
-			var config = grunt.config.get( "nautilus" ).options,
-				ret = {};
-			
-			for ( var i = files.length; i--; ) {
-				ret[ files[ i ].feature ] = {
-					src: start.concat(
-						recursiveGetScriptDependencies( [], files[ i ] ).map(function ( elem, j ) {
-							return findScriptDependency( elem, files[ j ] );
-							
-						}).concat( [files[ i ].abspath] )
-						
-					).concat( end ),
-					
-					dest: config.jsDistRoot+"/"+files[ i ].feature+".js"
-				};
-			}
-			
-			return ret;
-		};
-		
-		/*!
-		 * 
-		 * Get an array of script dependencies.
-		 *
-		 */
-		var getScriptDependencyArray = function ( scriptFilePath ) {
-			var script = grunt.file.read( scriptFilePath ),
-				deps = script.match( rAppJsDeps ),
-				ret = null;
-			
-			if ( deps && deps[ 1 ] ) {
-				ret = deps[ 1 ].replace( /\s/g, "" ).split( "," );
-			}
-			
-			return ret;
-		};
-		
-		/*!
-		 * 
 		 * Replace custom template tags with values from nautilus settings.
 		 *
 		 */
@@ -409,15 +251,15 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var buildScripts2Compile = function ( options ) {
-			var deps = getScriptDependencyArray( options.jsAppRoot+"/app.site.js" ),
-				ret = getFeatureScriptsConfig(),
+			var deps = appjs.getScriptDependencyArray( options.jsAppRoot+"/app.site.js" ),
+				ret = appjs.getFeatureScriptsConfig(),
 				start = replaceJsRootMatches( coreScripts2Compile.start, options ),
 				end = replaceJsRootMatches( coreScripts2Compile.end, options ),
 				files = [];
 			
 			for ( var i = 0, len = deps.length; i < len; i++ ) {
 				if ( /app\.(?!(util|core))/.test( deps[ i ] ) ) {
-					files.push( findScriptDependency( deps[ i ] ) );
+					files.push( appjs.findScriptDependency( deps[ i ] ) );
 				}
 			}
 			
@@ -562,6 +404,8 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.load = function ( options ) {
+			appjs = require( "app-js-util" )( grunt, options );
+			
 			grunt.loadNpmTasks( "grunt-contrib-watch" );
 			grunt.loadNpmTasks( "grunt-contrib-concat" );
 			grunt.loadNpmTasks( "grunt-contrib-uglify" );
