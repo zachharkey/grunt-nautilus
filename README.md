@@ -274,7 +274,25 @@ grunt appjs:core:Class
 grunt appjs:util:async
 ```
 
-By default, grunt-nautilus will look at all your feature scripts and compile each one individually with its dependencies. Using the `@deps` flag in the head comment of your app-js files allows all dependency files to be found. The compiled files are placed in the `dist` folder. The `app.js` file comes with 3 core methods in it:
+### appjs dependency listing
+
+By default, all files in the app dir will include app.js as a dependency. You can list any other dependencies in the following manner:
+
+```js
+/*!
+ *
+ *
+ * @dependency: app.core.foo
+ * @dependency: app.util.bar
+ * @dependency: app.baz
+ *
+ *
+ */
+```
+
+### appjs core methods
+
+You get 3 core app-js methods to execute modules and extend the global app object:
 
 ```js
 // Executes a module limiting it to one init method call
