@@ -23,3 +23,4 @@ test/expected/js/app/feature/*.js
 ########################
 .DS_Store
 .sass-cache
+.philosophy

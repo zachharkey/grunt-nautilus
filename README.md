@@ -16,18 +16,6 @@ grunt-nautilus
 
 
 
-## Philosophy
-
-After working on so many projects as a UI Developer, both personally and at agencies, a lot of things have become apparent. First off, as developers we are always growing and changing. Secondly, we reiterate on the same patterns constantly. Not without revision to said patterns, but nonetheless we are always reusing them. At a certain point, when we think we have someting pretty good we find ourselves referencing the last project to start the next project. Some copy/paste maybe? I think so. Well, grunt-nautilus aims to resolve that issue as a tool that does this for you and can grow with you. It's not for everyone. Who is it for? I have some ideas:
-
-- Developers that enjoy clean, modular Javascript
-- Developers that need a tool to make their Javascript cleaner and more modular
-- Developers that like to use [compass][] to author their css
-- Developers that build websites, webapps and the like
-- And a bonus for developers that like using [ender][]
-
-
-
 ## Installation
 
 If you haven't already, initialize a new Gruntfile using the [grunt-init-gruntnautilus][] template. This will create a Gruntfile and a package.json file. To install grunt-nautilus and its peer packages and initialize grunt-nautilus run the following:
@@ -224,7 +212,7 @@ This executes the concat and compass tasks together with production/staging box 
 
 ## Builds
 
-There are two main files arrays utilized. One is a global `scripts.js`. For this one, any faeture modules you may want included in the build need to be listed as dependencies in `app.site.js`. This array looks like this:
+There are two main files arrays utilized. One is a global `scripts.js`. For this one, any faeture modules you may want included in the build need to be listed as dependencies in `app.js`. This array looks like this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
@@ -233,7 +221,7 @@ There are two main files arrays utilized. One is a global `scripts.js`. For this
 	- _Any feature modules matched in app.site.js @deps will stack here_
 - `app.js`
 
-The other builds are for the feature modules by name. Each feature module will compile with its dependencies to a file named the same as the module's name. For a module name `home` you would get this:
+The other builds are for the feature modules by name. Each feature module will compile with its dependencies to a file named the same as the module's name. For a module named `home` you would get this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
@@ -244,7 +232,7 @@ The other builds are for the feature modules by name. Each feature module will c
 
 ## App-Js Task
 
-The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core, feature and util`. The `module` argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
+The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `feature` and `util`. The module argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
 
 ```
 # Creates app/feature/app.home.js
