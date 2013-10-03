@@ -1,6 +1,6 @@
 /*!
  *
- * App: Base
+ * App: Model
  *
  * Creates global {app}
  *
@@ -38,6 +38,23 @@ app.util = {};
  * App support namespace
 *******************************************************************************/
 app.support = {};
+
+
+/******************************************************************************
+ * App log method
+*******************************************************************************/
+app.util.log = function () {
+	var args = [].slice.call( arguments, 0 );
+	
+	if ( !args.length ) {
+		args.push( app );
+		
+	} else {
+		args.unshift( "[Appjs]:" );
+	}
+	
+	console.log.apply( console, args );
+};
 
 
 /******************************************************************************
@@ -125,6 +142,13 @@ app.core.execFeatures = function () {
 
 
 /******************************************************************************
+ * Console fallback
+*******************************************************************************/
+window.console = window.console || {};
+window.console.log = window.console.log || function () {};
+
+
+/******************************************************************************
  * Expose global app {Object}
 *******************************************************************************/
 window.app = app;
@@ -133,54 +157,9 @@ window.app = app;
 })( window );
 /*!
  *
- * App Util: util.log
- *
- * Simple wrapper for console logging
- *
- * @deps: app
- *
- *
- */
-(function ( window, app, undefined ) {
-
-
-"use strict";
-
-
-/******************************************************************************
- * Console fallback
-*******************************************************************************/
-window.console = window.console || {};
-window.console.log = window.console.log || function () {};
-
-
-/******************************************************************************
- * App Extensions
-*******************************************************************************/
-app.util = app.core.extend( app.util, {
-	log: function () {
-		var args = [].slice.call( arguments, 0 );
-		
-		if ( !args.length ) {
-			args.push( app );
-			
-		} else {
-			args.unshift( "[Appjs]:" );
-		}
-		
-		console.log.apply( console, args );
-	}
-});
-
-
-})( window, window.app );
-/*!
- *
  * App Util: app.util.test
  *
  * A nice description of what this script does...
- *
- * @deps: app
  *
  *
  */
@@ -217,8 +196,6 @@ app.util.log( "Util module", app.util.test );
  *
  * A nice description of what this script does...
  *
- * @deps: app, app.util.log
- *
  *
  */
 (function ( window, app, undefined ) {
@@ -250,14 +227,12 @@ app.util.log( "Core module", app.core.test );
 })( window, window.app );
 /*!
  *
- * App: Site
+ * App: Dev
  *
- * Sitewide tasks to be included in all script builds.
+ * Sitewide javascript to be included in all builds.
  *
  * If you want any feature script modules to be included
  * in the scripts.js build, list them as dependencies here.
- *
- * @deps: app
  *
  *
  */

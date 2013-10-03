@@ -19,7 +19,7 @@ module.exports = function ( grunt ) {
 	var allTests = [
 		// Copy current framework files
 		// Ensures we always use recent versions
-		"refresh",
+		//"refresh",
 		
 		// Test appjs file creations
 		"nautilus:appjs:core:test",

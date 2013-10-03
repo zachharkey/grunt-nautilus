@@ -16,46 +16,11 @@ module.exports = function ( grunt ) {
 	
 	/*!
 	 * 
-	 * The app-js-util Class.
-	 *
-	 */
-	var appjs;
-	
-	
-	/*!
-	 * 
-	 * Load grunt-contrib-uglify.
-	 *
-	 */
-	var uglify = require( "../../node_modules/grunt-contrib-uglify/tasks/lib/uglify.js" ).init( grunt ),
-		uglifyOptions = {
-			banner: "",
-			footer: "",
-			compress: {
-				warnings: false
-			},
-			mangle: {},
-			beautify: false,
-			report: false
-		};
-	
-	
-	/*!
-	 * 
 	 * Nautilus Class object.
 	 *
 	 */
 	var Nautilus = function () {
 		var self = this;
-		
-		/*!
-		 * 
-		 * Regular expressions.
-		 *
-		 */
-		var rFeatureAppJs = /feature\/app\.(.*)\.js/;
-		var rAppJsDeps = /\@deps\:\s(.*)(\r|\n)/;
-		var rDashHypeAlpha = /[-|_]([a-z]|[0-9])/ig;
 		
 		/*!
 		 * 
@@ -75,25 +40,6 @@ module.exports = function ( grunt ) {
 		];
 		
 		/*!
-		 * 
-		 * Supported js libs.
-		 *
-		 */
-		var jsLibs = {
-			jquery: {
-				context: "jQuery",
-				shorthand: "$"
-			},
-			
-			ender: {
-				context: "ender",
-				shorthand: "$"
-			}
-		};
-		var args = ["window", "window.app"];
-		var params = ["window", "app", "undefined"];
-		
-		/*!
 		 *
 		 * Core scripts
 		 *
@@ -108,13 +54,12 @@ module.exports = function ( grunt ) {
 			start: [
 				"{jsRoot}/vendor/**/*.js",
 				"{jsRoot}/lib/**/*.js",
-				"{jsAppRoot}/app.js",
 				"{jsAppRoot}/util/**/*.js",
 				"{jsAppRoot}/core/**/*.js"
 			],
 			
 			// End of src array
-			end: ["{jsAppRoot}/app.site.js"]
+			end: ["{jsAppRoot}/app.js"]
 		};
 		
 		/*!
@@ -124,17 +69,6 @@ module.exports = function ( grunt ) {
 		 */
 		var nautilog = function ( type, msg ) {
 			grunt.log[ type ]( "[Nautilog]: "+msg );
-		};
-		
-		/*!
-		 *
-		 * Camel case a hyphenated or underscored string
-		 *
-		 */
-		var camelCase = function ( str ) {
-			return str.replace( rDashHypeAlpha, function ( all, letter ) {
-				return ( ""+letter ).toUpperCase();
-			});
 		};
 		
 		/*!
@@ -161,55 +95,6 @@ module.exports = function ( grunt ) {
 			}
 			
 			return ret;
-		};
-		
-		/*!
-		 * 
-		 * Create app-js modules.
-		 *
-		 */
-		var createScriptModule = function ( level, module ) {
-			var module = camelCase( module ),
-				templateDir = require( "path" ).join( __dirname, "../../app-js/template" ),
-				config = grunt.config.get( "nautilus" ).options,
-				file = ( level === "core" )
-							? config.jsRoot+"/app/core/app.core."+module+".js"
-							: ( level === "feature" )
-								? config.jsRoot+"/app/feature/app."+module+".js"
-								: config.jsRoot+"/app/util/app.util."+module+".js",
-				fileExists = grunt.file.exists( file ),
-				fileData = {
-					data: {
-						module: module,
-						arguments: args,
-						parameters: params
-					}
-				},
-				template = ( level === "core" )
-							? templateDir+"/app-core.js"
-							: ( level === "feature" )
-								? templateDir+"/app-feature.js"
-								: templateDir+"/app-util.js",
-				contents;
-			
-			if ( fileExists && !grunt.option( "force" ) ) {
-				grunt.fatal( "app-js file already exists at "+file+". Use --force to override." );	
-			}
-			
-			if ( config.jsLib && jsLibs[ config.jsLib ] ) {
-				fileData.data.arguments.unshift( jsLibs[ config.jsLib ].context );
-				fileData.data.parameters.unshift( jsLibs[ config.jsLib ].shorthand );
-			}
-			
-			fileData.data.arguments = fileData.data.arguments.join( ", " );
-			fileData.data.parameters = fileData.data.parameters.join( ", " );
-			
-			template = grunt.file.read( template );
-			contents = grunt.template.process( template, fileData );
-			
-			grunt.file.write( file, contents );
-			
-			nautilog( "ok", "app-js file created at "+file+"." );
 		};
 		
 		/*!
@@ -247,59 +132,17 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Build the "config" object for all scripts to compile.
-		 *
-		 */
-		var buildScripts2Compile = function ( options ) {
-			var deps = appjs.getScriptDependencyArray( options.jsAppRoot+"/app.site.js" ),
-				ret = appjs.getFeatureScriptsConfig(),
-				start = replaceJsRootMatches( coreScripts2Compile.start, options ),
-				end = replaceJsRootMatches( coreScripts2Compile.end, options ),
-				files = [];
-			
-			for ( var i = 0, len = deps.length; i < len; i++ ) {
-				if ( /app\.(?!(util|core))/.test( deps[ i ] ) ) {
-					files.push( appjs.findScriptDependency( deps[ i ] ) );
-				}
-			}
-			
-			return extend( ret, {
-				scripts: {
-					src: start.concat( files ).concat( end ),
-					dest: options.jsDistRoot+"/scripts.js"
-				}
-			});
-		};
-		
-		/*!
-		 * 
-		 * Nautilus.prototype.log
-		 *
-		 * Expose branded logging.
-		 *
-		 */
-		this.log = nautilog;
-		
-		/*!
-		 * 
 		 * Nautilus.prototype.init
 		 *
 		 * Tests and builds public dir structure using nautilus' config.
 		 *
 		 */
 		this.init = function ( options ) {
-			var frameworkDir = require( "path" ).join( __dirname, "../../app-js/framework" ),
-				compass = options.compass.options,
-				template,
-				contents;
+			var compass = options.compass.options,
+				appjs = require( "app-js-util" )( grunt, options );
 			
-			// Account for jsLib if not undefined
-			if ( options.jsLib !== undefined && jsLibs[ jsLib ] ) {
-				jsLib = jsLibs[ jsLib ];
-				
-				args.unshift( jsLib.context );
-				params.unshift( jsLib.shorthand );
-			}
+			// Test/make app-js framework
+			appjs.createFramework();
 			
 			// Test/make css_root
 			if ( !grunt.file.exists( compass.cssDir ) ) {
@@ -325,64 +168,7 @@ module.exports = function ( grunt ) {
 					grunt.file.write( compass.sassDir+"/screen.scss", "/* -- start styling -- */" );
 				}
 			
-			// Test/make js_root
-			if ( !grunt.file.exists( options.jsRoot ) ) {
-				grunt.file.mkdir( options.jsRoot );
-			}
-			
-			// Test/make app-js structure
-			if ( !grunt.file.exists( options.jsRoot+"/app" ) ) {
-				grunt.file.mkdir( options.jsRoot+"/app" );
-				grunt.file.write( options.jsRoot+"/app/.gitkeep" );
-			}
-				
-				if ( !grunt.file.exists( options.jsRoot+"/app/app.js" ) ) {
-					grunt.file.copy( frameworkDir+"/app.js", options.jsRoot+"/app/app.js" );
-				}
-				
-				if ( !grunt.file.exists( options.jsRoot+"/app/app.site.js" ) ) {
-					grunt.file.copy( frameworkDir+"/app.site.js", options.jsRoot+"/app/app.site.js" );
-				}
-			
-			if ( !grunt.file.exists( options.jsRoot+"/app/util" ) ) {
-				grunt.file.mkdir( options.jsRoot+"/app/util" );
-				grunt.file.write( options.jsRoot+"/app/util/.gitkeep" );
-			}
-				
-				if ( !grunt.file.exists( options.jsRoot+"/app/util/app.util.log.js" ) ) {
-					grunt.file.copy( frameworkDir+"/app.util.log.js", options.jsRoot+"/app/util/app.util.log.js" );
-				}
-				
-			if ( !grunt.file.exists( options.jsRoot+"/app/core" ) ) {
-				grunt.file.mkdir( options.jsRoot+"/app/core" );
-				grunt.file.write( options.jsRoot+"/app/core/.gitkeep" );
-			}
-			
-			if ( !grunt.file.exists( options.jsRoot+"/app/feature" ) ) {
-				grunt.file.mkdir( options.jsRoot+"/app/feature" );
-				grunt.file.write( options.jsRoot+"/app/feature/.gitkeep" );
-			}	
-			
-			if ( !grunt.file.exists( options.jsRoot+"/lib" ) ) {
-				grunt.file.mkdir( options.jsRoot+"/lib" );
-				grunt.file.write( options.jsRoot+"/lib/.gitkeep" );
-			}
-			
-			if ( !grunt.file.exists( options.jsRoot+"/vendor" ) ) {
-				grunt.file.mkdir( options.jsRoot+"/vendor" );
-				grunt.file.write( options.jsRoot+"/vendor/.gitkeep" );
-			}
-			
-			// Replace template tags in app-js files
-			template = grunt.file.read( options.jsRoot+"/app/app.site.js" );
-			contents = grunt.template.process( template, {
-				data: {
-					arguments: args.join( ", " ),
-					parameters: params.join( ", " )
-				}
-			});
-			
-			grunt.file.write( options.jsRoot+"/app/app.site.js", contents );
+			return true;
 		};
 		
 		/*!
@@ -404,8 +190,6 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.load = function ( options ) {
-			appjs = require( "app-js-util" )( grunt, options );
-			
 			grunt.loadNpmTasks( "grunt-contrib-watch" );
 			grunt.loadNpmTasks( "grunt-contrib-concat" );
 			grunt.loadNpmTasks( "grunt-contrib-uglify" );
@@ -427,8 +211,12 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.config = function ( options ) {
-			var scripts2Watch = replaceJsRootMatches( coreScripts2Watch, options ),
-				scripts2Compile = buildScripts2Compile( options ),
+			var appjs = require( "app-js-util" )( grunt, options ),
+				scripts2Watch = replaceJsRootMatches( coreScripts2Watch, options ),
+				scripts2Compile = appjs.createCompiled(
+					replaceJsRootMatches( coreScripts2Compile.start, options ),
+					replaceJsRootMatches( coreScripts2Compile.end, options )
+				),
 				sass2Watch = options.compass.options.sassDir+"/**/*.scss",
 				concatOptions = extend(
 					{
@@ -535,7 +323,8 @@ module.exports = function ( grunt ) {
 				grunt.fail.fatal( "you need to specify a module name" );
 			}
 			
-			createScriptModule( level, module );
+			require( "app-js-util" )( grunt, grunt.config.get( "nautilus" ).options )
+				.createModule( level, module );
 		};
 		
 		/*!

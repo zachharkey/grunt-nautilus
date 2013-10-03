@@ -4,8 +4,6 @@
  *
  * A nice description of what this script does...
  *
- * @deps: app, app.util.log
- *
  *
  */
 (function ( window, app, undefined ) {

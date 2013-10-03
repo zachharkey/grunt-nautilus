@@ -11,6 +11,7 @@ grunt-nautilus
 [grunt-contrib-watch]: http://github.com/gruntjs/grunt-contrib-watch
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
 [grunt-ender]: https://github.com/endium/grunt-ender
+[app-js-util]: https://github.com/kitajchuk/app-js-util
 [example.Gruntfile.js]: https://github.com/kitajchuk/grunt-nautilus/blob/master/example.Gruntfile.js
 
 
@@ -227,39 +228,21 @@ There are two main files arrays utilized. One is a global `scripts.js`. For this
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
-- `app.js`
 - `app/util/**/*.js`
 - `app/core/**/*.js`
 	- _Any feature modules matched in app.site.js @deps will stack here_
-- `app.site.js`
+- `app.js`
 
 The other builds are for the feature modules by name. Each feature module will compile with its dependencies to a file named the same as the module's name. For a module name `home` you would get this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
-- `app.js`
 	- _Any @deps matched in the app.home.js file will stack here_
 - `app.home.js`
 
 
 
-## App-js
-
-The app-js model organizes your Javascript in the following manner:
-
-- app/
-	- app.js
-	- app.site.js
-	- core/
-	- feature/
-	- util/
-		- app.util.log.js
-- lib/
-- vendor/
-
-The files within the app directory are your application files that you will author. The files within the lib direcotry are usually third-party scripts that are either standalone or extensions of vendor scripts. For instance, a jQuery plugin. Lastly, the vendor scripts are for vendor libraries like jQuery or Ender.
-
-### appjs task
+## App-Js Task
 
 The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core, feature and util`. The `module` argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
 
@@ -274,37 +257,7 @@ grunt appjs:core:Class
 grunt appjs:util:async
 ```
 
-### appjs dependency listing
-
-By default, all files in the app dir will include app.js as a dependency. You can list any other dependencies in the following manner:
-
-```js
-/*!
- *
- *
- * @dependency: app.core.foo
- * @dependency: app.util.bar
- * @dependency: app.baz
- *
- *
- */
-```
-
-### appjs core methods
-
-You get 3 core app-js methods to execute modules and extend the global app object:
-
-```js
-// Executes a module limiting it to one init method call
-app.core.exec( module );
-
-// Extends an object into another
-// Extends an object into app itself if the second paramter is omitted
-app.core.extend( o1, o2 );
-
-// Executes all feature modules found
-app.core.execFeatures();
-```
+_For more on how this setup works, checkout [app-js-util][]._
 
 
 
