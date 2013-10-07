@@ -1,7 +1,7 @@
 {
 	"name": "grunt-nautilus",
 	"description": "A grunt plugin for modular app-js development",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
 	"readmeFilename": "README.md",
 	"author": {
@@ -51,8 +51,7 @@
 		"grunt-contrib-jshint": "~0.6",
 		"grunt-contrib-watch": "~0.5",
 		"grunt-contrib-compass": "~0.5",
-		"grunt-ender": "~0.2",
-		"app-js-util": "~0.1"
+		"grunt-ender": "~0.2"
 	},
 	"keywords": [
 		"grunt",
