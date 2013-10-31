@@ -246,7 +246,7 @@ The other builds are for the controller modules by name. Each controller module 
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
-	- _Any modules matched app.controller.home.js dependencies will stack here_
+	- _Any modules matched in app.controller.home.js dependencies will stack here_
 - `controllers/app.controller.home.js`
 
 
