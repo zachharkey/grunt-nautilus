@@ -224,7 +224,7 @@ This executes the concat and compass tasks together with production/staging box 
 ### appjs
 
 Executes: `grunt nautilus:appjs:[level]:[module]`	
-Level args: Either of the following, `core`, `feature` or `util`.	
+Level args: Either of the following, `core`, `util` or `controller`.	
 Module arg: The name of your appjs module. Names with hyphens and underscores will be camel cased.
 
 This executes the concat and compass tasks together with production/staging box settings.
@@ -233,31 +233,31 @@ This executes the concat and compass tasks together with production/staging box 
 
 ## Builds
 
-There are two main files arrays utilized. One is a global `scripts.js`. For this one, any faeture modules you may want included in the build need to be listed as dependencies in `app.js`. This array looks like this:
+There are two main files arrays utilized. One is a global `scripts.js`. For this one, any controller modules you may want included in the build need to be listed as dependencies in `app.js`. This array looks like this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
 - `app/util/**/*.js`
 - `app/core/**/*.js`
-	- _Any feature modules matched in app.site.js @deps will stack here_
+	- _Any controller modules matched in app.js will stack here_
 - `app.js`
 
-The other builds are for the feature modules by name. Each feature module will compile with its dependencies to a file named the same as the module's name. For a module named `home` you would get this:
+The other builds are for the controller modules by name. Each controller module will compile with its dependencies to a file named the same as the module's name. For a module named `home` you would get this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
-	- _Any @deps matched in the app.home.js file will stack here_
-- `app.home.js`
+	- _Any @deps matched in the app.controller.home.js file will stack here_
+- `controllers/app.controllers.home.js`
 
 
 
 ## App-Js Task
 
-The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `feature` and `util`. The module argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
+The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `util` and `controller`. The module argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
 
 ```
-# Creates app/feature/app.home.js
-grunt appjs:feature:home
+# Creates app/controllers/app.controllers.home.js
+grunt appjs:controller:home
 
 # Creates app/core/app.core.Class.js
 grunt appjs:core:Class

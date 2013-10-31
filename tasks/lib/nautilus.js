@@ -344,7 +344,7 @@ module.exports = function ( grunt ) {
 		 * Nautilus.prototype.createModule
 		 *
 		 * Creates a new app.*.js file.
-		 * Can be core, feature or util.
+		 * Can be core, controller or util.
 		 *
 		 */
 		this.createModule = function ( level, module ) {

@@ -1,6 +1,6 @@
 /*!
  *
- * App Feature: app.test
+ * App Controller: app.controller.test
  *
  * A nice description of what this script does...
  *
@@ -19,19 +19,17 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app = app.core.extend({
-	test: {
-		init: function () {
-			app.util.log( "Executed feature module @app.test", app.test );
-		}
+app.controllers.test = {
+	init: function () {
+		app.log( "Executed controller module @app.controllers.test", app.controllers.test );
 	}
-});
+};
 
 
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.core.exec( "test" );
+app.exec( "test" );
 
 
 })( window, window.app );

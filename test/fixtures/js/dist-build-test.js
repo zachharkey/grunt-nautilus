@@ -15,8 +15,8 @@
 // Our global, extendable app {Object}
 var app = {},
 	
-	// Keep track of feature modules
-	features = [],
+	// Keep track of controller modules
+	controllers = [],
 	
 	// Keep track of executed modules
 	executed = [];
@@ -35,15 +35,15 @@ app.util = {};
 
 
 /******************************************************************************
- * App support namespace
+ * App controllers namespace
 *******************************************************************************/
-app.support = {};
+app.controllers = {};
 
 
 /******************************************************************************
  * App log method
 *******************************************************************************/
-app.util.log = function () {
+app.log = function () {
 	var args = [].slice.call( arguments, 0 );
 	
 	if ( !args.length ) {
@@ -58,46 +58,13 @@ app.util.log = function () {
 
 
 /******************************************************************************
- * App extend method
-*******************************************************************************/
-app.core.extend = function ( o1, o2 ) {
-	var prop,
-		ret;
-	
-	// Absence of o2 defines this
-	// as a feature module
-	if ( !o2 ) {
-		for ( prop in o1 ) {
-			app[ prop ] = o1[ prop ];
-			
-			// Push all found props as a feature
-			// but you should just do one
-			// module namespace per feature script
-			features.push( prop );
-		}
-		
-		ret = app;
-		
-	} else {
-		for ( prop in o2 ) {
-			o1[ prop ] = o2[ prop ];
-		}
-		
-		ret = o1;
-	}
-	
-	return ret;
-};
-
-
-/******************************************************************************
  * App exec method
 *******************************************************************************/
-app.core.exec = function ( module ) {
+app.exec = function ( module ) {
 	var moduleName = module;
 	
-	if ( app[ module ] ) {
-		module = app[ module ];
+	if ( app.controllers[ module ] ) {
+		module = app.controllers[ module ];
 		
 	} else if ( app.core[ module ] ) {
 		module = app.core[ module ];
@@ -110,7 +77,7 @@ app.core.exec = function ( module ) {
 	}
 	
 	if ( executed.indexOf( moduleName ) !== -1 ) {
-			app.util.log( "Feature module "+moduleName+" already executed! Backing out..." );
+			app.log( "Module "+moduleName+" already executed! Backing out..." );
 			
 	} else if ( module && typeof module.init === "function" ) {
 		module.init();
@@ -119,25 +86,6 @@ app.core.exec = function ( module ) {
 	}
 	
 	return module;
-};
-
-
-/******************************************************************************
- * App execFeatures method
-*******************************************************************************/
-app.core.execFeatures = function () {
-	for ( var i = features.length; i--; ) {
-		var module = features[ i ];
-		
-		if ( executed.indexOf( module ) !== -1 ) {
-			app.util.log( "Feature module "+module+" already executed! Backing out..." );
-			
-		} else if ( app[ module ] && typeof app[ module ].init === "function" ) {
-			app[ module ].init();
-			
-			executed.push( module );
-		}
-	}
 };
 
 
@@ -162,7 +110,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( this );
 /*!
  *
- * App Feature: app.test
+ * App Controller: app.controller.test
  *
  * A nice description of what this script does...
  *
@@ -181,19 +129,17 @@ var document = window.document;
 /******************************************************************************
  * App Extensions
 *******************************************************************************/
-app = app.core.extend({
-	test: {
-		init: function () {
-			app.util.log( "Executed feature module @app.test", app.test );
-		}
+app.controllers.test = {
+	init: function () {
+		app.log( "Executed controller module @app.controllers.test", app.controllers.test );
 	}
-});
+};
 
 
 /******************************************************************************
  * Execution
 *******************************************************************************/
-app.core.exec( "test" );
+app.exec( "test" );
 
 
 })( window, window.app );

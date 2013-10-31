@@ -46,11 +46,11 @@ exports.nautilus = {
 		test.done();
 	},
 	
-	appjs_feature_test: function ( test ) {
+	appjs_controller_test: function ( test ) {
 		test.expect( 1 );
 		
-		var actual = grunt.file.read( "test/fixtures/js/app-feature.js" );
-		var expected = grunt.file.read( "test/expected/js/app/feature/app.test.js" );
+		var actual = grunt.file.read( "test/fixtures/js/app-controller.js" );
+		var expected = grunt.file.read( "test/expected/js/app/controllers/app.controller.test.js" );
 		
 		test.equal( actual, expected, "Should parse app-js template into app-js file." );
 		

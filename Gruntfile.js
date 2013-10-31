@@ -20,7 +20,7 @@ module.exports = function ( grunt ) {
 		// Test appjs file creations
 		"nautilus:appjs:core:test",
 		"nautilus:appjs:util:test",
-		"nautilus:appjs:feature:test",
+		"nautilus:appjs:controller:test",
 		"nodeunit:appjs",
 		
 		// Test compass compilations
@@ -69,7 +69,7 @@ module.exports = function ( grunt ) {
 			tests: [
 				"tmp",
 				"test/expected/js/app/core/*.js",
-				"test/expected/js/app/feature/*.js",
+				"test/expected/js/app/controllers/*.js",
 				"test/expected/js/app/util/*.js",
 				"test/expected/js/dist/*.js",
 				"test/expected/js/vendor/*.js",
@@ -198,7 +198,7 @@ module.exports = function ( grunt ) {
 				grunt.task.run([
 					"nautilus:appjs:core:test",
 					"nautilus:appjs:util:test",
-					"nautilus:appjs:feature:test"
+					"nautilus:appjs:controller:test"
 				]);
 			}
 			

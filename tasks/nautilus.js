@@ -70,7 +70,7 @@ module.exports = function ( grunt ) {
 		],
 		levels = [
 			"core",
-			"feature",
+			"controller",
 			"util"
 		];
 	
@@ -106,7 +106,7 @@ module.exports = function ( grunt ) {
 	 * Register the "nautilus" task
 	 * @usage: grunt nautilus:build
 	 * @usage: grunt nautilus:compass:[development, production]
-	 * @usage: grunt nautilus:appjs:[core, util, feature]:[module]
+	 * @usage: grunt nautilus:appjs:[core, util, controller]:[module]
 	 *
 	 */
 	grunt.registerTask( "nautilus", "A grunt plugin for modular app-js development", function ( arg1, arg2, arg3 ) {
@@ -156,7 +156,7 @@ module.exports = function ( grunt ) {
 				nautilus[ arg1 ].apply( nautilus, [arg2, arg3] );
 				
 			} else {
-				grunt.fail.warn( "invalid arguments and options. grunt-nautilus has no default task." );
+				grunt.fail.warn( "invalid arguments and options." );
 			}
 		}
 	});
