@@ -239,15 +239,15 @@ There are two main files arrays utilized. One is a global `scripts.js`. For this
 - `lib/**/*.js`
 - `app/util/**/*.js`
 - `app/core/**/*.js`
-	- _Any controller modules matched in app.js will stack here_
+	- _Any controller modules matched in app.js dependencies will stack here_
 - `app.js`
 
 The other builds are for the controller modules by name. Each controller module will compile with its dependencies to a file named the same as the module's name. For a module named `home` you would get this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
-	- _Any @deps matched in the app.controller.home.js file will stack here_
-- `controllers/app.controllers.home.js`
+	- _Any modules matched app.controller.home.js dependencies will stack here_
+- `controllers/app.controller.home.js`
 
 
 
@@ -256,7 +256,7 @@ The other builds are for the controller modules by name. Each controller module 
 The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `util` and `controller`. The module argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
 
 ```
-# Creates app/controllers/app.controllers.home.js
+# Creates app/controllers/app.controller.home.js
 grunt appjs:controller:home
 
 # Creates app/core/app.core.Class.js
