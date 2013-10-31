@@ -14,6 +14,9 @@ module.exports = function ( grunt ) {
 	"use strict";
 	
 	
+	var _ = grunt.util._;
+	
+	
 	/*!
 	 * 
 	 * Nautilus Class object.
@@ -50,16 +53,21 @@ module.exports = function ( grunt ) {
 			"{jsAppRoot}/**/*.js"
 		];
 		var coreScripts2Compile = {
+			vendor: ["{jsRoot}/vendor/**/*.js"],
+			lib: ["{jsRoot}/lib/**/*.js"],
+			app: ["{jsAppRoot}/util/**/*.js", "{jsAppRoot}/core/**/*.js"],
+			dev: ["{jsAppRoot}/app.js"]
+			
 			// Beginning of src array
-			start: [
-				"{jsRoot}/vendor/**/*.js",
-				"{jsRoot}/lib/**/*.js",
-				"{jsAppRoot}/util/**/*.js",
-				"{jsAppRoot}/core/**/*.js"
-			],
+			//start: [
+			//	"{jsRoot}/vendor/**/*.js",
+			//	"{jsRoot}/lib/**/*.js",
+			//	"{jsAppRoot}/util/**/*.js",
+			//	"{jsAppRoot}/core/**/*.js"
+			//],
 			
 			// End of src array
-			end: ["{jsAppRoot}/app.js"]
+			//end: ["{jsAppRoot}/app.js"]
 		};
 		
 		/*!
@@ -213,20 +221,16 @@ module.exports = function ( grunt ) {
 		this.config = function ( options ) {
 			var appjs = require( "app-js-util" )( grunt, options ),
 				scripts2Watch = replaceJsRootMatches( coreScripts2Watch, options ),
-				scripts2Compile = appjs.createCompiled(
-					replaceJsRootMatches( coreScripts2Compile.start, options ),
-					replaceJsRootMatches( coreScripts2Compile.end, options )
-				),
+				scripts2Compile = {
+					start: [],
+					end: []
+				},
 				sass2Watch = options.compass.options.sassDir+"/**/*.scss",
-				concatOptions = extend(
-					{
-						options: {
-							banner: "<%= banner %>"
-						}
-					},
-					
-					scripts2Compile
-				),
+				concatOptions = {
+					options: {
+						banner: "<%= banner %>"
+					}
+				},
 				compassOptions = {
 					development: {
 						options: extend(
@@ -244,7 +248,8 @@ module.exports = function ( grunt ) {
 				},
 				jshintGlobals = {
 					app: true,
-					console: true
+					console: true,
+					module: true
 				};
 			
 			if ( options.jsLib === "jquery" ) {
@@ -263,6 +268,40 @@ module.exports = function ( grunt ) {
 			if ( options.ender ) {
 				grunt.config.set( "ender", options.ender );
 			}
+			
+			// Replace matches with real dirs
+			coreScripts2Compile.vendor = replaceJsRootMatches( coreScripts2Compile.vendor, options );
+			coreScripts2Compile.lib = replaceJsRootMatches( coreScripts2Compile.lib, options );
+			coreScripts2Compile.app = replaceJsRootMatches( coreScripts2Compile.app, options );
+			coreScripts2Compile.dev = replaceJsRootMatches( coreScripts2Compile.dev, options );
+			
+			// Check for script buildins
+			if ( options.buildin ) {
+				_.each( options.buildin, function ( obj, i ) {
+					nautilog( "writeln", "Merging files array for buildin '"+i+"'." );
+					
+					if ( obj.priority === 0 ) {
+						[].unshift.apply( coreScripts2Compile.vendor, obj.files );
+						
+					} else if ( obj.priority === 1 ) {
+						[].unshift.apply( coreScripts2Compile.lib, obj.files );
+						
+					} else if ( obj.priority === 2 ) {
+						[].unshift.apply( coreScripts2Compile.app, obj.files );
+						
+					} else if ( obj.priority === 3 ) {
+						coreScripts2Compile.dev = coreScripts2Compile.dev.concat( obj.files );
+					}
+				});
+			}
+			
+			scripts2Compile.start = coreScripts2Compile.vendor.concat( coreScripts2Compile.lib ).concat( coreScripts2Compile.app );
+			scripts2Compile.end = coreScripts2Compile.dev;
+			scripts2Compile = appjs.createCompiled(
+				scripts2Compile.start,
+				scripts2Compile.end
+			);
+			concatOptions = extend( concatOptions, scripts2Compile );
 			
 			// Merge with possible user config
 			mergeConfig( "concat", concatOptions );
