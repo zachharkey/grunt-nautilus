@@ -57,17 +57,6 @@ module.exports = function ( grunt ) {
 			lib: ["{jsRoot}/lib/**/*.js"],
 			app: ["{jsAppRoot}/util/**/*.js", "{jsAppRoot}/core/**/*.js"],
 			dev: ["{jsAppRoot}/app.js"]
-			
-			// Beginning of src array
-			//start: [
-			//	"{jsRoot}/vendor/**/*.js",
-			//	"{jsRoot}/lib/**/*.js",
-			//	"{jsAppRoot}/util/**/*.js",
-			//	"{jsAppRoot}/core/**/*.js"
-			//],
-			
-			// End of src array
-			//end: ["{jsAppRoot}/app.js"]
 		};
 		
 		/*!
@@ -295,6 +284,7 @@ module.exports = function ( grunt ) {
 				});
 			}
 			
+			// Finally, get the merged config object for concat + uglify
 			scripts2Compile.start = coreScripts2Compile.vendor.concat( coreScripts2Compile.lib ).concat( coreScripts2Compile.app );
 			scripts2Compile.end = coreScripts2Compile.dev;
 			scripts2Compile = appjs.createCompiled(

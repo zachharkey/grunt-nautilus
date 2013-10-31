@@ -87,6 +87,27 @@ Default: `undefined`
 The grunt-ender config settings. See [grunt-ender][] for more on that
 
 
+### buildin
+
+Type: `object`	
+Default: `undefined`		
+Option to merge extra scripts into the global scripts.js build. Example:
+```js
+// Named script file arrays to merge into nautilus build.
+// Priority levels 0, 1, 2 and 3 determine merge position.
+// 0: Before vendor
+// 1: After vendor and before lib
+// 2: After lib and before app
+// 3: After app
+buildin: {
+	bower: {
+		files: ["bower/jquery/jquery.js"],
+		priority: 0
+	}
+}
+```
+
+
 ### compass
 
 Type: `object`	
