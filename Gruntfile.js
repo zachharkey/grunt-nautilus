@@ -17,10 +17,6 @@ module.exports = function ( grunt ) {
 	
 	// All tests.
 	var allTests = [
-		// Copy current framework files
-		// Ensures we always use recent versions
-		//"refresh",
-		
 		// Test appjs file creations
 		"nautilus:appjs:core:test",
 		"nautilus:appjs:util:test",
@@ -125,6 +121,28 @@ module.exports = function ( grunt ) {
 							sassDir: "test/fixtures/sass/prod"
 						}
 					}
+				},
+				
+				buildin: {
+					test_0: {
+						files: ["test/fixtures/buildins/test_0.js"],
+						priority: 0
+					},
+					
+					test_1: {
+						files: ["test/fixtures/buildins/test_1.js"],
+						priority: 1
+					},
+					
+					test_2: {
+						files: ["test/fixtures/buildins/test_2.js"],
+						priority: 2
+					},
+					
+					test_3: {
+						files: ["test/fixtures/buildins/test_3.js"],
+						priority: 3
+					}
 				}
 			}
 		},
@@ -220,35 +238,6 @@ module.exports = function ( grunt ) {
 		
 		// ... and clean after.
 		grunt.task.run( "clean" );
-	});
-	
-	
-	// Copy app-js files to be utilized for testing
-	grunt.registerTask( "refresh", function () {
-		grunt.file.copy(
-			"app-js/framework/app.js",
-			"test/expected/js/app/app.js"
-		);
-		
-		grunt.file.copy(
-			"app-js/framework/app.site.js",
-			"test/expected/js/app/app.site.js"
-		);
-		
-		grunt.file.copy(
-			"app-js/framework/app.util.log.js",
-			"test/expected/js/app/util/app.util.log.js"
-		);
-		
-		var tpl = grunt.file.read( "test/expected/js/app/app.site.js" );
-		var cts = grunt.template.process( tpl, {
-			data: {
-				arguments: ["window", "window.app"].join( ", " ),
-				parameters: ["window", "app", "undefined"].join( ", " )
-			}
-		});
-		
-		grunt.file.write( "test/expected/js/app/app.site.js", cts );
 	});
 	
 	

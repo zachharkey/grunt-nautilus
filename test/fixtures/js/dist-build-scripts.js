@@ -6,7 +6,7 @@
  *
  *
  */
-(function ( window, undefined ) {
+(function ( context, undefined ) {
 
 
 "use strict";
@@ -144,17 +144,25 @@ app.core.execFeatures = function () {
 /******************************************************************************
  * Console fallback
 *******************************************************************************/
-window.console = window.console || {};
-window.console.log = window.console.log || function () {};
+context.console = context.console || {};
+context.console.log = context.console.log || function () {};
 
 
 /******************************************************************************
  * Expose global app {Object}
 *******************************************************************************/
-window.app = app;
+if ( typeof module === "object" && module && typeof module.exports === "object" ) {
+	module.exports = app;
+	
+} else {
+	context.app = app;
+}
 
 
-})( window );
+})( this );
+console.log( "Buildin 0" );
+console.log( "Buildin 1" );
+console.log( "Buildin 2" );
 /*!
  *
  * App Util: app.util.test
@@ -260,3 +268,4 @@ app.core.execFeatures();
 
 
 })( window, window.app );
+console.log( "Buildin 3" );

@@ -2,7 +2,7 @@
   * =============================================================
   * Ender: open module JavaScript framework (https://ender.no.de)
   * Build: ender build jeesh --output test/expected/js/vendor/ender
-  * Packages: ender-js@0.5.0 domready@0.2.12 qwery@3.4.1 bonzo@1.3.5 bean@1.0.4 jeesh@0.0.6
+  * Packages: ender-js@0.5.0 domready@0.2.13 qwery@3.4.1 bonzo@1.3.7 bean@1.0.4 jeesh@0.0.6
   * =============================================================
   */
 
@@ -232,6 +232,7 @@
         loaded ? fn() : fns.push(fn)
       })
   })
+
   if (typeof provide == "function") provide("domready", module.exports);
 
   !function ($) {
@@ -1485,12 +1486,14 @@
             iter[o] = opt_v
           }
 
-          if (ie && iter.opacity) {
+          if (!features.opasity && 'opacity' in iter) {
             // oh this 'ol gamut
-            iter.filter = 'alpha(opacity=' + (iter.opacity * 100) + ')'
+            iter.filter = iter.opacity != null && iter.opacity !== ''
+              ? 'alpha(opacity=' + (iter.opacity * 100) + ')'
+              : ''
             // give it layout
-            iter.zoom = o.zoom || 1;
-            delete iter.opacity;
+            iter.zoom = o.zoom || 1
+            ;delete iter.opacity
           }
 
           function fn(el, p, v) {
@@ -1627,7 +1630,7 @@
          * @return {Bonzo|string}
          */
       , val: function (s) {
-          return (typeof s == 'string') ?
+          return (typeof s == 'string' || typeof s == 'number') ?
             this.attr('value', s) :
             this.length ? this[0].value : null
         }
@@ -1819,8 +1822,8 @@
 
     bonzo.viewport = function () {
       return {
-          width: ie ? html.clientWidth : self.innerWidth
-        , height: ie ? html.clientHeight : self.innerHeight
+          width: ie ? html.clientWidth : win.innerWidth
+        , height: ie ? html.clientHeight : win.innerHeight
       }
     }
 
