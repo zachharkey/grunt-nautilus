@@ -65,6 +65,13 @@ The `appjs` task allows you to specify a new module for your Javascript applicat
 
 ## Options
 
+### globalScripts
+
+Type: `string`	
+Default: `scripts`		
+The name of your global scripts dist file
+
+
 ### gruntfile
 
 Type: `string`	
