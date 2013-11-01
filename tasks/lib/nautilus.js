@@ -292,7 +292,7 @@ module.exports = function ( grunt ) {
 			);
 			concatOptions = extend( concatOptions, scripts2Compile );
 			
-			console.log( scripts2Compile );
+			//console.log( scripts2Compile );
 			
 			// Merge with possible user config
 			mergeConfig( "concat", concatOptions );
