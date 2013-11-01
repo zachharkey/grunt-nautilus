@@ -118,7 +118,7 @@ The grunt-ender config settings. See [grunt-ender][] for more on that
 
 Type: `object`	
 Default: `undefined`		
-Option to merge extra scripts into the global scripts.js build. Example:
+Option to merge extra scripts into specified builds. Example:
 ```js
 // Named script file arrays to merge into nautilus build.
 // Priority levels 0, 1, 2 and 3 determine merge position.
@@ -128,6 +128,7 @@ Option to merge extra scripts into the global scripts.js build. Example:
 // 3: After app
 buildin: {
 	bower: {
+		builds: ["scripts"],
 		files: ["bower/jquery/jquery.js"],
 		priority: 0
 	}
