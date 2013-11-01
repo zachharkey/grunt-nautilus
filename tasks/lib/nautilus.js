@@ -214,6 +214,7 @@ module.exports = function ( grunt ) {
 		 */
 		this.config = function ( options ) {
 			var appjs = require( "app-js-util" )( grunt, options ),
+				globalScript = (options.globalScripts || "scripts"),
 				scripts2Watch = replaceJsRootMatches( coreScripts2Watch, options ),
 				scripts2Compile = {
 					start: [],
@@ -272,8 +273,15 @@ module.exports = function ( grunt ) {
 			coreScripts2Compile.app = replaceJsRootMatches( coreScripts2Compile.app, options );
 			coreScripts2Compile.dev = replaceJsRootMatches( coreScripts2Compile.dev, options );
 			
-			// Merge script buildins
-			coreScripts2Compile = appjs.mergeScriptBuildins( coreScripts2Compile );
+			// Merge globalScript buildins
+			console.log( globalScript );
+			_.each( options.buildin, function ( buildin, i ) {
+				if ( buildin.builds.indexOf( globalScript ) !== -1 ) {
+					nautilog( "ok", "Merging files array for buildin '"+i+"'." );
+					
+					coreScripts2Compile = appjs.mergeScriptBuildin( globalScript, buildin, coreScripts2Compile );
+				}
+			});
 			
 			// Finally, get the merged config object for concat + uglify
 			scripts2Compile.start = coreScripts2Compile.vendor.concat( coreScripts2Compile.lib ).concat( coreScripts2Compile.app );
@@ -283,6 +291,8 @@ module.exports = function ( grunt ) {
 				scripts2Compile.end
 			);
 			concatOptions = extend( concatOptions, scripts2Compile );
+			
+			console.log( scripts2Compile );
 			
 			// Merge with possible user config
 			mergeConfig( "concat", concatOptions );
