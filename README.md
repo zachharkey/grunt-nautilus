@@ -5,6 +5,7 @@ grunt-nautilus
 [ender]: http://ender.jit.su/
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
 [grunt]: http://github.com/gruntjs/grunt
+[grunt-contrib]: https://github.com/gruntjs/grunt-contrib
 [grunt-contrib-concat]: http://github.com/gruntjs/grunt-contrib-concat
 [grunt-contrib-uglify]: http://github.com/gruntjs/grunt-contrib-uglify
 [grunt-contrib-jshint]: http://github.com/gruntjs/grunt-contrib-jshint
@@ -16,23 +17,49 @@ grunt-nautilus
 
 
 
+Grunt Nautilus is a grunt plugin that greatly reduces the amount of configuration you need to do yourself when working on projects with grunt. Nautilus is built to wrap around and expose several of the most used [grunt-contrib][] plugins, including [grunt-contrib-compass][]. It even supports some non-contrib plugins that are useful such as [grunt-ender][]. In all, Nautilus exposes a handful of tasks that perform common interactions with these plugins. A few unique tasks are available with Nautilus that make it a bit more powerful.
+
+
+
 ## Installation
 
-If you haven't already, initialize a new Gruntfile using the [grunt-init-gruntnautilus][] template. This will create a Gruntfile and a package.json file. To install grunt-nautilus and its peer packages and initialize grunt-nautilus run the following:
+Getting setup with Nautilus is pretty easy. If you haven't already, initialize a new Gruntfile using the [grunt-init-gruntnautilus][] template. This will create Gruntfile.js and package.json. To install grunt-nautilus and its peer packages and initialize grunt-nautilus run the following:
 
 ```
 # Installs packages
 npm install
 
-# Initializes grunt-nautilus' setup
+# The first grunt command execution initializes the grunt-nautilus setup
 grunt
 ```
 
-_Note, however, that any grunt command at this point will run the grunt-nautilus initialization and exit_
 
-### Gruntfile
 
-A grunt-init-gruntnautilus Gruntfile looks similar to the [example.Gruntfile.js][].
+## How Builds Work
+
+Two main build types exist with Nautilus and its integration with the [app-js-util][]. You will always get a generalized, global file compilation as `scripts.js`. From there, you will get individual controller compilations for every controller you define. This allows you to compartmentalize your code and load only what is necessary in certain instances.
+
+The global scripts build stacks like this:
+
+- `vendor/**/*.js`
+- `lib/**/*.js`
+- `app/util/**/*.js`
+- `app/core/**/*.js`
+- `app.js`
+
+The controller builds stack like this:
+
+- `vendor/**/*.js`
+- `lib/**/*.js`
+	- _Any modules matched in the controller dependencies will stack here_
+- `controllers/yourcontroller`
+
+_(Note: If the internal building blocks of Nautilus aren't quite enough for you, checkout the [buildin](#buildin) option below. It gives you all the extra build control you need.)_
+
+
+
+## How App-Js Works
+The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `util` and `controller`. Using templates, `.js` files are created for you in their respective locations. This keeps a uniform development style across the application and helps enforce the idea of modular application development. For more on how this setup works, checkout [app-js-util][].
 
 
 
@@ -147,7 +174,7 @@ compass: {
 
 
 
-## Nautilus task(s)
+## Task(s)
 
 You can interface with grunt-nautilus via the `nautilus` task. For your typing sanctity, all nautilus tasks are also provided as standalone tasks as well. The following tasks are provided:
 
@@ -231,45 +258,6 @@ This executes the concat and compass tasks together with production/staging box 
 
 
 
-## Builds
-
-There are two main files arrays utilized. One is a global `scripts.js`. For this one, any controller modules you may want included in the build need to be listed as dependencies in `app.js`. This array looks like this:
-
-- `vendor/**/*.js`
-- `lib/**/*.js`
-- `app/util/**/*.js`
-- `app/core/**/*.js`
-	- _Any controller modules matched in app.js dependencies will stack here_
-- `app.js`
-
-The other builds are for the controller modules by name. Each controller module will compile with its dependencies to a file named the same as the module's name. For a module named `home` you would get this:
-
-- `vendor/**/*.js`
-- `lib/**/*.js`
-	- _Any modules matched in app.controller.home.js dependencies will stack here_
-- `controllers/app.controller.home.js`
-
-
-
-## App-Js Task
-
-The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `util` and `controller`. The module argument is used to name the module as it will exist on the global `app` object. The following describes how files will be generated for you:
-
-```
-# Creates app/controllers/app.controller.home.js
-grunt appjs:controller:home
-
-# Creates app/core/app.core.Class.js
-grunt appjs:core:Class
-
-# Creates app/util/app.util.async.js
-grunt appjs:util:async
-```
-
-_For more on how this setup works, checkout [app-js-util][]._
-
-
-
 ## Peer Packages
 
 grunt-nautilus will install the following peer dependency packages:
@@ -281,7 +269,7 @@ grunt-nautilus will install the following peer dependency packages:
 - [grunt-contrib-watch][]
 - [grunt-contrib-compass][]
 
-If you are using the [ender][] js library, an internal, modified version of [grunt-ender][] will be utilized to manage your ender builds.
+If you are using the [ender][] js library, [grunt-ender][] will be utilized to manage your ender builds.
 
 
 
