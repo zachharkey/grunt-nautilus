@@ -30,7 +30,7 @@
 		"test": "grunt test"
 	},
 	"dependencies": {
-		"app-js-util": ">= 0.1.15"
+		"app-js-util": ">= 0.1.16"
 	},
 	"devDependencies": {
 		"grunt": "~0.4.1",
@@ -42,7 +42,7 @@
 		"grunt-contrib-watch": "~0.5",
 		"grunt-contrib-compass": "~0.5",
 		"grunt-ender": "~0.2",
-		"app-js-util": ">= 0.1.15"
+		"app-js-util": ">= 0.1.16"
 	},
 	"peerDependencies": {
 		"grunt": "~0.4.1",

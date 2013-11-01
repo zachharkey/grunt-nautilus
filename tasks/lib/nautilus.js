@@ -274,7 +274,6 @@ module.exports = function ( grunt ) {
 			coreScripts2Compile.dev = replaceJsRootMatches( coreScripts2Compile.dev, options );
 			
 			// Merge globalScript buildins
-			console.log( globalScript );
 			_.each( options.buildin, function ( buildin, i ) {
 				if ( buildin.builds.indexOf( globalScript ) !== -1 ) {
 					nautilog( "ok", "Merging files array for buildin '"+i+"'." );
@@ -292,8 +291,6 @@ module.exports = function ( grunt ) {
 			);
 			concatOptions = extend( concatOptions, scripts2Compile );
 			
-			//console.log( scripts2Compile );
-			
 			// Merge with possible user config
 			mergeConfig( "concat", concatOptions );
 			mergeConfig( "uglify", concatOptions );
@@ -307,7 +304,7 @@ module.exports = function ( grunt ) {
 					noarg: true,
 					sub: true,
 					undef: true,
-					unused: true,
+					unused: false,
 					boss: true,
 					eqnull: true,
 					browser: true,
