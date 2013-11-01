@@ -15,6 +15,7 @@ module.exports = function ( grunt ) {
 	
 	
 	var _ = grunt.util._;
+	var q = false;
 	
 	
 	/*!
@@ -65,6 +66,10 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		var nautilog = function ( type, msg ) {
+			if ( q ) {
+				return;
+			}
+			
 			grunt.log[ type ]( "[Nautilog]: "+msg );
 		};
 		
@@ -106,13 +111,13 @@ module.exports = function ( grunt ) {
 			if ( !config ) {
 				grunt.config.set( task, settings );
 				
-				nautilog( "writeln", "Setting config options for "+task+"." );
+				nautilog( "ok", "Setting config options for "+task+"." );
 			
 			// Otherwise merge internal with user config	
 			} else {
 				grunt.config.set( task, extend( config, settings ) );
 				
-				nautilog( "writeln", "Merging config options for "+task+"." );
+				nautilog( "ok", "Merging config options for "+task+"." );
 			}
 		};
 		
@@ -241,6 +246,9 @@ module.exports = function ( grunt ) {
 					module: true
 				};
 			
+			// Set the quiet option
+			q = options.quiet;
+			
 			if ( options.jsLib === "jquery" ) {
 				jshintGlobals.$ = true;
 				jshintGlobals.jQuery = true;
@@ -264,25 +272,8 @@ module.exports = function ( grunt ) {
 			coreScripts2Compile.app = replaceJsRootMatches( coreScripts2Compile.app, options );
 			coreScripts2Compile.dev = replaceJsRootMatches( coreScripts2Compile.dev, options );
 			
-			// Check for script buildins
-			if ( options.buildin ) {
-				_.each( options.buildin, function ( obj, i ) {
-					nautilog( "writeln", "Merging files array for buildin '"+i+"'." );
-					
-					if ( obj.priority === 0 ) {
-						[].unshift.apply( coreScripts2Compile.vendor, obj.files );
-						
-					} else if ( obj.priority === 1 ) {
-						[].unshift.apply( coreScripts2Compile.lib, obj.files );
-						
-					} else if ( obj.priority === 2 ) {
-						[].unshift.apply( coreScripts2Compile.app, obj.files );
-						
-					} else if ( obj.priority === 3 ) {
-						coreScripts2Compile.dev = coreScripts2Compile.dev.concat( obj.files );
-					}
-				});
-			}
+			// Merge script buildins
+			coreScripts2Compile = appjs.mergeScriptBuildins( coreScripts2Compile );
 			
 			// Finally, get the merged config object for concat + uglify
 			scripts2Compile.start = coreScripts2Compile.vendor.concat( coreScripts2Compile.lib ).concat( coreScripts2Compile.app );

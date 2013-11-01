@@ -173,6 +173,14 @@ compass: {
 ```
 
 
+### quiet
+
+Type: `boolean`		
+Default: `false`	
+If set to true it suppresses logging that comes from Nautilus
+
+
+
 
 ## Task(s)
 
