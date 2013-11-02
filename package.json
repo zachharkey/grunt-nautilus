@@ -1,7 +1,7 @@
 {
 	"name": "grunt-nautilus",
 	"description": "A grunt plugin for modular app-js development",
-	"version": "0.3.12",
+	"version": "0.3.14",
 	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
 	"readmeFilename": "README.md",
 	"author": {
@@ -30,7 +30,7 @@
 		"test": "grunt test"
 	},
 	"dependencies": {
-		"app-js-util": ">= 0.1.16"
+		"app-js-util": ">= 0.2"
 	},
 	"devDependencies": {
 		"grunt": "~0.4.1",
@@ -42,7 +42,7 @@
 		"grunt-contrib-watch": "~0.5",
 		"grunt-contrib-compass": "~0.5",
 		"grunt-ender": "~0.2",
-		"app-js-util": ">= 0.1.16"
+		"app-js-util": ">= 0.2"
 	},
 	"peerDependencies": {
 		"grunt": "~0.4.1",

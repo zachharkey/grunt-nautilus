@@ -8,23 +8,19 @@
  *
  *
  */
-
-
-"use strict";
-
-
 module.exports = function ( grunt ) {
 	
 	
-	var nautilus = require( "./lib/nautilus" )( grunt ),
-		tasks = [
+	"use strict";
+	
+	
+	var _each = grunt.util._.each,
+		_isFunction = grunt.util._.isFunction,
+		_nautilus = require( "./lib/nautilus" )( grunt ),
+		_options = grunt.config.get( "nautilus" ).options,
+		_tasks = [
 			{
-				name: "default",
-				args: 0
-			},
-			
-			{
-				name: "appjs",
+				name: "app",
 				args: 2
 			},
 			
@@ -39,36 +35,11 @@ module.exports = function ( grunt ) {
 			},
 			
 			{
-				name: "watch",
-				args: 0
-			},
-			
-			{
-				name: "jshint",
-				args: 0
-			},
-			
-			{
-				name: "uglify",
-				args: 0
-			},
-			
-			{
-				name: "concat",
-				args: 0
-			},
-			
-			{
-				name: "compass",
-				args: 1
-			},
-			
-			{
-				name: "ender",
+				name: "default",
 				args: 0
 			}
 		],
-		levels = [
+		_levels = [
 			"core",
 			"controller",
 			"util"
@@ -77,48 +48,64 @@ module.exports = function ( grunt ) {
 	
 	/*!
 	 * 
-	 * Register shorthand tasks to be passed off to "nautilus"
+	 * Load the required plugins and these contrib tasks will be available.
 	 *
-	 * @task: appjs
-	 * @task: build
-	 * @task: deploy
+	 * @task: ender
 	 * @task: watch
 	 * @task: jshint
 	 * @task: uglify
 	 * @task: concat
 	 * @task: compass
-	 * @task: ender
 	 *
 	 */
-	for ( var i = 0, len = tasks.length; i < len; i++ ) {
-		(function ( task ) {
-			grunt.registerTask( task.name, function () {
-				var command = [ "nautilus", task.name ].concat( [].slice.call( arguments, 0, task.args ) ).join( ":" );
-				
-				grunt.task.run( command );
-			});
-		})( tasks[ i ] );
-	}
+	_nautilus.load();
+	
+	
+	/*!
+	 * 
+	 * Build the grunt config.
+	 *
+	 */
+	_nautilus.config();
+	
+	
+	/*!
+	 * 
+	 * Register shorthand tasks to be passed off to "nautilus"
+	 *
+	 * @task: app
+	 * @task: build
+	 * @task: deploy
+	 * @task: default
+	 *
+	 */
+	_each( _tasks, function ( task ) {
+		grunt.registerTask( task.name, function () {
+			var command = [ "nautilus", task.name ].concat( [].slice.call( arguments, 0, task.args ) ).join( ":" );
+			
+			grunt.task.run( command );
+		});
+	});
 	
 	
 	/*!
 	 * 
 	 * Register the "nautilus" task
+	 *
+	 * @usage: grunt nautilus
 	 * @usage: grunt nautilus:build
-	 * @usage: grunt nautilus:compass:[development, production]
-	 * @usage: grunt nautilus:appjs:[core, util, controller]:[module]
+	 * @usage: grunt nautilus:deploy
+	 * @usage: grunt nautilus:app
 	 *
 	 */
 	grunt.registerTask( "nautilus", "A grunt plugin for modular app-js development", function ( arg1, arg2, arg3 ) {
-		var options = this.options();
-		
 		/*!
 		 *
 		 * Test init public
 		 *
 		 */
-		if ( !grunt.file.exists( options.jsRoot+"/app/app.js" ) ) {
-			nautilus.init( options );
+		if ( !grunt.file.exists( _options.jsRoot+"/app/app.js" ) ) {
+			_nautilus.init();
 			
 			grunt.log.writeln( "" );
 			grunt.log.writeln( "Grunt Nautilus has been initialized. We just created a bunch of files so you don't have to! Check it out and happy grunting!" );
@@ -128,32 +115,11 @@ module.exports = function ( grunt ) {
 		} else {
 			/*!
 			 * 
-			 * Load the required plugins.
-			 *
-			 */
-			nautilus.load( options );
-		
-			
-			/*!
-			 * 
-			 * Build the grunt config.
-			 *
-			 */
-			nautilus.config( options );
-			
-			
-			/*!
-			 * 
 			 * Parse the arguments.
 			 *
 			 */
-			if ( arg1 === "appjs" ) {
-				if ( levels.indexOf( arg2 ) !== -1 ) {
-					nautilus.createModule( arg2, arg3 );
-				}
-				
-			} else if ( nautilus.isTask( arg1 ) && typeof nautilus[ arg1 ] === "function" ) {
-				nautilus[ arg1 ].apply( nautilus, [arg2, arg3] );
+			if ( _nautilus.isTask( arg1 ) && typeof _isFunction( _nautilus[ arg1 ] ) ) {
+				_nautilus[ arg1 ].apply( _nautilus, [arg2, arg3] );
 				
 			} else {
 				grunt.fail.warn( "invalid arguments and options." );

@@ -69,56 +69,49 @@ The `appjs` task allows you to specify a new module for your Javascript applicat
 
 Type: `string`	
 Default: `scripts`		
-The name of your global scripts dist file
+The name of your global scripts dist file.
 
 
 ### gruntfile
 
 Type: `string`	
 Default: `Gruntfile.js`		
-The location of your Gruntfile
+The location of your Gruntfile (for jshint).
 
 
 ### jsRoot
 
 Type: `string`	
 Default: `./js`		
-The path to your js root directory
+The path to your js root directory.
 
 
 ### jsAppRoot
 
 Type: `string`	
 Default: `./js/app`		
-The path to your app-js root directory
+The path to your app-js root directory.
 
 
 ### jsDistRoot
 
 Type: `string`	
 Default: `./js/dist`	
-The path where you want your js compiled
+The path where you want your js compiled.
 
 
 ### jsLib
 
 Type: `string`	
 Default: `undefined`	
-The js library you are using, if any. Can be `jquery` or `ender`
-
-
-### jsAppRoot
-
-Type: `string`	
-Default: `./js/app`	
-The path to your app-js root directory
+The js library you are using, if any. Can be `jquery` or `ender`.
 
 
 ### ender
 
 Type: `object`	
 Default: `undefined`		
-The grunt-ender config settings. See [grunt-ender][] for more on that
+The grunt-ender config settings. See [grunt-ender][] for more on that.
 
 
 ### buildin
@@ -185,8 +178,23 @@ compass: {
 
 Type: `boolean`		
 Default: `false`	
-If set to true it suppresses logging that comes from Nautilus
+If set to true it suppresses logging that comes from Nautilus.
 
+
+
+### jshintGlobals
+
+Type: `object`		
+Default: `undefined`	
+Globals to merge with the globals setting for jshint.
+
+
+
+### hinton
+
+Type: `array`		
+Default: `undefined`	
+Array of tasks that should run jshint. Can be default, watch, build or deploy.
 
 
 
