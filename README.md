@@ -141,19 +141,10 @@ buildin: {
 Type: `object`	
 The default for this is easiest just to show:	
 ```js
-// Both dev and prod options will be merged with options
-// and passed to grunt-contrib-compass correctly.
 compass: {
 	// Shared options.
 	options: {
-		cssDir: cssRoot,
-		fontsDir: fontsRoot,
-		force: true,
-		httpPath: "/",
-		imagesDir: imgRoot,
-		javascriptsDir: jsRoot,
-		noLineComments: true,
-		sassDir: sassRoot
+		// Will merge with environment options
 	},
 	
 	// Environment specific options.
@@ -198,65 +189,11 @@ Array of tasks that should run jshint. Can be default, watch, build or deploy.
 
 
 
-## Task(s)
+## Tasks
 
 You can interface with grunt-nautilus via the `nautilus` task. For your typing sanctity, all nautilus tasks are also provided as standalone tasks as well. The following tasks are provided:
 
-### grunt
-
-Executes: `grunt nautilus:build`
-
-
-### watch
-
-Executes: `grunt nautilus:watch`	
-Uses: `grunt-contrib-watch`
-
-This watches your sass and js files.
-
-
-### concat
-
-Executes: `grunt nautilus:concat`	
-Uses: `grunt-contrib-concat`
-
-This concatenates your js files without minifying them.
-
-
-### jshint
-
-Executes: `grunt nautilus:jshint`	
-Uses: `grunt-contrib-jshint`
-
-This lints your js files.
-
-
-### uglify
-
-Executes: `grunt nautilus:uglify`	
-Uses: `grunt-contrib-uglify`
-
-This combines and compiles your js files, minifying the result.
-
-
-### compass
-
-Executes: `grunt nautilus:compass:[environment]`	
-Environment arg: Accepts `development` or `production` by default. You can configure as many as you like though.	
-Uses: `grunt-contrib-compass`
-
-This generates your css files from your sass files using Compass.
-
-
-### ender
-
-Executes: `grunt nautilus:ender`	
-Uses: `grunt-ender`
-
-This manages and generates your ender builds. See [grunt-ender][] for info on passing options for this.
-
-
-### build
+### grunt / grunt build
 
 Executes: `grunt nautilus:build`	
 Uses: `grunt-contrib-concat`, `grunt-contrib-compass`
@@ -264,7 +201,7 @@ Uses: `grunt-contrib-concat`, `grunt-contrib-compass`
 This executes the concat and compass tasks together with sandbox development settings.
 
 
-### deploy
+### grunt deploy
 
 Executes: `grunt nautilus:deploy`	
 Uses: `grunt-contrib-uglify`, `grunt-contrib-compass`
@@ -272,13 +209,62 @@ Uses: `grunt-contrib-uglify`, `grunt-contrib-compass`
 This executes the concat and compass tasks together with production/staging box settings.
 
 
-### appjs
+### grunt app
 
-Executes: `grunt nautilus:appjs:[level]:[module]`	
+Executes: `grunt nautilus:app:[level]:[module]`	
 Level args: Either of the following, `core`, `util` or `controller`.	
 Module arg: The name of your appjs module. Names with hyphens and underscores will be camel cased.
 
 This executes the concat and compass tasks together with production/staging box settings.
+
+
+### grunt watch
+
+Executes: `grunt watch`	
+Uses: `grunt-contrib-watch`
+
+This watches your sass and js files.
+
+
+### grunt concat
+
+Executes: `grunt concat`	
+Uses: `grunt-contrib-concat`
+
+This concatenates your js files without minifying them.
+
+
+### grunt jshint
+
+Executes: `grunt jshint`	
+Uses: `grunt-contrib-jshint`
+
+This lints your js files.
+
+
+### grunt uglify
+
+Executes: `grunt uglify`	
+Uses: `grunt-contrib-uglify`
+
+This combines and compiles your js files, minifying the result.
+
+
+### grunt compass
+
+Executes: `grunt compass:[environment]`	
+Environment arg: Accepts `development` or `production` by default. You can configure as many as you like though.	
+Uses: `grunt-contrib-compass`
+
+This generates your css files from your sass files using Compass.
+
+
+### grunt ender
+
+Executes: `grunt ender`	
+Uses: `grunt-ender`
+
+This manages and generates your ender builds. See [grunt-ender][] for info on passing options for this.
 
 
 
