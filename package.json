@@ -51,7 +51,7 @@
 		"grunt-contrib-uglify": "~0.2",
 		"grunt-contrib-watch": "~0.5",
 		"grunt-contrib-compass": "~0.6",
-		"grunt-ender": "0.2.1",
+		"grunt-ender": "0.2.1"
 	},
 	"keywords": [
 		"grunt",
