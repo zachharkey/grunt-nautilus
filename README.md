@@ -150,6 +150,13 @@ Default: `undefined`
 Array of tasks that should run jshint. Can be default, watch, build or deploy.
 
 
+### hintAt
+
+Type: `array`		
+Default: `undefined`	
+Array of directories within jsRoot to be linted. Default is to only lint the app directory.
+
+
 ### ender
 
 Type: `object`	

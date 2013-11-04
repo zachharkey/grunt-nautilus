@@ -68,7 +68,6 @@ module.exports = function ( grunt ) {
 			"{jsAppRoot}/**/*.js"
 		];
 		var coreScripts2Hint = [
-			"{jsRoot}/lib/**/*.js",
 			"{jsAppRoot}/**/*.js"
 		];
 		var coreScripts2Compile = {
@@ -331,6 +330,17 @@ module.exports = function ( grunt ) {
 			
 			// Set the globals object for jshint
 			jshintOptions.options.globals = jshintGlobals;
+			
+			// Merge settings for what dirs to jshint on
+			if ( _options.hintAt ) {
+				_each( _options.hintAt, function ( dir ) {
+					var path = _options.jsRoot+"/"+dir+"/**/*.js";
+					
+					if ( grunt.file.isDir( _options.jsRoot+"/"+dir ) && scripts2Hint.indexOf( path ) === -1 ) {
+						scripts2Hint.push( path );
+					}
+				});
+			}
 			
 			// Handle anything that needs to look at the Gruntfile.js
 			if ( _options.gruntFile ) {
