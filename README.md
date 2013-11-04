@@ -13,7 +13,6 @@ grunt-nautilus
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
 [grunt-ender]: https://github.com/endium/grunt-ender
 [app-js-util]: https://github.com/kitajchuk/app-js-util
-[example.Gruntfile.js]: https://github.com/kitajchuk/grunt-nautilus/blob/master/example.Gruntfile.js
 
 
 
@@ -54,12 +53,12 @@ The controller builds stack like this:
 	- _Any modules matched in the controller dependencies will stack here_
 - `controllers/yourcontroller`
 
-_(Note: If the internal building blocks of Nautilus aren't quite enough for you, checkout the [buildin](#buildin) option below. It gives you all the extra build control you need.)_
+_(Note: If the internal building blocks of Nautilus aren't quite enough for you, checkout the [buildIn](#buildIn) option below. It gives you all the extra build control you need.)_
 
 
 
-## How App-Js Works
-The `appjs` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `util` and `controller`. Using templates, `.js` files are created for you in their respective locations. This keeps a uniform development style across the application and helps enforce the idea of modular application development. For more on how this setup works, checkout [app-js-util][].
+## How the App Task Works
+The `app` task allows you to specify a new module for your Javascript application using either of the 3 available levels, `core`, `util` and `controller`. Using templates, `.js` files are created for you in their respective locations. This keeps a uniform development style across the application and helps enforce the idea of modular application development. For more on how this setup works, checkout [app-js-util][].
 
 
 
@@ -72,7 +71,7 @@ Default: `scripts`
 The name of your global scripts dist file.
 
 
-### gruntfile
+### gruntFile
 
 Type: `string`	
 Default: `Gruntfile.js`		
@@ -107,14 +106,7 @@ Default: `undefined`
 The js library you are using, if any. Can be `jquery` or `ender`.
 
 
-### ender
-
-Type: `object`	
-Default: `undefined`		
-The grunt-ender config settings. See [grunt-ender][] for more on that.
-
-
-### buildin
+### buildIn
 
 Type: `object`	
 Default: `undefined`		
@@ -134,6 +126,35 @@ buildin: {
 	}
 }
 ```
+
+
+### quiet
+
+Type: `boolean`		
+Default: `false`	
+If set to true it suppresses logging that comes from Nautilus.
+
+
+
+### jshintGlobals
+
+Type: `object`		
+Default: `undefined`	
+Globals to merge with the globals setting for jshint.
+
+
+### hintOn
+
+Type: `array`		
+Default: `undefined`	
+Array of tasks that should run jshint. Can be default, watch, build or deploy.
+
+
+### ender
+
+Type: `object`	
+Default: `undefined`		
+The grunt-ender config settings. See [grunt-ender][] for more on that.
 
 
 ### compass
@@ -163,29 +184,6 @@ compass: {
 	}
 }
 ```
-
-
-### quiet
-
-Type: `boolean`		
-Default: `false`	
-If set to true it suppresses logging that comes from Nautilus.
-
-
-
-### jshintGlobals
-
-Type: `object`		
-Default: `undefined`	
-Globals to merge with the globals setting for jshint.
-
-
-
-### hinton
-
-Type: `array`		
-Default: `undefined`	
-Array of tasks that should run jshint. Can be default, watch, build or deploy.
 
 
 

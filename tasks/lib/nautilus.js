@@ -22,7 +22,19 @@ module.exports = function ( grunt ) {
 	var _options = grunt.config.get( "nautilus" ).options,
 		_appJsUtil = require( "app-js-util" )( grunt, _options ),
 		_each = grunt.util._.each,
-		_isString = grunt.util._.isString;
+		_isString = grunt.util._.isString,
+		_jsLibs = {
+			jquery: {
+				context: "jQuery",
+				shorthand: "$"
+			},
+			
+			ender: {
+				context: "ender",
+				className: "Ender",
+				shorthand: "$"
+			}
+		};
 	
 	
 	/*!
@@ -106,6 +118,17 @@ module.exports = function ( grunt ) {
 		};
 		
 		/*!
+		 * 
+		 * Replace custom template tags with values from nautilus settings.
+		 *
+		 */
+		var replaceJsRootMatches = function ( files ) {
+			return files.map(function ( elem ) {
+				return elem.replace( /\{jsRoot\}/, _options.jsRoot ).replace( /\{jsAppRoot\}/, _options.jsAppRoot );
+			});
+		};
+		
+		/*!
 		 *
 		 * Merge user config with nautilus' internal config settings.
 		 *
@@ -129,23 +152,12 @@ module.exports = function ( grunt ) {
 		
 		/*!
 		 * 
-		 * Replace custom template tags with values from nautilus settings.
-		 *
-		 */
-		var replaceJsRootMatches = function ( files ) {
-			return files.map(function ( elem ) {
-				return elem.replace( /\{jsRoot\}/, _options.jsRoot ).replace( /\{jsAppRoot\}/, _options.jsAppRoot );
-			});
-		};
-		
-		/*!
-		 * 
 		 * Merge user defined tasks to run alongside other tasks.
 		 *
 		 */
 		var mergeTasks = function ( task, tasks ) {
 			// Should this task use jshint?
-			if ( _options.hinton && _options.hinton.indexOf( task ) !== -1 ) {
+			if ( _options.hintOn && _options.hintOn.indexOf( task ) !== -1 ) {
 				tasks = ( _isString( tasks ) )
 						? [tasks]
 						: tasks;
@@ -156,6 +168,25 @@ module.exports = function ( grunt ) {
 			}
 			
 			return tasks;
+		};
+		
+		/*!
+		 * 
+		 * Merge globals for a given task.
+		 *
+		 */
+		var mergeGlobals = function ( task, globals ) {
+			if ( task === "jshint" ) {
+				_each( _jsLibs, function ( obj, lib ) {
+					if ( _options.jsLib === lib ) {
+						_each( obj, function ( g ) {
+							globals[ g ] = true;
+						});
+					}
+				});
+			}
+			
+			return globals;
 		};
 		
 		/*!
@@ -238,32 +269,55 @@ module.exports = function ( grunt ) {
 		 *
 		 */
 		this.config = function () {
-			var globalScript = (_options.globalScripts || "scripts"),
+			var globalScript = _options.globalScripts || "scripts",
+			
+				// Watch file arrays
 				scripts2Watch = replaceJsRootMatches( coreScripts2Watch ),
 				scripts2Hint = replaceJsRootMatches( coreScripts2Hint ),
+				sass2Watch = _options.compass.options.sassDir+"/**/*.scss",
+				
+				// Compile file arrays
 				scripts2Compile = {
 					start: [],
 					end: []
 				},
-				sass2Watch = _options.compass.options.sassDir+"/**/*.scss",
+				
+				// Task config options
+				compassOptions = {},
+				watchOptions = {
+					scripts: {
+						files: scripts2Watch,
+						tasks: mergeTasks( "watch", "concat" )
+					},
+					
+					styles: {
+						files: sass2Watch,
+						tasks: "compass:development"
+					}
+				},
 				concatOptions = {
 					options: {
 						banner: "<%= banner %>"
 					}
 				},
-				compassOptions = {
-					development: {
-						options: extend(
-							_options.compass.options,
-							_options.compass.development.options
-						)
+				jshintOptions = {
+					options: {
+						curly: true,
+						eqeqeq: true,
+						immed: true,
+						latedef: true,
+						newcap: true,
+						noarg: true,
+						sub: true,
+						undef: true,
+						unused: false,
+						boss: true,
+						eqnull: true,
+						browser: true
 					},
 					
-					production: {
-						options: extend(
-							_options.compass.options,
-							_options.compass.production.options
-						)
+					scripts: {
+						src: scripts2Hint
 					}
 				},
 				jshintGlobals = {
@@ -272,94 +326,71 @@ module.exports = function ( grunt ) {
 					module: true
 				};
 			
-			// Merge user jshint globals
-			jshintGlobals = extend( jshintGlobals, _options.jshintGlobals );
+			// Merge settings for jshint
+			jshintGlobals = mergeGlobals( "jshint", extend( jshintGlobals, _options.jshintGlobals ) );
 			
-			//nautilog( "ok", "Merging config options for jshint globals." );
+			// Set the globals object for jshint
+			jshintOptions.options.globals = jshintGlobals;
 			
-			if ( _options.jsLib === "jquery" ) {
-				jshintGlobals.$ = true;
-				jshintGlobals.jQuery = true;
+			// Handle anything that needs to look at the Gruntfile.js
+			if ( _options.gruntFile ) {
+				jshintOptions.gruntfile = {
+					src: _options.gruntFile
+				};
 				
-			} else if ( _options.jsLib === "ender" ) {
-				jshintGlobals.$ = true;
-				jshintGlobals.ender = true;
-				jshintGlobals.Ender = true;
+				watchOptions.gruntfile = {
+					files: _options.gruntFile,
+					tasks: "jshint:gruntfile"
+				};
 			}
 			
-			// Configurable via nautilus config
-			grunt.config.set( "compass", compassOptions );
-			
-			if ( _options.ender ) {
-				grunt.config.set( "ender", _options.ender );
-			}
-			
-			// Replace matches with real dirs
+			// Configure core javascript that needs to be compiled
 			coreScripts2Compile.vendor = replaceJsRootMatches( coreScripts2Compile.vendor );
 			coreScripts2Compile.lib = replaceJsRootMatches( coreScripts2Compile.lib );
 			coreScripts2Compile.app = replaceJsRootMatches( coreScripts2Compile.app );
 			coreScripts2Compile.dev = replaceJsRootMatches( coreScripts2Compile.dev );
 			
-			// Merge globalScript buildins
-			_each( _options.buildin, function ( buildin, buildinName ) {
-				if ( buildin.builds.indexOf( globalScript ) !== -1 ) {
-					coreScripts2Compile = _appJsUtil.mergeScriptBuildin( globalScript, buildinName, coreScripts2Compile );
+			// Merge buildIn options if they exist
+			_each( _options.buildIn, function ( buildIn, buildInName ) {
+				if ( buildIn.builds.indexOf( globalScript ) !== -1 ) {
+					coreScripts2Compile = _appJsUtil.mergeScriptBuildIn( globalScript, buildInName, coreScripts2Compile );
 				}
 			});
 			
-			// Finally, get the merged config object for concat + uglify
+			// Merge the files arrays and compile through app-js-util
 			scripts2Compile.start = coreScripts2Compile.vendor.concat( coreScripts2Compile.lib ).concat( coreScripts2Compile.app );
 			scripts2Compile.end = coreScripts2Compile.dev;
 			scripts2Compile = _appJsUtil.createCompiled(
 				scripts2Compile.start,
 				scripts2Compile.end
 			);
+			
+			// Merge the compiled into concat options for concat & uglify settings
 			concatOptions = extend( concatOptions, scripts2Compile );
 			
-			// Merge with possible user config
+			// Always merge in case settings for these tasks are defined in the Gruntfile.js
 			mergeConfig( "concat", concatOptions );
 			mergeConfig( "uglify", concatOptions );
-			mergeConfig( "jshint", {
-				options: {
-					curly: true,
-					eqeqeq: true,
-					immed: true,
-					latedef: true,
-					newcap: true,
-					noarg: true,
-					sub: true,
-					undef: true,
-					unused: false,
-					boss: true,
-					eqnull: true,
-					browser: true,
-					globals: jshintGlobals
-				},
+			mergeConfig( "jshint", jshintOptions );
+			mergeConfig( "watch", watchOptions );
+			
+			// Merge settings for compass
+			if ( _options.compass ) {
+				_each( _options.compass, function ( obj, i ) {
+					if ( i !== "options" ) {
+						compassOptions[ i ] = {
+							options: extend( _options.compass.options, obj )
+						};
+					}
+				});
 				
-				gruntfile: {
-					src: _options.gruntfile
-				},
-				
-				scripts: {
-					src: scripts2Hint
-				}
-			});
-			mergeConfig( "watch", {
-				gruntfile: {
-					files: _options.gruntfile,
-					tasks: "jshint:gruntfile"
-				},
-				
-				scripts: {
-					files: scripts2Watch,
-					tasks: mergeTasks( "watch", "concat" )
-				},
-				
-				styles: {
-					files: sass2Watch,
-					tasks: "compass:development"
-				}
-			});
+				mergeConfig( "compass", compassOptions );
+			}
+			
+			// Merge settings for ender
+			if ( _options.ender ) {
+				mergeConfig( "ender", _options.ender );
+			}
 		};
 		
 		/*!
