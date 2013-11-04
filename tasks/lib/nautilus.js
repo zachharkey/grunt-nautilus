@@ -342,6 +342,9 @@ module.exports = function ( grunt ) {
 				});
 			}
 			
+			// Merge scripts to run jshint on
+			jshintOptions.scripts.src = scripts2Hint;
+			
 			// Handle anything that needs to look at the Gruntfile.js
 			if ( _options.gruntFile ) {
 				jshintOptions.gruntfile = {
