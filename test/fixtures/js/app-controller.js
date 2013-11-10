@@ -20,9 +20,9 @@ var document = window.document;
  * App Extensions
 *******************************************************************************/
 app.controllers.test = {
-	init: function () {
-		app.log( "Executed controller module @app.controllers.test", app.controllers.test );
-	}
+    init: function () {
+        app.log( "Executed controller module @app.controllers.test", app.controllers.test );
+    }
 };
 
 

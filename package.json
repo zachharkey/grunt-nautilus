@@ -1,84 +1,84 @@
 {
-	"name": "grunt-nautilus",
-	"description": "A grunt plugin for modular app-js development",
-	"version": "0.3.18",
-	"homepage": "https://github.com/kitajchuk/grunt-nautilus",
-	"readmeFilename": "README.md",
-	"author": {
-		"name": "Brandon Kitajchuk",
-		"email": "kitajchuk@gmail.com",
-		"url": "http://github.com/kitajchuk"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/kitajchuk/grunt-nautilus.git"
-	},
-	"bugs": {
-		"url": "https://github.com/kitajchuk/grunt-nautilus/issues"
-	},
-	"licenses": [
-		{
-			"type": "MIT",
-			"url": "https://github.com/kitajchuk/grunt-nautilus/blob/master/LICENSE-MIT"
-		}
-	],
-	"main": "Gruntfile.js",
-	"engines": {
-		"node": ">= 0.8.0"
-	},
-	"scripts": {
-		"test": "grunt test"
-	},
-	"dependencies": {
-		"app-js-util": ">= 0.2.2"
-	},
-	"devDependencies": {
-		"grunt": "~0.4.1",
-		"grunt-contrib-clean": "~0.5",
-		"grunt-contrib-nodeunit": "~0.2",
-		"grunt-contrib-jshint": "~0.7",
-		"grunt-contrib-concat": "~0.3",
-		"grunt-contrib-uglify": "~0.2",
-		"grunt-contrib-watch": "~0.5",
-		"grunt-contrib-compass": "~0.6",
-		"grunt-ender": "0.2.1",
-		"app-js-util": ">= 0.2"
-	},
-	"peerDependencies": {
-		"grunt": "~0.4.1",
-		"grunt-contrib-jshint": "~0.7",
-		"grunt-contrib-concat": "~0.3",
-		"grunt-contrib-uglify": "~0.2",
-		"grunt-contrib-watch": "~0.5",
-		"grunt-contrib-compass": "~0.6",
-		"grunt-ender": "0.2.1"
-	},
-	"keywords": [
-		"grunt",
-		"gruntplugin",
-		"javascript",
-		"compass",
-		"application",
-		"app",
-		"tool",
-		"webapp",
-		"sass",
-		"agile",
-		"template",
-		"module",
-		"project",
-		"scaffold",
-		"app-js",
-		"concat",
-		"jshint",
-		"watch",
-		"uglify",
-		"build",
-		"deploy",
-		"modular",
-		"jquery",
-		"ender",
-		"scss",
-		"css"
-	]
+    "name": "grunt-nautilus",
+    "description": "A grunt plugin for modular app-js development",
+    "version": "0.3.19",
+    "homepage": "https://github.com/kitajchuk/grunt-nautilus",
+    "readmeFilename": "README.md",
+    "author": {
+        "name": "Brandon Kitajchuk",
+        "email": "kitajchuk@gmail.com",
+        "url": "http://github.com/kitajchuk"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/kitajchuk/grunt-nautilus.git"
+    },
+    "bugs": {
+        "url": "https://github.com/kitajchuk/grunt-nautilus/issues"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/kitajchuk/grunt-nautilus/blob/master/LICENSE-MIT"
+        }
+    ],
+    "main": "Gruntfile.js",
+    "engines": {
+        "node": ">= 0.8.0"
+    },
+    "scripts": {
+        "test": "grunt test"
+    },
+    "dependencies": {
+        "app-js-util": ">= 0.2.2"
+    },
+    "devDependencies": {
+        "grunt": "~0.4.1",
+        "grunt-contrib-clean": "~0.5",
+        "grunt-contrib-nodeunit": "~0.2",
+        "grunt-contrib-jshint": "~0.7",
+        "grunt-contrib-concat": "~0.3",
+        "grunt-contrib-uglify": "~0.2",
+        "grunt-contrib-watch": "~0.5",
+        "grunt-contrib-compass": "~0.6",
+        "grunt-ender": "0.2.1",
+        "app-js-util": ">= 0.2"
+    },
+    "peerDependencies": {
+        "grunt": "~0.4.1",
+        "grunt-contrib-jshint": "~0.7",
+        "grunt-contrib-concat": "~0.3",
+        "grunt-contrib-uglify": "~0.2",
+        "grunt-contrib-watch": "~0.5",
+        "grunt-contrib-compass": "~0.6",
+        "grunt-ender": "0.2.1"
+    },
+    "keywords": [
+        "grunt",
+        "gruntplugin",
+        "javascript",
+        "compass",
+        "application",
+        "app",
+        "tool",
+        "webapp",
+        "sass",
+        "agile",
+        "template",
+        "module",
+        "project",
+        "scaffold",
+        "app-js",
+        "concat",
+        "jshint",
+        "watch",
+        "uglify",
+        "build",
+        "deploy",
+        "modular",
+        "jquery",
+        "ender",
+        "scss",
+        "css"
+    ]
 }
