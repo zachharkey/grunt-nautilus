@@ -73,7 +73,8 @@ module.exports = function ( grunt ) {
         var coreScripts2Compile = {
             vendor: ["{jsRoot}/vendor/**/*.js"],
             lib: ["{jsRoot}/lib/**/*.js"],
-            app: ["{jsAppRoot}/util/**/*.js", "{jsAppRoot}/core/**/*.js"],
+            //app: ["{jsAppRoot}/util/**/*.js", "{jsAppRoot}/core/**/*.js"],
+            app: [],
             dev: ["{jsAppRoot}/app.js"]
         };
         

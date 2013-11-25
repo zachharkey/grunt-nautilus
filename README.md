@@ -42,9 +42,8 @@ The global scripts build stacks like this:
 
 - `vendor/**/*.js`
 - `lib/**/*.js`
-- `app/util/**/*.js`
-- `app/core/**/*.js`
 - `app.js`
+	- _Any modules matched in the app.js dependencies will stack here_
 
 The controller builds stack like this:
 
