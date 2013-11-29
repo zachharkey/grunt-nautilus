@@ -117,7 +117,7 @@ Option to merge extra scripts into specified builds. Example:
 // 1: After vendor and before lib
 // 2: After lib and before app
 // 3: After app
-buildin: {
+buildIn: {
 	bower: {
 		builds: ["scripts"],
 		files: ["bower/jquery/jquery.js"],
