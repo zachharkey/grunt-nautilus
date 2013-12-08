@@ -1,0 +1,19 @@
+{
+    "name": "grunt-nautilus",
+    "version": "0.1.0",
+    "homepage": "",
+    "authors": [],
+    "license": "MIT",
+    "private": true,
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests",
+        "tmp"
+    ],
+    "dependencies": {
+        "jquery": "~1.10.x"
+    }
+}

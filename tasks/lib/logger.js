@@ -46,6 +46,21 @@ module.exports = function ( grunt ) {
             NAMESPACE_RESERVED: {
                 type: "fatal",
                 log: "Cannot overwrite reserved application namespace: <%= namespace %>"
+            },
+            
+            LOAD_PLUGIN: {
+                type: "ok",
+                log: "Loading plugin <%= plugin %>"
+            },
+            
+            UNSUPPORTED_TYPE: {
+                type: "fatal",
+                log: "You are trying to use an unsupported compile type: <%= type %>"
+            },
+            
+            THIRD_PARTY: {
+                type: "ok",
+                log: "Not transpiling 3rd party script: <%= src %>"
             }
         },
         _log = function ( type, msg ) {

@@ -24,5 +24,6 @@ module.exports = {
         "app.js",
         "controllers/**/*.js"
     ],
+    type: "globals",
     quiet: false
 };

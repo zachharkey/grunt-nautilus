@@ -13,14 +13,24 @@ module.exports = function ( grunt ) {
     var _options = grunt.config.get( "nautilus" ).options,
         _jsLibs = require( "./libs" ),
         
+        __global__ = "window",
+        
         // Compiler Class
         Compiler = require( "es6-module-transpiler" ).Compiler;
     
     return {
-        transpile: function ( filePath, module, options ) {
-            var contents = grunt.file.read( filePath );
+        transpile: function ( filePath, module ) {
+            var contents = grunt.file.read( filePath ),
+                options = {
+                    global: __global__
+                };
             
-            return new Compiler( contents, module, options );
+            if ( _options.type === "globals" ) {
+                return new Compiler( contents, module, options );
+                
+            } else {
+                return new Compiler( contents, module );
+            }
         },
         
         closure: function ( scripts ) {

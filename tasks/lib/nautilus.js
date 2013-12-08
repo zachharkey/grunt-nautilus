@@ -9,17 +9,7 @@
  *
  */
 // TODO:
-// organize app/yourshit and lib/theirshit
-//      - have the ability to import from lib
-// have the ability to import from anywhere?
-// transpile window.jQuery|window.ender param
-// transpile window.app param
 // enforce 1 export statement per module rule
-// ensure {app} builds correctly in browser
-//      - this means re-writing imports before calling .toGlobals()
-//      - AND this means storing module.dependencies differently
-//      - dependencies need to be compiler instances as well
-
 
 // DONE:
 // Build entire app namespace layout as javascript
@@ -32,6 +22,13 @@
 //      - lets call this the "starting point"
 // enforce import location
 //      - as in "app/path/to/module" and "lib/path/to/module"
+//      - have the ability to import from lib
+// organize app/yourshit and lib/theirshit
+// have the ability to import from anywhere in jsRoot
+// ensure {app} builds correctly in browser
+//      - this means re-writing imports before calling .toGlobals()
+//      - AND this means storing module.dependencies differently
+//      - dependencies need to be compiler instances as well
 module.exports = function ( grunt ) {
     
     
@@ -51,19 +48,21 @@ module.exports = function ( grunt ) {
         _defaults = require( "./options" ),
         _jsLibs = require( "./libs" ),
         _dirs = require( "./dirs" ),
+        _plugins = require( "./plugins" ),
         _utils = require( "./utils" )( grunt ),
         _logger = require( "./logger" )( grunt ),
         _compiler = require( "./compiler" )( grunt ),
         _module = require( "./module" )( grunt ),
         _config = require( "./config" )( grunt ),
+        _parser = require( "./parser" )( grunt ),
         
         // Merge options
         _options = _.extend( _defaults, grunt.config.get( "nautilus" ).options ),
         
-        // Replacers after .toGlobals()
-        __exports__ = "__exports__",
-        __console__ = "console.log",
-        __app_log__ = "app.log",
+        // Compile types
+        _types = {
+            globals: "toGlobals"
+        },
         
         // Write/read dirs
         __dist__ = _options.jsDistRoot,
@@ -84,9 +83,6 @@ module.exports = function ( grunt ) {
         // Process function
         __func__ = function () {},
         
-        // Global for browser
-        __global__ = "window",
-        
         // Match lib|app
         _rLib = /^lib\//,
         _rApp = /^app\//,
@@ -94,20 +90,17 @@ module.exports = function ( grunt ) {
         // Match .js in filenames
         _rDotJs = /\.js$/,
         
-        // Match globbed patterns
-        _rGlobbed = /\*/,
-        
         // Controllers
         _rController = /controller/,
-        
-        // Singleton
-        _instance,
         
         // Core globs for app dev
         _coresTasks = {
             watch: [__js__+"/**/*.js", "!"+__js__+"/dist/*.js"],
             jshint: [__app__+"/**/*.js"]
-        };
+        },
+        
+        // Singleton
+        _instance;
     
     
     /*!
@@ -163,6 +156,14 @@ module.exports = function ( grunt ) {
         _instance = this;
         
         
+        this.typeCheck = function () {
+            if ( !_types[ _options.type ] ) {
+                _logger.log( "UNSUPPORTED_TYPE", {
+                    type: _options.type
+                });
+            }
+        };
+        
         /*!
          * 
          * Nautilus.prototype.load.
@@ -171,12 +172,13 @@ module.exports = function ( grunt ) {
          *
          */
         this.load = function () {
-            grunt.loadNpmTasks( "grunt-contrib-watch" );
-            grunt.loadNpmTasks( "grunt-contrib-concat" );
-            grunt.loadNpmTasks( "grunt-contrib-uglify" );
-            grunt.loadNpmTasks( "grunt-contrib-jshint" );
-            grunt.loadNpmTasks( "grunt-contrib-compass" );
-            grunt.loadNpmTasks( "grunt-contrib-clean" );
+           _.each( _plugins, function ( plugin ) {
+                grunt.loadNpmTasks( plugin );
+                
+                _logger.log( "LOAD_PLUGIN", {
+                    plugin: plugin
+                });
+            });
             
             if ( _options.ender ) {
                 grunt.loadNpmTasks( "grunt-ender" );
@@ -205,12 +207,10 @@ module.exports = function ( grunt ) {
             
             app = {
                 src: __appt__,
-                compiler: _compiler.transpile( __appt__, "app", {
-                    global: __global__
-                })
+                compiler: _compiler.transpile( __appt__, "app" )
             };
             
-            grunt.file.write( __appt__, app.compiler.toGlobals() );
+            grunt.file.write( __appt__, app.compiler[ _types[ _options.type ] ]() );
             
             _instance.objectTree = layout;
             _instance.coreDependency = app;
@@ -262,9 +262,7 @@ module.exports = function ( grunt ) {
             var modules = {};
             
             _.each( _instance.modules, function ( val, key, list ) {
-                val.compiler = _compiler.transpile( val.src, key, {
-                    global: __global__
-                });
+                val.compiler = _compiler.transpile( val.src, key );
                 
                 modules[ key ] = val;
             });
@@ -308,7 +306,7 @@ module.exports = function ( grunt ) {
                         } else {
                             path = _path.join( __js__, el );
                             
-                            if ( !grunt.file.exists( path ) ) {
+                            if ( !grunt.file.exists( path+__ext__ ) ) {
                                 _logger.log( "MISSING_IMPORT", {
                                     file: path
                                 });
@@ -318,9 +316,7 @@ module.exports = function ( grunt ) {
                         // Matched a file
                         if ( grunt.file.isFile( path+__ext__ ) ) {
                             if ( !deps[ el ] ) {
-                                var compiler = _compiler.transpile( path+__ext__, el, {
-                                    global: __global__
-                                });
+                                var compiler = _compiler.transpile( path+__ext__, el );
                                 
                                 deps[ el ] = {
                                     src: path+__ext__,
@@ -339,9 +335,7 @@ module.exports = function ( grunt ) {
                                     nameSpace = _utils.nameSpace( el );
                                 
                                 if ( !deps[ moduleName ] ) {
-                                    var compiler = _compiler.transpile( el, moduleName, {
-                                        global: __global__
-                                    });
+                                    var compiler = _compiler.transpile( el, moduleName );
                                     
                                     deps[ nameSpace ] = {
                                         src: el,
@@ -369,9 +363,7 @@ module.exports = function ( grunt ) {
                 
                 val.dependencies[ key ] = {
                     src: path,
-                    compiler: _compiler.transpile( path, key, {
-                        global: __global__
-                    })
+                    compiler: _compiler.transpile( path, key )
                 };
                 
                 modules[ key ] = val;
@@ -398,27 +390,19 @@ module.exports = function ( grunt ) {
                 
                 _.each( module.dependencies, function ( val, key, list ) {
                     var temp = _path.join( __tmp__, _utils.tempName( key )+__ext__ ),
-                        file = val.compiler.toGlobals();
+                        file = val.compiler.string;
                     
-                    module.temporary.src.push( temp );
-                    
-                    file = file.replace(
-                        __exports__+"."+_utils.moduleName( key ),
-                        __exports__+"."+key.replace( /\//g, "." )
-                    );
-                    
-                    var end = file.match( /\n.*$/ );
-                    var rep = end = end[ 0 ].replace( /\n\}\)|;$/g, "" );
-                    
-                    var lib = rep.match( /\.(lib\/.*?),/ );
-                    
-                    if ( lib ) {
-                        rep = rep.replace( lib[ 0 ], "."+lib[ 1 ].split( "/" ).reverse()[ 0 ]+"," );
+                    if ( /^app\//.test( key ) ) {
+                        file = val.compiler[ _types[ _options.type ] ]();
+                        file = _parser[ _options.type ]( key, file );
+                        
+                    } else {
+                        _logger.log( "THIRD_PARTY", {
+                            src: _path.join( __js__, key )
+                        });
                     }
                     
-                    file = file.replace( end, rep.replace( /\//g, "." ) );
-                    
-                    file = file.replace( __console__, __app_log__ );
+                    module.temporary.src.push( temp );
                     
                     grunt.file.write( temp, file );
                 });
@@ -500,6 +484,8 @@ module.exports = function ( grunt ) {
             } else if ( arg === "layout" ) {
                 _logger.console( _instance.objectTree );
             }
+            
+            process.exit( 0 );
         };
         
         /*!
@@ -512,6 +498,8 @@ module.exports = function ( grunt ) {
          */
         this.app = function () {
             _module.create.apply( _module, arguments );
+            
+            process.exit( 0 );
         };
         
         /*!

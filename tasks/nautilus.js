@@ -15,20 +15,28 @@ module.exports = function ( grunt ) {
     "use strict";
     
     
-    var _options = grunt.config.get( "nautilus" ).options,
+    var Nautilus = require( "./lib/nautilus" )( grunt ),
+        _ = grunt.util._,
+        _options = grunt.config.get( "nautilus" ).options,
         _isInit = grunt.file.isFile( _options.jsRoot+"/app/app.js" ),
-        _each = grunt.util._.each,
-        _isFunction = grunt.util._.isFunction,
-        _nautilus = require( "./lib/nautilus" )( grunt ),
+        _isNonTask = false,
         _tasks = [
             "app",
             "dev",
             "build",
             "deploy",
             "default"
+        ],
+        _nonTasks = [
+            "app"
         ];
         
     
+    /*!
+     * 
+     * Initialize the setup.
+     *
+     */
     if ( !_isInit ) {
         require( "./lib/init" )( grunt, _options );
     }
@@ -36,52 +44,16 @@ module.exports = function ( grunt ) {
     
     /*!
      * 
-     * Load the required plugins and their tasks.
-     *
-     * @task: ender
-     * @task: watch
-     * @task: clean
-     * @task: jshint
-     * @task: uglify
-     * @task: concat
-     * @task: compass
-     *
-     */
-    _nautilus.load();
-    
-    
-    /*!
-     * 
-     * Perform the grunt-nautilus application building.
-     *
-     * @task: ender
-     * @task: watch
-     * @task: clean
-     * @task: jshint
-     * @task: uglify
-     * @task: concat
-     * @task: compass
-     *
-     */
-    _nautilus.layout();
-    _nautilus.scan();
-    _nautilus.parse();
-    _nautilus.recurse();
-    _nautilus.compile();
-    _nautilus.config();
-    
-    
-    /*!
-     * 
      * Register other tasks.
      *
      * @task: app
+     * @task: dev
      * @task: build
      * @task: deploy
      * @task: default
      *
      */
-    _each( _tasks, function ( task ) {
+    _.each( _tasks, function ( task ) {
         grunt.registerTask( task, function () {
             var command = [ "nautilus", task ].concat( [].slice.call( arguments, 0 ) ).join( ":" );
                 
@@ -97,9 +69,45 @@ module.exports = function ( grunt ) {
      * @usage: grunt nautilus
      *
      */
-    grunt.registerTask( "nautilus", "A grunt plugin for modular javascript application development.", function ( task ) {
-        if ( (_tasks.indexOf( task ) !== -1) && (_isFunction( _nautilus[ task ] )) ) {
-            _nautilus[ task ].apply( _nautilus, [].slice.call( arguments, 1 ) );
+    grunt.registerTask( "nautilus", "A grunt plugin for modular, javascript application development.", function ( task ) {
+        _isNonTask = (_nonTasks.indexOf( task ) !== -1);
+        
+        /*!
+         * 
+         * Perform the grunt-nautilus building.
+         *
+         * @task: ender
+         * @task: watch
+         * @task: clean
+         * @task: jshint
+         * @task: uglify
+         * @task: concat
+         * @task: compass
+         *
+         * Load required plugins and their tasks.
+         *
+         * @task: ender
+         * @task: watch
+         * @task: clean
+         * @task: jshint
+         * @task: uglify
+         * @task: concat
+         * @task: compass
+         *
+         */
+        if ( !_isNonTask ) {
+            Nautilus.typeCheck();
+            Nautilus.load();
+            Nautilus.layout();
+            Nautilus.scan();
+            Nautilus.parse();
+            Nautilus.recurse();
+            Nautilus.compile();
+            Nautilus.config();
+        }
+        
+        if ( (_tasks.indexOf( task ) !== -1) && (_.isFunction( Nautilus[ task ] )) ) {
+            Nautilus[ task ].apply( Nautilus, [].slice.call( arguments, 1 ) );
             
         } else {
             grunt.fail.warn( "Invalid arguments and options." );

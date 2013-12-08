@@ -16,6 +16,7 @@ module.exports = function ( grunt ) {
         _logger = require( "./logger" )( grunt ),
         _options = grunt.config.get( "nautilus" ).options,
         _jshintrc = JSON.parse( grunt.file.read( _path.join( _dirs.root, ".jshintrc" ) ) ),
+        _rAppModule = /\.tmp\/module_\d{1,2}\.app\.|\.tmp\/\.app\.js/,
         _jshintGlobals = {
             app: true,
             console: true,
@@ -105,7 +106,7 @@ module.exports = function ( grunt ) {
             
             _.each( modules, function ( val, key, list ) {
                 options[ key ] = _.filter( val.temporary.src, function ( el ) {
-                    if ( !/\.lib\./.test( el ) ) {
+                    if ( _rAppModule.test( el ) ) {
                         return el;
                     }
                 });

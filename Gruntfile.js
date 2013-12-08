@@ -113,12 +113,14 @@ module.exports = function ( grunt ) {
                 
                 
                 // Manage the ender build.
+                /*
                 ender: {
                     options: {
                         output: "test/expected/js/lib/ender/ender",
                         dependencies: ["jeesh"]
                     }
                 },
+                */
                 
                 
                 // Manage the compass build.

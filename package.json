@@ -1,6 +1,6 @@
 {
     "name": "grunt-nautilus",
-    "description": "A grunt plugin for modular app-js development",
+    "description": "A grunt plugin for modular, javascript application development.",
     "version": "0.4.0",
     "homepage": "https://github.com/kitajchuk/grunt-nautilus",
     "readmeFilename": "README.md",
