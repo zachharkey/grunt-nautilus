@@ -10,12 +10,11 @@ npm-debug.log
 ########################
 tmp
 dist
+test/expected/fonts
+test/expected/img
+test/expected/sass
 test/expected/css
-test/expected/js/lib/*.js
-test/expected/js/vendor/*.js
-test/expected/js/app/core/*.js
-test/expected/js/app/util/*.js
-test/expected/js/app/feature/*.js
+test/expected/js
 
 
 ########################
@@ -23,4 +22,3 @@ test/expected/js/app/feature/*.js
 ########################
 .DS_Store
 .sass-cache
-.philosophy

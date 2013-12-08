@@ -8,6 +8,30 @@
  *
  *
  */
+// TODO:
+// organize app/yourshit and lib/theirshit
+//      - have the ability to import from lib
+// have the ability to import from anywhere?
+// transpile window.jQuery|window.ender param
+// transpile window.app param
+// enforce 1 export statement per module rule
+// ensure {app} builds correctly in browser
+//      - this means re-writing imports before calling .toGlobals()
+//      - AND this means storing module.dependencies differently
+//      - dependencies need to be compiler instances as well
+
+
+// DONE:
+// Build entire app namespace layout as javascript
+// allow any namespaces to exist
+// add main option for {app} entry points
+// allow importing entire namespace directory
+// transpile with module name
+// build solid config of existing {app} layout
+// ship with app/(core|util|controllers) as base layout
+//      - lets call this the "starting point"
+// enforce import location
+//      - as in "app/path/to/module" and "lib/path/to/module"
 module.exports = function ( grunt ) {
     
     
@@ -16,233 +40,132 @@ module.exports = function ( grunt ) {
     
     /*!
      * 
-     * Some globals.
+     * @globals
      *
      */
-    var _options = grunt.config.get( "nautilus" ).options,
-        _appJsUtil = require( "app-js-util" )( grunt, _options ),
-        _each = grunt.util._.each,
-        _isString = grunt.util._.isString,
-        _jsLibs = {
-            jquery: {
-                context: "jQuery",
-                shorthand: "$"
-            },
-            
-            ender: {
-                context: "ender",
-                className: "Ender",
-                shorthand: "$"
-            }
+    var _ = grunt.util._,
+        
+        // Load libs
+        _fs = require( "fs" ),
+        _path = require( "path" ),
+        _defaults = require( "./options" ),
+        _jsLibs = require( "./libs" ),
+        _dirs = require( "./dirs" ),
+        _utils = require( "./utils" )( grunt ),
+        _logger = require( "./logger" )( grunt ),
+        _compiler = require( "./compiler" )( grunt ),
+        _module = require( "./module" )( grunt ),
+        _config = require( "./config" )( grunt ),
+        
+        // Merge options
+        _options = _.extend( _defaults, grunt.config.get( "nautilus" ).options ),
+        
+        // Replacers after .toGlobals()
+        __exports__ = "__exports__",
+        __console__ = "console.log",
+        __app_log__ = "app.log",
+        
+        // Write/read dirs
+        __dist__ = _options.jsDistRoot,
+        __app__ = _options.jsAppRoot,
+        __lib__ = _options.jsLibRoot,
+        __js__ = _options.jsRoot,
+        
+        // File extenstion for app
+        __ext__ = ".js",
+        
+        // Private tmp dir for compiling
+        __tmp__ = _path.join( __dist__, ".tmp" ),
+        
+        // Core {app} framework include
+        __dep0__ = grunt.file.read( _path.join( _dirs.app, "app.js" ) ),
+        __appt__ = _path.join( __tmp__, ".app"+__ext__ ),
+        
+        // Process function
+        __func__ = function () {},
+        
+        // Global for browser
+        __global__ = "window",
+        
+        // Match lib|app
+        _rLib = /^lib\//,
+        _rApp = /^app\//,
+        
+        // Match .js in filenames
+        _rDotJs = /\.js$/,
+        
+        // Match globbed patterns
+        _rGlobbed = /\*/,
+        
+        // Controllers
+        _rController = /controller/,
+        
+        // Singleton
+        _instance,
+        
+        // Core globs for app dev
+        _coresTasks = {
+            watch: [__js__+"/**/*.js", "!"+__js__+"/dist/*.js"],
+            jshint: [__app__+"/**/*.js"]
         };
     
     
     /*!
+     *
+     * @functions
+     *
+     */
+    var mergeTasks = function ( task, tasks ) {
+        // 0.1 jshint on this task
+        if ( _options.hintOn && _options.hintOn.indexOf( task ) !== -1 ) {
+            tasks = ( _.isString( tasks ) )
+                    ? [tasks]
+                    : tasks;
+            
+            tasks.unshift( "jshint" );
+            
+            _logger.log( "MATCHED_HINTON", {
+                task: task
+            });
+        }
+        
+        return tasks;
+    };
+    
+    var walkDirectory = function ( path, obj ) {
+        var dir = _fs.readdirSync( path );
+        
+        for ( var i = 0; i < dir.length; i++ ) {
+            var name = dir[ i ],
+                target = path+"/"+name,
+                stats = _fs.statSync( target );
+            
+            if ( stats.isFile() ) {
+                //if ( name.slice( -3 ) === __ext__ ) {
+                //    obj[ name.slice( 0, -3 ) ] = {};
+                //}
+                
+            } else if ( stats.isDirectory() ) {
+                obj[ name ] = {};
+                
+                walkDirectory( target, obj[ name ] );
+            }
+        }
+    };
+    
+    
+    /*!
      * 
-     * Nautilus Class object.
+     * @Nautilus {Class}
      *
      */
     var Nautilus = function () {
-        var self = this;
+        _instance = this;
+        
         
         /*!
          * 
-         * Publicly honored tasks.
-         *
-         */
-        var tasks = [
-            "default",
-            "build",
-            "deploy",
-            "app"
-        ];
-        
-        /*!
-         *
-         * Core scripts
-         *
-         */
-        var coreScripts2Watch = [
-            "{jsRoot}/vendor/**/*.js",
-            "{jsRoot}/lib/**/*.js",
-            "{jsAppRoot}/**/*.js"
-        ];
-        var coreScripts2Hint = [
-            "{jsAppRoot}/**/*.js"
-        ];
-        var coreScripts2Compile = {
-            vendor: ["{jsRoot}/vendor/**/*.js"],
-            lib: ["{jsRoot}/lib/**/*.js"],
-            //app: ["{jsAppRoot}/util/**/*.js", "{jsAppRoot}/core/**/*.js"],
-            app: [],
-            dev: ["{jsAppRoot}/app.js"]
-        };
-        
-        /*!
-         *
-         * Branded logging
-         *
-         */
-        var nautilog = function ( type, msg ) {
-            if ( _options.quiet ) {
-                return;
-            }
-            
-            grunt.log[ type ]( "[Nautilog]: "+msg );
-        };
-        
-        /*!
-         * 
-         * Basic method extends o2 into o1.
-         * Use force to override matching keys.
-         *
-         */
-        var extend = function ( o1, o2, force ) {
-            var ret = {},
-                prop;
-            
-            for ( prop in o1 ) {
-                ret[ prop ] = o1[ prop ];
-            }
-            
-            for ( prop in o2 ) {
-                if ( ret[ prop ] && !force ) {
-                    continue;
-                    
-                } else {
-                    ret[ prop ] = o2[ prop ];
-                }
-            }
-            
-            return ret;
-        };
-        
-        /*!
-         * 
-         * Replace custom template tags with values from nautilus settings.
-         *
-         */
-        var replaceJsRootMatches = function ( files ) {
-            return files.map(function ( elem ) {
-                return elem.replace( /\{jsRoot\}/, _options.jsRoot ).replace( /\{jsAppRoot\}/, _options.jsAppRoot );
-            });
-        };
-        
-        /*!
-         *
-         * Merge user config with nautilus' internal config settings.
-         *
-         */
-        var mergeConfig = function ( task, settings ) {
-            var config = grunt.config.get( task );
-            
-            // Not set, so set it
-            if ( !config ) {
-                grunt.config.set( task, settings );
-                
-                nautilog( "ok", "Setting config options for "+task+"." );
-            
-            // Otherwise merge internal with user config    
-            } else {
-                grunt.config.set( task, extend( config, settings ) );
-                
-                nautilog( "ok", "Merging config options for "+task+"." );
-            }
-        };
-        
-        /*!
-         * 
-         * Merge user defined tasks to run alongside other tasks.
-         *
-         */
-        var mergeTasks = function ( task, tasks ) {
-            // Should this task use jshint?
-            if ( _options.hintOn && _options.hintOn.indexOf( task ) !== -1 ) {
-                tasks = ( _isString( tasks ) )
-                        ? [tasks]
-                        : tasks;
-                
-                tasks.unshift( "jshint" );
-                
-                //nautilog( "ok", "Matched hinton for task "+task );
-            }
-            
-            return tasks;
-        };
-        
-        /*!
-         * 
-         * Merge globals for a given task.
-         *
-         */
-        var mergeGlobals = function ( task, globals ) {
-            if ( task === "jshint" ) {
-                _each( _jsLibs, function ( obj, lib ) {
-                    if ( _options.jsLib === lib ) {
-                        _each( obj, function ( g ) {
-                            globals[ g ] = true;
-                        });
-                    }
-                });
-            }
-            
-            return globals;
-        };
-        
-        /*!
-         * 
-         * Nautilus.prototype.init
-         *
-         * Tests and builds public dir structure using nautilus' config.
-         *
-         */
-        this.init = function () {
-            var compass = _options.compass.options;
-            
-            // Test/make app-js framework
-            _appJsUtil.createFramework();
-            
-            // Test/make css_root
-            if ( !grunt.file.exists( compass.cssDir ) ) {
-                grunt.file.mkdir( compass.cssDir );
-            }
-            
-            // Test/make img_root
-            if ( !grunt.file.exists( compass.imagesDir ) ) {
-                grunt.file.mkdir( compass.imagesDir );
-            }
-            
-            // Test/make fonts_root
-            if ( !grunt.file.exists( compass.fontsDir ) ) {
-                grunt.file.mkdir( compass.fontsDir );
-            }
-            
-            // Test/make sass_root
-            if ( !grunt.file.exists( compass.sassDir ) ) {
-                grunt.file.mkdir( compass.sassDir );
-            }
-                
-                if ( !grunt.file.exists( compass.sassDir+"/screen.scss" ) ) {
-                    grunt.file.write( compass.sassDir+"/screen.scss", "/* -- start styling -- */" );
-                }
-            
-            return true;
-        };
-        
-        /*!
-         * 
-         * Nautilus.prototype.isTask
-         *
-         * Only allow specific tasks publicly.
-         *
-         */
-        this.isTask = function ( task ) {
-            return tasks.indexOf( task ) !== -1;
-        };
-        
-        /*!
-         * 
-         * Nautilus.prototype.load
+         * Nautilus.prototype.load.
          *
          * Loads necessary contrib plugins.
          *
@@ -253,6 +176,7 @@ module.exports = function ( grunt ) {
             grunt.loadNpmTasks( "grunt-contrib-uglify" );
             grunt.loadNpmTasks( "grunt-contrib-jshint" );
             grunt.loadNpmTasks( "grunt-contrib-compass" );
+            grunt.loadNpmTasks( "grunt-contrib-clean" );
             
             if ( _options.ender ) {
                 grunt.loadNpmTasks( "grunt-ender" );
@@ -261,173 +185,340 @@ module.exports = function ( grunt ) {
         
         /*!
          * 
-         * Nautilus.prototype.config
+         * Nautilus.prototype.layout.
          *
-         * Builds the full config object using options
-         * passed to the "nautilus" {Object} as a result of
-         * using the grunt-init-gruntnautilus template.
+         * Create the application {Object} tree.
+         *
+         */
+        this.layout = function () {
+            var layout = {},
+                scripts,
+                app;
+            
+            walkDirectory( __app__, layout );
+            
+            scripts = _.template( __dep0__, {
+                layout: JSON.stringify( layout, null, 4 ).replace( /"|'/g, "" )
+            });
+            
+            grunt.file.write( __appt__, scripts );
+            
+            app = {
+                src: __appt__,
+                compiler: _compiler.transpile( __appt__, "app", {
+                    global: __global__
+                })
+            };
+            
+            grunt.file.write( __appt__, app.compiler.toGlobals() );
+            
+            _instance.objectTree = layout;
+            _instance.coreDependency = app;
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.scan.
+         *
+         * Scan the application layout.
+         *
+         */
+        this.scan = function () {
+            var namespace,
+                modules = {},
+                match,
+                main;
+            
+            if ( _.isArray( _options.main ) ) {
+                main = _options.main.map(function ( el ) {
+                    return _path.join( __app__, _utils.front2Back( el ) );
+                });
+                
+            } else {
+                main = _path.join( __app__, _utils.front2Back( _options.main ) );
+            }
+            
+            match = grunt.file.expand( main );
+            
+            _.each( match, function ( val ) {
+                var module;
+                
+                modules[ _utils.nameSpace( val ) ] = {
+                    src: val
+                };
+            });
+            
+            _instance.modules = modules;
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.parse.
+         *
+         * Parse the es6 module syntax.
+         *
+         */
+        this.parse = function () {
+            var modules = {};
+            
+            _.each( _instance.modules, function ( val, key, list ) {
+                val.compiler = _compiler.transpile( val.src, key, {
+                    global: __global__
+                });
+                
+                modules[ key ] = val;
+            });
+            
+            _instance.modules = modules;
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.recurse.
+         *
+         * Recursively find module dependencies.
+         *
+         */
+        this.recurse = function () {
+            var modules = {},
+                recurse
+                recurse = function ( deps, module ) {
+                    deps = deps || [];
+                    
+                    var imports = [];
+                    
+                    _.each( module.compiler.imports, function ( el, i, list ) {
+                        imports.push( el.source.value );
+                    });
+                    
+                    imports = _.uniq( imports );
+                    
+                    _.each( imports, function ( el, i, list ) {
+                        var path,
+                            paths;
+                        
+                        // Matched lib import    
+                        if ( _rLib.test( el ) ) {
+                            path = _path.join( __lib__, el.replace( _rLib, "" ) )
+                        
+                        // Matched app import    
+                        } else if ( _rApp.test( el ) ) {
+                            path = _path.join( __app__, el.replace( _rApp, "" ) );
+                            
+                        } else {
+                            path = _path.join( __js__, el );
+                            
+                            if ( !grunt.file.exists( path ) ) {
+                                _logger.log( "MISSING_IMPORT", {
+                                    file: path
+                                });
+                            }
+                        }
+                        
+                        // Matched a file
+                        if ( grunt.file.isFile( path+__ext__ ) ) {
+                            if ( !deps[ el ] ) {
+                                var compiler = _compiler.transpile( path+__ext__, el, {
+                                    global: __global__
+                                });
+                                
+                                deps[ el ] = {
+                                    src: path+__ext__,
+                                    compiler: compiler
+                                };
+                                
+                                deps = recurse( deps, deps[ el ] );
+                            }
+                        
+                        // Matched a dir    
+                        } else if ( grunt.file.isDir( path ) ) {
+                            paths = grunt.file.expand( _path.join( path, "**/*"+__ext__ ) );
+                            
+                            _.each( paths, function ( el, i, list ) {
+                                var moduleName = _utils.moduleName( el ),
+                                    nameSpace = _utils.nameSpace( el );
+                                
+                                if ( !deps[ moduleName ] ) {
+                                    var compiler = _compiler.transpile( el, moduleName, {
+                                        global: __global__
+                                    });
+                                    
+                                    deps[ nameSpace ] = {
+                                        src: el,
+                                        compiler: compiler
+                                    };
+                                    
+                                    deps = recurse( deps, deps[ nameSpace ] );
+                                }
+                            });
+                            
+                        } else {
+                            _logger.log( "MISSING_MODULE", {
+                                file: module.src
+                            });
+                        }
+                    });
+                    
+                    return deps;
+                };
+            
+            _.each( _instance.modules, function ( val, key, list ) {
+                var path = _path.join( __js__, key+__ext__ );
+                
+                val.dependencies = recurse( {}, val );
+                
+                val.dependencies[ key ] = {
+                    src: path,
+                    compiler: _compiler.transpile( path, key, {
+                        global: __global__
+                    })
+                };
+                
+                modules[ key ] = val;
+            });
+            
+            _instance.modules = modules;
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.compile.
+         *
+         * Compile to .tmp and set concat+uglify config.
+         *
+         */
+        this.compile = function () {
+            var modules = {};
+            
+            _.each( _instance.modules, function ( module, key, list ) {
+                module.temporary = {
+                    src: [_instance.coreDependency.src],
+                    dest: _path.join( __dist__, _utils.moduleName( key )+__ext__ )
+                };
+                
+                _.each( module.dependencies, function ( val, key, list ) {
+                    var temp = _path.join( __tmp__, _utils.tempName( key )+__ext__ ),
+                        file = val.compiler.toGlobals();
+                    
+                    module.temporary.src.push( temp );
+                    
+                    file = file.replace(
+                        __exports__+"."+_utils.moduleName( key ),
+                        __exports__+"."+key.replace( /\//g, "." )
+                    );
+                    
+                    var end = file.match( /\n.*$/ );
+                    var rep = end = end[ 0 ].replace( /\n\}\)|;$/g, "" );
+                    
+                    var lib = rep.match( /\.(lib\/.*?),/ );
+                    
+                    if ( lib ) {
+                        rep = rep.replace( lib[ 0 ], "."+lib[ 1 ].split( "/" ).reverse()[ 0 ]+"," );
+                    }
+                    
+                    file = file.replace( end, rep.replace( /\//g, "." ) );
+                    
+                    file = file.replace( __console__, __app_log__ );
+                    
+                    grunt.file.write( temp, file );
+                });
+                
+                if ( _rController.test( key ) ) {
+                    var exec = _compiler.closure( "app.exec( \""+_utils.moduleName( key )+"\" );" ),
+                        path = _path.join( __tmp__, _utils.tempName( key+"/exec" )+__ext__ );
+                    
+                    grunt.file.write( path, exec );
+                    
+                    module.temporary.src.push( path );
+                }
+                
+                modules[ key ] = module;
+            });
+            
+            _instance.modules = modules;
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.config.
+         *
+         * Build the grunt.initConfig
          *
          */
         this.config = function () {
-            var globalScript = _options.globalScripts || "scripts",
-            
-                // Watch file arrays
-                scripts2Watch = replaceJsRootMatches( coreScripts2Watch ),
-                scripts2Hint = replaceJsRootMatches( coreScripts2Hint ),
-                sass2Watch = _options.compass.options.sassDir+"/**/*.scss",
-                
-                // Compile file arrays
-                scripts2Compile = {
-                    start: [],
-                    end: []
-                },
-                
-                // Task config options
-                compassOptions = {},
-                watchOptions = {
-                    scripts: {
-                        files: scripts2Watch,
-                        tasks: mergeTasks( "watch", "concat" )
-                    },
-                    
-                    styles: {
-                        files: sass2Watch,
-                        tasks: "compass:development"
-                    }
-                },
-                concatOptions = {
-                    options: {
-                        banner: "<%= banner %>"
-                    }
-                },
-                jshintOptions = {
-                    options: {
-                        curly: true,
-                        eqeqeq: true,
-                        immed: true,
-                        latedef: true,
-                        newcap: true,
-                        noarg: true,
-                        sub: true,
-                        undef: true,
-                        unused: false,
-                        boss: true,
-                        eqnull: true,
-                        browser: true
-                    },
-                    
-                    scripts: {
-                        src: scripts2Hint
-                    }
-                },
-                jshintGlobals = {
-                    app: true,
-                    console: true,
-                    module: true
-                };
-            
-            // Merge settings for jshint
-            jshintGlobals = mergeGlobals( "jshint", extend( jshintGlobals, _options.jshintGlobals ) );
-            
-            // Set the globals object for jshint
-            jshintOptions.options.globals = jshintGlobals;
-            
-            // Merge settings for what dirs to jshint on
-            if ( _options.hintAt ) {
-                _each( _options.hintAt, function ( dir ) {
-                    var path = _options.jsRoot+"/"+dir+"/**/*.js";
-                    
-                    if ( grunt.file.isDir( _options.jsRoot+"/"+dir ) && scripts2Hint.indexOf( path ) === -1 ) {
-                        scripts2Hint.push( path );
-                    }
-                });
-            }
-            
-            // Merge scripts to run jshint on
-            jshintOptions.scripts.src = scripts2Hint;
-            
-            // Handle anything that needs to look at the Gruntfile.js
-            if ( _options.gruntFile ) {
-                jshintOptions.gruntfile = {
-                    src: _options.gruntFile
-                };
-                
-                watchOptions.gruntfile = {
-                    files: _options.gruntFile,
-                    tasks: "jshint:gruntfile"
-                };
-            }
-            
-            // Configure core javascript that needs to be compiled
-            coreScripts2Compile.vendor = replaceJsRootMatches( coreScripts2Compile.vendor );
-            coreScripts2Compile.lib = replaceJsRootMatches( coreScripts2Compile.lib );
-            coreScripts2Compile.app = replaceJsRootMatches( coreScripts2Compile.app );
-            coreScripts2Compile.dev = replaceJsRootMatches( coreScripts2Compile.dev );
-            
-            // Merge buildIn options if they exist
-            _each( _options.buildIn, function ( buildIn, buildInName ) {
-                if ( buildIn.builds.indexOf( globalScript ) !== -1 ) {
-                    coreScripts2Compile = _appJsUtil.mergeScriptBuildIn( globalScript, buildInName, coreScripts2Compile );
-                }
-            });
-            
-            // Merge the files arrays and compile through app-js-util
-            scripts2Compile.start = coreScripts2Compile.vendor.concat( coreScripts2Compile.lib ).concat( coreScripts2Compile.app );
-            scripts2Compile.end = coreScripts2Compile.dev;
-            scripts2Compile = _appJsUtil.createCompiled(
-                scripts2Compile.start,
-                scripts2Compile.end
+            // 0.1 Config watch options
+            _config.watch(
+                _coresTasks.watch,
+                mergeTasks( "watch", [
+                    "concat",
+                    "clean:temp"
+                ])
             );
             
-            // Merge the compiled into concat options for concat & uglify settings
-            concatOptions = extend( concatOptions, scripts2Compile );
+            // 0.2 Config jshint options
+            _config.jshint( _coresTasks.jshint, _instance.modules );
             
-            // Always merge in case settings for these tasks are defined in the Gruntfile.js
-            mergeConfig( "concat", concatOptions );
-            mergeConfig( "uglify", concatOptions );
-            mergeConfig( "jshint", jshintOptions );
-            mergeConfig( "watch", watchOptions );
+            // 0.3 Config concat options
+            _config.concat( _instance.modules );
             
-            // Merge settings for compass
+            // 0.4 Config uglify options
+            _config.uglify( _instance.modules );
+            
+            // 0.5 Config compass options
             if ( _options.compass ) {
-                _each( _options.compass, function ( obj, i ) {
-                    if ( i !== "options" ) {
-                        compassOptions[ i ] = {
-                            options: extend( _options.compass.options, obj.options )
-                        };
-                    }
-                });
-                
-                mergeConfig( "compass", compassOptions );
+                _config.compass();
             }
             
-            // Merge settings for ender
+            // 0.6 Config ender options
             if ( _options.ender ) {
-                mergeConfig( "ender", _options.ender );
+                _config.ender();
+            }
+            
+            // 0.7 Config clean options
+            _config.clean({
+                temp: [__tmp__]
+            });
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.dev.
+         *
+         * Log {Object}s for debugging.
+         *
+         */
+        this.dev = function ( arg ) {
+            if ( arg === "options" ) {
+                _logger.console( _options );
+                
+            } else if ( arg === "modules" ) {
+                _logger.console( _instance.modules );
+                
+            } else if ( arg === "config" ) {
+                _logger.console( grunt.config.get() );
+                
+            } else if ( arg === "layout" ) {
+                _logger.console( _instance.objectTree );
             }
         };
         
         /*!
          * 
-         * Nautilus.prototype.app
+         * Nautilus.prototype.app.
          *
          * Creates a new modules for the app.
          * Can be core, controller or util.
          *
          */
-        this.app = function ( level, module ) {
-            if ( !module ) {
-                grunt.fail.fatal( "you need to specify a module name" );
-            }
-            
-            _appJsUtil.createModule( level, module );
+        this.app = function () {
+            _module.create.apply( _module, arguments );
         };
         
         /*!
          * 
-         * Nautilus.prototype.default
+         * Nautilus.prototype.default.
          *
-         * Wrapper for simple "build".
+         * Wrapper for build task.
          *
          */
         this.default = function () {
@@ -436,48 +527,74 @@ module.exports = function ( grunt ) {
         
         /*!
          * 
-         * Nautilus.prototype.build
+         * Nautilus.prototype.build.
          *
-         * Compile scripts/sass for development.
+         * Compile javascript and sass.
+         * Uses concat and compass :expanded.
          *
          */
         this.build = function () {
             var tasks = mergeTasks( "build", [
                 "concat",
-                "compass:development"
+                "compass:development",
+                "clean:temp"
             ]);
             
-            // build ender if applicable...?
-            grunt.task.run( tasks );
+            __func__ = function () {
+                grunt.task.run( tasks );
+            };
+            
+            if ( _options.ender ) {
+                grunt.task.run( "ender" );
+                
+                __func__ = _.once( __func__ );
+                
+            } else {
+                __func__();
+            }
         };
         
         /*!
          * 
-         * Nautilus.prototype.deploy
+         * Nautilus.prototype.deploy.
          *
-         * Compile scripts/sass for production.
+         * Compile javascript and sass.
+         * Uses uglify and compass :compressed.
          *
          */
         this.deploy = function () {
             var tasks = mergeTasks( "deploy", [
                 "uglify",
-                "compass:production"
+                "compass:production",
+                "clean:temp"
             ]);
             
-            // build ender if applicable...?
-            grunt.task.run( tasks );
+            __func__ = function () {
+                grunt.task.run( tasks );
+            };
+            
+            if ( _options.ender ) {
+                grunt.task.run( "ender" );
+                
+                __func__ = _.once( __func__ );
+                
+            } else {
+                __func__();
+            }
         };
         
         /*!
          * 
-         * Listen for ender builds to finish
-         * Delete .min file as ender.js will compile into overall build
+         * Listen for ender builds to finish.
+         * Delete ender.min.js to account for builds.
          *
          */
         grunt.event.on( "grunt_ender_build_done", function () {
             grunt.file.delete( _options.ender.options.output+".min.js", {
                 force: true
             });
+            
+            __func__();
         });
         
         
