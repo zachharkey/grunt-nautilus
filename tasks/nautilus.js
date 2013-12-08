@@ -27,6 +27,11 @@ module.exports = function ( grunt ) {
             "deploy",
             "default"
         ];
+        
+    
+    if ( !_isInit ) {
+        require( "./lib/init" )( grunt, _options );
+    }
     
     
     /*!
@@ -78,14 +83,9 @@ module.exports = function ( grunt ) {
      */
     _each( _tasks, function ( task ) {
         grunt.registerTask( task, function () {
-            if ( !_isInit ) {
-                require( "./lib/init" )( grunt, _options );
+            var command = [ "nautilus", task ].concat( [].slice.call( arguments, 0 ) ).join( ":" );
                 
-            } else {
-                var command = [ "nautilus", task ].concat( [].slice.call( arguments, 0 ) ).join( ":" );
-                
-                grunt.task.run( command );
-            }
+            grunt.task.run( command );
         });
     });
     
@@ -98,16 +98,11 @@ module.exports = function ( grunt ) {
      *
      */
     grunt.registerTask( "nautilus", "A grunt plugin for modular javascript application development.", function ( task ) {
-        if ( !_isInit ) {
-            require( "./lib/init" )( grunt, _options );
+        if ( (_tasks.indexOf( task ) !== -1) && (_isFunction( _nautilus[ task ] )) ) {
+            _nautilus[ task ].apply( _nautilus, [].slice.call( arguments, 1 ) );
             
         } else {
-            if ( (_tasks.indexOf( task ) !== -1) && (_isFunction( _nautilus[ task ] )) ) {
-                _nautilus[ task ].apply( _nautilus, [].slice.call( arguments, 1 ) );
-                
-            } else {
-                grunt.fail.warn( "Invalid arguments and options." );
-            }
+            grunt.fail.warn( "Invalid arguments and options." );
         }
     });
     

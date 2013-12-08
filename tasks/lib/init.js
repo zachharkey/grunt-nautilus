@@ -97,10 +97,8 @@ module.exports = function ( grunt, options ) {
     grunt.file.write( options.jsRoot+"/app/app.js", contents );
     */
     
-    grunt.log.writeln( "" );
-    grunt.log.writeln( "Grunt Nautilus has been initialized. We just created a bunch of files so you don't have to! Check it out and happy grunting!" );
-    grunt.log.writeln( "" );
-    grunt.log.writeln( "- Brandon Lee Kitajchuk" );
+    grunt.log.writeln( "\nGrunt Nautilus has been initialized. Check it out and happy grunting!" );
+    grunt.log.writeln( "\n- Brandon Lee Kitajchuk\n" );
     
-    return true;
+    process.exit( 0 );
 };
