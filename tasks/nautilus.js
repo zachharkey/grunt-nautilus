@@ -70,7 +70,7 @@ module.exports = function ( grunt ) {
      *
      */
     grunt.registerTask( "nautilus", "A grunt plugin for modular, javascript application development.", function ( task ) {
-        _isNonTask = (_nonTasks.indexOf( task ) !== -1);
+        _isNonTask = (_.contains( _nonTasks, task ));
         
         /*!
          * 
@@ -106,7 +106,7 @@ module.exports = function ( grunt ) {
             Nautilus.config();
         }
         
-        if ( (_tasks.indexOf( task ) !== -1) && (_.isFunction( Nautilus[ task ] )) ) {
+        if ( (_.contains( _tasks, task )) && (_.isFunction( Nautilus[ task ] )) ) {
             Nautilus[ task ].apply( Nautilus, [].slice.call( arguments, 1 ) );
             
         } else {

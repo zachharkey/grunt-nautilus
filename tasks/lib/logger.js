@@ -19,7 +19,7 @@ module.exports = function ( grunt ) {
             },
             
             MISSING_IMPORT: {
-                type: "fatal",
+                type: "warn",
                 log: "Could not locate import at <%= file %>"
             },
             
@@ -39,12 +39,12 @@ module.exports = function ( grunt ) {
             },
             
             MODULE_EXISTS: {
-                type: "fatal",
+                type: "warn",
                 log: "Module already exists at <%= path %>\nUse --force to override"
             },
             
             NAMESPACE_RESERVED: {
-                type: "fatal",
+                type: "warn",
                 log: "Cannot overwrite reserved application namespace: <%= namespace %>"
             },
             
@@ -54,13 +54,23 @@ module.exports = function ( grunt ) {
             },
             
             UNSUPPORTED_TYPE: {
-                type: "fatal",
+                type: "warn",
                 log: "You are trying to use an unsupported compile type: <%= type %>"
             },
             
             THIRD_PARTY: {
                 type: "ok",
                 log: "Not transpiling 3rd party script: <%= src %>"
+            },
+            
+            MISSING_HINTAT: {
+                type: "warn",
+                log: "Pattern for options.hintAt not matched: <%= el %>"
+            },
+            
+            MERGE_BUILDIN: {
+                type: "ok",
+                log: "Merging buildIn <%= buildIn %> for <%= script %>"
             }
         },
         _log = function ( type, msg ) {

@@ -41,7 +41,7 @@ module.exports = function ( grunt ) {
                 template = _dirs.app+"/templates/module.js",
                 contents;
             
-            if ( _reserved.indexOf( args[ 0 ] ) !== -1 ) {
+            if ( _.contains( _reserved, args[ 0 ] ) ) {
                 _logger.log( "NAMESPACE_RESERVED", {
                     namespace: args[ 0 ]
                 });
@@ -53,7 +53,7 @@ module.exports = function ( grunt ) {
                 });
             }
             
-            if ( args.indexOf( "controllers" ) !== -1 ) {
+            if ( _.contains( args, "controllers" ) ) {
                 template = _dirs.app+"/templates/controller.js";
             }
             

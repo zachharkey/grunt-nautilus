@@ -157,27 +157,17 @@ module.exports = function ( grunt ) {
                 // Test buildIn scripts.
                 buildIn: {
                     test_0: {
-                        files: ["test/fixtures/buildins/test_0.js"],
+                        files: ["test/fixtures/js/modernizr.js"],
+                        // Before main build
                         priority: 0,
-                        builds: ["scripts", "lame"]
+                        builds: ["app"]
                     },
                     
                     test_1: {
-                        files: ["test/fixtures/buildins/test_1.js"],
+                        files: ["test/fixtures/js/lib/ender/ender.js"],
+                        // After main build
                         priority: 1,
-                        builds: ["scripts", "baz"]
-                    },
-                    
-                    test_2: {
-                        files: ["test/fixtures/buildins/test_2.js"],
-                        priority: 2,
-                        builds: ["scripts", "baz"]
-                    },
-                    
-                    test_3: {
-                        files: ["test/fixtures/buildins/test_3.js"],
-                        priority: 3,
-                        builds: ["scripts", "baz"]
+                        builds: ["app"]
                     }
                 }
             }

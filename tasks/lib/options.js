@@ -24,6 +24,6 @@ module.exports = {
         "app.js",
         "controllers/**/*.js"
     ],
-    type: "globals",
+    type: "globals", // Secret option for now
     quiet: false
 };

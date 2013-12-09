@@ -87,11 +87,30 @@ module.exports = function ( grunt ) {
             }
             
             if ( _options.hintAt ) {
-                _.each( _options.hintAt, function ( dir ) {
-                    var path = _path.join( _options.jsRoot, dir, "**/*.js" );
-                    
-                    if ( grunt.file.isDir( _path.join( _options.jsRoot, dir ) ) && scripts.indexOf( path ) === -1 ) {
-                        scripts.push( path );
+                _.each( _options.hintAt, function ( el, i, list ) {
+                    if ( /\*/.test( el ) ) {
+                        var files = grunt.file.expand( el );
+                        
+                        if ( files.length ) {
+                            _.each( files, function ( file ) {
+                                if ( _.contains( scripts, file ) ) {
+                                    scripts.push( file );
+                                }
+                            });
+                            
+                        } else {
+                            _logger.log( "MISSING_HINTAT", {
+                                el: el
+                            });
+                        }
+                        
+                    } else if ( grunt.file.isFile( el ) && _.contains( scripts, el ) ) {
+                        scripts.push( el );
+                        
+                    } else {
+                        _logger.log( "MISSING_HINTAT", {
+                            el: el
+                        });
                     }
                 });
             }

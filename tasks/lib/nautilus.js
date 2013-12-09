@@ -29,6 +29,9 @@
 //      - this means re-writing imports before calling .toGlobals()
 //      - AND this means storing module.dependencies differently
 //      - dependencies need to be compiler instances as well
+// re-support the hintAt feature
+// don't make .tmp versions of 3rd party
+// re-support the buildIn feature
 module.exports = function ( grunt ) {
     
     
@@ -110,7 +113,7 @@ module.exports = function ( grunt ) {
      */
     var mergeTasks = function ( task, tasks ) {
         // 0.1 jshint on this task
-        if ( _options.hintOn && _options.hintOn.indexOf( task ) !== -1 ) {
+        if ( _options.hintOn && _.contains( _options.hintOn, task ) ) {
             tasks = ( _.isString( tasks ) )
                     ? [tasks]
                     : tasks;
@@ -144,6 +147,37 @@ module.exports = function ( grunt ) {
                 walkDirectory( target, obj[ name ] );
             }
         }
+    };
+    
+    var mergeBuildIn = function ( filesArray, module ) {
+        if ( !_options.buildIn ) {
+            return;
+        }
+        
+        _.each( _options.buildIn, function ( buildIn, name ) {
+            var builds = ( _.isString( buildIn.builds ) )
+                        ? [buildIn.builds]
+                        : buildIn.builds,
+                files = ( _.isString( buildIn.files ) )
+                        ? [buildIn.files]
+                        : buildIn.files;
+            
+            if ( _.contains( builds, module ) ) {
+                if ( buildIn.priority > 0 ) {
+                    filesArray = filesArray.concat( files );
+                    
+                } else {
+                    filesArray = files.concat( filesArray );
+                }
+                
+                _logger.log( "MERGE_BUILDIN", {
+                    buildIn: name,
+                    script: module
+                });
+            }
+        });
+        
+        return filesArray;
     };
     
     
@@ -392,19 +426,23 @@ module.exports = function ( grunt ) {
                     var temp = _path.join( __tmp__, _utils.tempName( key )+__ext__ ),
                         file = val.compiler.string;
                     
-                    if ( /^app\//.test( key ) ) {
+                    // Only make temps for application
+                    if ( _rApp.test( key ) ) {
                         file = val.compiler[ _types[ _options.type ] ]();
                         file = _parser[ _options.type ]( key, file );
                         
+                        module.temporary.src.push( temp );
+                        
+                        grunt.file.write( temp, file );
+                    
+                    // Third-party can compile from source    
                     } else {
+                        module.temporary.src.push( _path.join( __js__, key+__ext__ ) );
+                        
                         _logger.log( "THIRD_PARTY", {
                             src: _path.join( __js__, key )
                         });
                     }
-                    
-                    module.temporary.src.push( temp );
-                    
-                    grunt.file.write( temp, file );
                 });
                 
                 if ( _rController.test( key ) ) {
@@ -415,6 +453,8 @@ module.exports = function ( grunt ) {
                     
                     module.temporary.src.push( path );
                 }
+                
+                module.temporary.src = mergeBuildIn( module.temporary.src, _utils.moduleName( key ) );
                 
                 modules[ key ] = module;
             });
