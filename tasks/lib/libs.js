@@ -16,7 +16,26 @@ module.exports = {
     
     ender: {
         context: "ender",
-        className: "Ender",
         shorthand: "$"
+    },
+    
+    angular: {
+        context: "angular"
+    },
+    
+    modernizr: {
+        context: "Modernizr"
+    },
+    
+    mustache: {
+        context: "Mustache"
+    },
+    
+    moment: {
+        context: "moment"
+    },
+    
+    underscore: {
+        context: "_"
     }
 };

@@ -14,6 +14,10 @@
         "tmp"
     ],
     "dependencies": {
-        "jquery": "~1.10.x"
+        "jquery": "~1.10",
+        "mustache": "~0.7",
+        "momentjs": "~2.4",
+        "angular": "1.2.4",
+        "modernizr": "~2.7"
     }
 }

@@ -9,6 +9,7 @@
  *
  */
 // TODO:
+// environment specific compiled/uncompiled option
 // enforce 1 export statement per module rule
 
 // DONE:
@@ -32,10 +33,106 @@
 // re-support the hintAt feature
 // don't make .tmp versions of 3rd party
 // re-support the buildIn feature
+// allow compile with no dependencies
+// support extend ./libs for 3rd party globals
+// last resort lookup import from pubRoot
+// don't do anything if no main:matches found
 module.exports = function ( grunt ) {
     
     
     "use strict";
+    
+    
+    /*!
+     *
+     * @functions
+     *
+     */
+    var mergeOptions = function () {
+        var options = grunt.config.get( "nautilus" ).options;
+        
+        _.each( require( "./options" ), function ( val, key, list ) {
+            // Use user value or merge
+            if ( options[ key ] ) {
+                if ( _.isObject( val ) ) {
+                    options[ key ] = _.extend( options[ key ], val );
+                }
+            
+            // Consume default value    
+            } else {
+                options[ key ] = val;
+            }
+        });
+        
+        grunt.config.set( "nautilus", {
+            options: options
+        });
+        
+        return grunt.config.get( "nautilus" ).options;
+    };
+    
+    var mergeTasks = function ( task, tasks ) {
+        // 0.1 jshint on this task
+        if ( _options.hintOn && _.contains( _options.hintOn, task ) ) {
+            tasks = ( _.isString( tasks ) ) ? [tasks] : tasks;
+            
+            tasks.unshift( "jshint" );
+            
+            _logger.log( "MATCHED_HINTON", {
+                task: task
+            });
+        }
+        
+        return tasks;
+    };
+    
+    var walkDirectory = function ( path, obj ) {
+        var dir = _fs.readdirSync( path );
+        
+        for ( var i = 0; i < dir.length; i++ ) {
+            var name = dir[ i ],
+                target = path+"/"+name,
+                stats = _fs.statSync( target );
+            
+            //if ( stats.isFile() ) {
+                //if ( name.slice( -3 ) === __ext__ ) {
+                //    obj[ name.slice( 0, -3 ) ] = {};
+                //}
+                
+            if ( stats.isDirectory() ) {
+                obj[ name ] = {};
+                
+                walkDirectory( target, obj[ name ] );
+            }
+        }
+    };
+    
+    var mergeBuildIn = function ( filesArray, module ) {
+        if ( !_options.buildIn ) {
+            return filesArray;
+        }
+        
+        _.each( _options.buildIn, function ( buildIn, name ) {
+            var builds = ( _.isString( buildIn.builds ) ) ? [buildIn.builds] : buildIn.builds,
+                files = ( _.isString( buildIn.files ) ) ? [buildIn.files] : buildIn.files;
+            
+            if ( _.contains( builds, module ) ) {
+                if ( buildIn.priority > 0 ) {
+                    filesArray = filesArray.concat( files );
+                    
+                } else {
+                    filesArray = files.concat( filesArray );
+                }
+                
+                _logger.log( "MERGE_BUILDIN", {
+                    buildIn: name,
+                    script: module
+                });
+            }
+        });
+        
+        return filesArray;
+    };
     
     
     /*!
@@ -45,10 +142,12 @@ module.exports = function ( grunt ) {
      */
     var _ = grunt.util._,
         
+        // Merged {options}
+        _options = mergeOptions(),
+        
         // Load libs
         _fs = require( "fs" ),
         _path = require( "path" ),
-        _defaults = require( "./options" ),
         _jsLibs = require( "./libs" ),
         _dirs = require( "./dirs" ),
         _plugins = require( "./plugins" ),
@@ -59,9 +158,6 @@ module.exports = function ( grunt ) {
         _config = require( "./config" )( grunt ),
         _parser = require( "./parser" )( grunt ),
         
-        // Merge options
-        _options = _.extend( _defaults, grunt.config.get( "nautilus" ).options ),
-        
         // Compile types
         _types = {
             globals: "toGlobals"
@@ -69,6 +165,7 @@ module.exports = function ( grunt ) {
         
         // Write/read dirs
         __dist__ = _options.jsDistRoot,
+        __pub__ = _options.pubRoot,
         __app__ = _options.jsAppRoot,
         __lib__ = _options.jsLibRoot,
         __js__ = _options.jsRoot,
@@ -107,81 +204,6 @@ module.exports = function ( grunt ) {
     
     
     /*!
-     *
-     * @functions
-     *
-     */
-    var mergeTasks = function ( task, tasks ) {
-        // 0.1 jshint on this task
-        if ( _options.hintOn && _.contains( _options.hintOn, task ) ) {
-            tasks = ( _.isString( tasks ) )
-                    ? [tasks]
-                    : tasks;
-            
-            tasks.unshift( "jshint" );
-            
-            _logger.log( "MATCHED_HINTON", {
-                task: task
-            });
-        }
-        
-        return tasks;
-    };
-    
-    var walkDirectory = function ( path, obj ) {
-        var dir = _fs.readdirSync( path );
-        
-        for ( var i = 0; i < dir.length; i++ ) {
-            var name = dir[ i ],
-                target = path+"/"+name,
-                stats = _fs.statSync( target );
-            
-            if ( stats.isFile() ) {
-                //if ( name.slice( -3 ) === __ext__ ) {
-                //    obj[ name.slice( 0, -3 ) ] = {};
-                //}
-                
-            } else if ( stats.isDirectory() ) {
-                obj[ name ] = {};
-                
-                walkDirectory( target, obj[ name ] );
-            }
-        }
-    };
-    
-    var mergeBuildIn = function ( filesArray, module ) {
-        if ( !_options.buildIn ) {
-            return;
-        }
-        
-        _.each( _options.buildIn, function ( buildIn, name ) {
-            var builds = ( _.isString( buildIn.builds ) )
-                        ? [buildIn.builds]
-                        : buildIn.builds,
-                files = ( _.isString( buildIn.files ) )
-                        ? [buildIn.files]
-                        : buildIn.files;
-            
-            if ( _.contains( builds, module ) ) {
-                if ( buildIn.priority > 0 ) {
-                    filesArray = filesArray.concat( files );
-                    
-                } else {
-                    filesArray = files.concat( filesArray );
-                }
-                
-                _logger.log( "MERGE_BUILDIN", {
-                    buildIn: name,
-                    script: module
-                });
-            }
-        });
-        
-        return filesArray;
-    };
-    
-    
-    /*!
      * 
      * @Nautilus {Class}
      *
@@ -190,12 +212,30 @@ module.exports = function ( grunt ) {
         _instance = this;
         
         
+        /*!
+         * 
+         * Nautilus.prototype.typeCheck.
+         *
+         * Make sure we support the es6-module-transpiler type.
+         *
+         */
         this.typeCheck = function () {
             if ( !_types[ _options.type ] ) {
                 _logger.log( "UNSUPPORTED_TYPE", {
                     type: _options.type
                 });
             }
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.contrib.
+         *
+         * Contrib config for non-nautilus taskings.
+         *
+         */
+        this.contrib = function () {
+            
         };
         
         /*!
@@ -274,6 +314,10 @@ module.exports = function ( grunt ) {
             
             match = grunt.file.expand( main );
             
+            if ( !main.length ) {
+                _logger.log( "MAIN_MISSING" );
+            }
+            
             _.each( match, function ( val ) {
                 var module;
                 
@@ -313,7 +357,6 @@ module.exports = function ( grunt ) {
          */
         this.recurse = function () {
             var modules = {},
-                recurse
                 recurse = function ( deps, module ) {
                     deps = deps || [];
                     
@@ -331,20 +374,21 @@ module.exports = function ( grunt ) {
                         
                         // Matched lib import    
                         if ( _rLib.test( el ) ) {
-                            path = _path.join( __lib__, el.replace( _rLib, "" ) )
+                            path = _path.join( __lib__, el.replace( _rLib, "" ) );
                         
                         // Matched app import    
                         } else if ( _rApp.test( el ) ) {
                             path = _path.join( __app__, el.replace( _rApp, "" ) );
-                            
+                        
+                        // Try looking in pubRoot or jsRoot    
                         } else {
-                            path = _path.join( __js__, el );
-                            
-                            if ( !grunt.file.exists( path+__ext__ ) ) {
-                                _logger.log( "MISSING_IMPORT", {
-                                    file: path
-                                });
-                            }
+                            _.each( [__js__, __pub__], function ( root, i, list ) {
+                                var lookup = _path.join( root, el );
+                                
+                                if ( grunt.file.exists( lookup+__ext__ ) ) {
+                                    path = lookup;
+                                }
+                            });
                         }
                         
                         // Matched a file
@@ -379,7 +423,8 @@ module.exports = function ( grunt ) {
                                     deps = recurse( deps, deps[ nameSpace ] );
                                 }
                             });
-                            
+                        
+                        // No matches in available locations    
                         } else {
                             _logger.log( "MISSING_MODULE", {
                                 file: module.src
@@ -539,7 +584,7 @@ module.exports = function ( grunt ) {
         this.app = function () {
             _module.create.apply( _module, arguments );
             
-            process.exit( 0 );
+            //process.exit( 0 );
         };
         
         /*!

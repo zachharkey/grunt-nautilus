@@ -17,11 +17,7 @@ module.exports = function ( grunt ) {
         _options = grunt.config.get( "nautilus" ).options,
         _jshintrc = JSON.parse( grunt.file.read( _path.join( _dirs.root, ".jshintrc" ) ) ),
         _rAppModule = /\.tmp\/module_\d{1,2}\.app\.|\.tmp\/\.app\.js/,
-        _jshintGlobals = {
-            app: true,
-            console: true,
-            module: true
-        },
+        _rGlob = /\*/,
         _concatOptions = {
             options: {
                 banner: "<%= banner %>"
@@ -76,19 +72,15 @@ module.exports = function ( grunt ) {
         jshint: function ( scripts, modules ) {
             var options = {
                 options: _.extend( _jshintrc, {
-                    globals: _jshintGlobals
+                    globals: _options.jsGlobals
                 }),
                 
                 scripts: {}
             };
             
-            if ( _options.jshintGlobals ) {
-                _.extend( options.options.globals, _options.jshintGlobals );
-            }
-            
             if ( _options.hintAt ) {
                 _.each( _options.hintAt, function ( el, i, list ) {
-                    if ( /\*/.test( el ) ) {
+                    if ( _rGlob.test( el ) ) {
                         var files = grunt.file.expand( el );
                         
                         if ( files.length ) {

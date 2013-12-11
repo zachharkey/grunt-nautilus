@@ -15,20 +15,17 @@ module.exports = function ( grunt ) {
     "use strict";
     
     
-    var Nautilus = require( "./lib/nautilus" )( grunt ),
-        _ = grunt.util._,
+    var _ = grunt.util._,
+        Nautilus = require( "./lib/nautilus" )( grunt ),
+        _path = require( "path" ),
         _options = grunt.config.get( "nautilus" ).options,
-        _isInit = grunt.file.isFile( _options.jsRoot+"/app/app.js" ),
-        _isNonTask = false,
+        _isInit = (grunt.file.isDir( _path.join( _options.jsRoot, "app" ) )),
         _tasks = [
             "app",
             "dev",
             "build",
             "deploy",
             "default"
-        ],
-        _nonTasks = [
-            "app"
         ];
         
     
@@ -38,7 +35,45 @@ module.exports = function ( grunt ) {
      *
      */
     if ( !_isInit ) {
-        require( "./lib/init" )( grunt, _options );
+        if ( !grunt.option( "init" ) ) {
+            grunt.fail.warn( "Initialize grunt-nautilus with `grunt --init`" );
+            
+        } else {
+            require( "./lib/init" )( grunt, _options );
+        }
+    
+    /*!
+     * 
+     * Perform the grunt-nautilus building.
+     *
+     * @task: ender
+     * @task: watch
+     * @task: clean
+     * @task: jshint
+     * @task: uglify
+     * @task: concat
+     * @task: compass
+     *
+     * Load required plugins and their tasks.
+     *
+     * @task: ender
+     * @task: watch
+     * @task: clean
+     * @task: jshint
+     * @task: uglify
+     * @task: concat
+     * @task: compass
+     *
+     */
+    } else {
+        Nautilus.typeCheck();
+        Nautilus.load();
+        Nautilus.layout();
+        Nautilus.scan();
+        Nautilus.parse();
+        Nautilus.recurse();
+        Nautilus.compile();
+        Nautilus.config();
     }
     
     
@@ -70,42 +105,6 @@ module.exports = function ( grunt ) {
      *
      */
     grunt.registerTask( "nautilus", "A grunt plugin for modular, javascript application development.", function ( task ) {
-        _isNonTask = (_.contains( _nonTasks, task ));
-        
-        /*!
-         * 
-         * Perform the grunt-nautilus building.
-         *
-         * @task: ender
-         * @task: watch
-         * @task: clean
-         * @task: jshint
-         * @task: uglify
-         * @task: concat
-         * @task: compass
-         *
-         * Load required plugins and their tasks.
-         *
-         * @task: ender
-         * @task: watch
-         * @task: clean
-         * @task: jshint
-         * @task: uglify
-         * @task: concat
-         * @task: compass
-         *
-         */
-        if ( !_isNonTask ) {
-            Nautilus.typeCheck();
-            Nautilus.load();
-            Nautilus.layout();
-            Nautilus.scan();
-            Nautilus.parse();
-            Nautilus.recurse();
-            Nautilus.compile();
-            Nautilus.config();
-        }
-        
         if ( (_.contains( _tasks, task )) && (_.isFunction( Nautilus[ task ] )) ) {
             Nautilus[ task ].apply( Nautilus, [].slice.call( arguments, 1 ) );
             

@@ -14,6 +14,7 @@ module.exports = function ( grunt ) {
         _logger = require( "./logger" )( grunt ),
         _utils = require( "./utils" )( grunt ),
         _dirs = require( "./dirs" ),
+        _rDub = /\/(\/)/g,
         _reserved = [
             "log",
             "exec"
@@ -31,7 +32,7 @@ module.exports = function ( grunt ) {
                 }),
                 module = _utils.camelCase( args.pop() ),
                 namespace = args.join( "/" ),
-                filePath = _options.jsAppRoot+"/"+namespace+"/"+module+".js",
+                filePath = (_options.jsAppRoot+"/"+namespace+"/"+module+".js").replace( _rDub, "$1" ),
                 fileData = {
                     data: {
                         module: module,

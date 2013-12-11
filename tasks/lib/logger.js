@@ -71,6 +71,11 @@ module.exports = function ( grunt ) {
             MERGE_BUILDIN: {
                 type: "ok",
                 log: "Merging buildIn <%= buildIn %> for <%= script %>"
+            },
+            
+            GLOBAL_UNDEFINED: {
+                type: "warn",
+                log: "Could not parse global scope reference for <%= global %>"
             }
         },
         _log = function ( type, msg ) {

@@ -24,24 +24,13 @@ var grunt = require( "grunt" );
 
 exports.nautilus = {
     
-    appjs_core_test: function ( test ) {
+    appjs_module_test: function ( test ) {
         test.expect( 1 );
         
-        var actual = grunt.file.read( "test/fixtures/js/app-core.js" );
-        var expected = grunt.file.read( "test/expected/js/app/core/app.core.test.js" );
+        var actual = grunt.file.read( "test/fixtures/js/sonata.js" );
+        var expected = grunt.file.read( "test/expected/js/app/sonata.js" );
         
-        test.equal( actual, expected, "Should parse app-js core template into app-js core file." );
-        
-        test.done();
-    },
-    
-    appjs_util_test: function ( test ) {
-        test.expect( 1 );
-        
-        var actual = grunt.file.read( "test/fixtures/js/app-util.js" );
-        var expected = grunt.file.read( "test/expected/js/app/util/app.util.test.js" );
-        
-        test.equal( actual, expected, "Should parse app-js util template into app-js util file." );
+        test.equal( actual, expected, "Should parse app module into named .js file" );
         
         test.done();
     },
@@ -49,10 +38,10 @@ exports.nautilus = {
     appjs_controller_test: function ( test ) {
         test.expect( 1 );
         
-        var actual = grunt.file.read( "test/fixtures/js/app-controller.js" );
-        var expected = grunt.file.read( "test/expected/js/app/controllers/app.controller.test.js" );
+        var actual = grunt.file.read( "test/fixtures/js/fractal.js" );
+        var expected = grunt.file.read( "test/expected/js/app/controllers/fractal.js" );
         
-        test.equal( actual, expected, "Should parse app-js template into app-js file." );
+        test.equal( actual, expected, "Should parse app controller into named .js file" );
         
         test.done();
     }

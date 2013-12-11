@@ -15,47 +15,16 @@
 
 module.exports = function ( grunt ) {
     
-    // All tests.
-    var allTests = [
-        // Test js module file creations
-        "nautilus:app:core:Foo",
-        "nautilus:app:util:bar",
-        "nautilus:app:controller:baz",
-        "nodeunit:app",
-        
-        // Test compass compilations
-        "compass:development",
-        "compass:production",
-        "nodeunit:compass",
-        
-        // Test concat
-        "concat",
-        "nodeunit:concat",
-        
-        // Test uglify
-        "uglify",
-        "nodeunit:uglify",
-        
-        // Test build
-        "nautilus:build",
-        "nodeunit:build",
-        
-        // Test deploy
-        "nautilus:deploy",
-        "nodeunit:deploy",
-        
-        // Test ender
-        "ender",
-        "nodeunit:ender"
-    ];
-        
+    
+    var _ = grunt.util._;
+    
     
     // Project configuration.
     grunt.initConfig({
         jshint: {
-            all: [
+            plugin: [
                 "Gruntfile.js",
-                "tasks/*.js"
+                "tasks/**/*.js"
             ],
             
             options: {
@@ -67,18 +36,11 @@ module.exports = function ( grunt ) {
         // Before generating any new files, remove any previously-created files.
         clean: {
             tests: [
-                "tmp",
-                "test/expected/js/app/core/*.js",
-                "test/expected/js/app/controllers/*.js",
-                "test/expected/js/app/util/*.js",
-                "test/expected/js/dist/*.js",
-                "test/expected/js/vendor/*.js",
-                "test/expected/css/*.css"
-            ],
-            
-            inits: [
-                "test/expected/js/app/app.js",
-                "test/expected/sass/**/*.scss"
+                "test/expected/js/**/*",
+                "test/expected/css",
+                "test/expected/img",
+                "test/expected/fonts",
+                "test/expected/sass"
             ]
         },
         
@@ -92,15 +54,12 @@ module.exports = function ( grunt ) {
                 jsAppRoot: "test/expected/js/app",
                 jsDistRoot: "test/expected/js/dist",
                 jsLibRoot: "test/expected/js/lib",
+                pubRoot: "test/expected",
                 quiet: false,
                 
                 
                 // 3rd party plugins can be set here
-                jshintGlobals: {
-                    $: true,
-                    ender: true,
-                    Ender: true
-                },
+                jsGlobals: {},
                 
                 
                 // Specify which tasks should run jshint.
@@ -113,14 +72,12 @@ module.exports = function ( grunt ) {
                 
                 
                 // Manage the ender build.
-                /*
                 ender: {
                     options: {
                         output: "test/expected/js/lib/ender/ender",
                         dependencies: ["jeesh"]
                     }
                 },
-                */
                 
                 
                 // Manage the compass build.
@@ -156,18 +113,18 @@ module.exports = function ( grunt ) {
                 
                 // Test buildIn scripts.
                 buildIn: {
-                    test_0: {
-                        files: ["test/fixtures/js/modernizr.js"],
+                    priorityZero: {
+                        files: ["test/expected/bower_components/momentjs/moment.js"],
                         // Before main build
                         priority: 0,
-                        builds: ["app"]
+                        builds: ["nautilus"]
                     },
                     
-                    test_1: {
-                        files: ["test/fixtures/js/lib/ender/ender.js"],
+                    priorityOne: {
+                        files: ["test/expected/bower_components/mustache/mustache.js"],
                         // After main build
                         priority: 1,
-                        builds: ["app"]
+                        builds: ["fractal"]
                     }
                 }
             }
@@ -198,89 +155,28 @@ module.exports = function ( grunt ) {
     grunt.loadNpmTasks( "grunt-contrib-jshint" );
     
     
-    // Whenever the "test" task is run, first clean the "tmp" dir, then run this
-    // plugin's task(s), then test the result.
-    // Not using a grunt multi-task so running individual tests after each plugin task
-    /*
-    grunt.registerTask( "test", "Test each nautilus task.", function ( test ) {
-        var jsTasks = [
-                "default",
-                "app",
-                "concat",
-                "uglify",
-                "build",
-                "deploy"
-            ],
-            myTasks = [
-                "app",
-                "build",
-                "deploy",
-                "default"
-            ];
+    // Test all of grunt-nautilus' tasks in a deployment manner.
+    var _tasks = {
+        app: [
+            "nautilus:app:sonata",
+            "nautilus:app:controller:fractal",
+            "nautilus:app:controller:nautilus"
+        ]
+    };
+    
+    grunt.registerTask( "test", "Test each nautilus task", function () {
         
-        // Clean before...
-        grunt.task.run( "clean" );
+        grunt.task.run( "jshint:plugin" );
         
-        // No arguments, run all tests
-        if ( !test ) {
-            grunt.task.run( allTests );
+        _.each( _tasks, function ( val, key, list ) {
+            _.each( val, function ( el, i ) {
+                grunt.task.run( el );
+            });
             
-        } else {
-            // Handle app-js related tests
-            // All js tasks will need appjs executed first
-            if ( jsTasks.indexOf( test ) !== -1 ) {
-                grunt.task.run([
-                    "nautilus:app:core:test",
-                    "nautilus:app:util:test",
-                    "nautilus:app:controller:test"
-                ]);
-            }
-            
-            // Handle the compass test
-            if ( test === "compass" ) {
-                grunt.task.run([
-                    "compass:development",
-                    "compass:production"
-                ]);
-            }
-            
-            // Handle other tests
-            // or finish up app-js related tests
-            // excluding appjs itself
-            if ( test !== "app" && myTasks.indexOf( test ) !== -1 ) {
-                try {
-                    grunt.task.run( "nautilus:"+test );
-                    
-                } catch ( error ) {
-                    var throwError = new Error( "Nautilus test failed." );
-                    
-                    if ( error.msg ) {
-                        throwError.message += ", "+error.msg+".";
-                    }
-                    
-                    throwError.origError = error;
-                    
-                    grunt.log.warn( "running test "+test+" failed." );
-                    
-                    grunt.fail.warn( throwError );
-                }
-                
-            } else {
-                grunt.task.run( test );
-            }
-            
-            // Run the unit test
-            grunt.task.run( "nodeunit:"+test );
-        }
+            grunt.task.run( "nodeunit:"+key );
+        });
         
-        // ... and clean after.
-        grunt.task.run( "clean" );
     });
-    */
-    
-    
-    // By default, lint and run all tests.
-    //grunt.registerTask( "default", ["jshint", "test"] );
     
 
 };
