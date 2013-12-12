@@ -36,8 +36,8 @@ module.exports = function ( grunt, options ) {
         };
     
     return {
-        dowatch: function ( opts ) {
-            mergeConfig( "dowatch", opts );
+        watch: function ( opts ) {
+            mergeConfig( "nautilus-watch", opts );
         },
         
         jshint: function ( opts ) {

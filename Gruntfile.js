@@ -21,6 +21,7 @@ module.exports = function ( grunt ) {
     
     // Project configuration.
     grunt.initConfig({
+        // Jshint config.
         jshint: {
             plugin: [
                 "Gruntfile.js",
@@ -33,7 +34,7 @@ module.exports = function ( grunt ) {
         },
         
         
-        // Before generating any new files, remove any previously-created files.
+        // Clean config.
         clean: {
             tests: [
                 "test/expected/js/**/*",
@@ -45,7 +46,7 @@ module.exports = function ( grunt ) {
         },
         
         
-        // Manage the ender build.
+        // Ender config.
         ender: {
             options: {
                 output: "test/expected/js/lib/ender/ender",
@@ -54,7 +55,7 @@ module.exports = function ( grunt ) {
         },
         
         
-        // Manage the compass build.
+        // Compass config.
         compass: {
             options: {
                 cssDir: "test/expected/css",
@@ -85,32 +86,9 @@ module.exports = function ( grunt ) {
         },
         
         
-        // Configuration to be run (and then tested).
+        // Nautilus config.
         nautilus: {
-            // Default options for testing.
             options: {
-                jsRoot: "test/expected/js",
-                jsAppRoot: "test/expected/js/app",
-                jsDistRoot: "test/expected/js/dist",
-                jsLibRoot: "test/expected/js/lib",
-                pubRoot: "test/expected",
-                quiet: false,
-                
-                
-                // 3rd party plugins can be set here
-                jsGlobals: {},
-                
-                
-                // Specify which tasks should run jshint.
-                hintAt: [],
-                hintOn: [
-                    "watch",
-                    "build",
-                    "deploy"
-                ],
-                
-                
-                // Test buildIn scripts.
                 buildIn: {
                     priorityZero: {
                         files: ["test/expected/bower_components/momentjs/moment.js"],
@@ -125,7 +103,26 @@ module.exports = function ( grunt ) {
                         priority: 1,
                         builds: ["fractal"]
                     }
-                }
+                },
+                expanded: false,
+                hintAt: [],
+                hintOn: [
+                    "watch",
+                    "build",
+                    "deploy"
+                ],
+                jsAppRoot: "test/expected/js/app",
+                jsDistRoot: "test/expected/js/dist",
+                // These get merged into jshint globals
+                jsGlobals: {},
+                jsLibRoot: "test/expected/js/lib",
+                jsRoot: "test/expected/js",
+                main: [
+                    "app.js",
+                    "controllers/**/*.js"
+                ],
+                pubRoot: "test/expected",
+                quiet: true
             }
         },
         
@@ -155,7 +152,7 @@ module.exports = function ( grunt ) {
     
     
     // Test all of grunt-nautilus' tasks in a deployment manner.
-    var _tasks = {
+    var tasks = {
         app: [
             "nautilus:app:sonata",
             "nautilus:app:controller:fractal",
@@ -167,7 +164,7 @@ module.exports = function ( grunt ) {
         
         grunt.task.run( "jshint:plugin" );
         
-        _.each( _tasks, function ( val, key, list ) {
+        _.each( tasks, function ( val, key, list ) {
             _.each( val, function ( el, i ) {
                 grunt.task.run( el );
             });

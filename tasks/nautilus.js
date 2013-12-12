@@ -68,11 +68,11 @@ module.exports = function ( grunt ) {
     grunt.event.on( "watch", function ( filepath, watchtask ) {
         
     });
-    grunt.renameTask( "watch", "dowatch" );
+    grunt.renameTask( "watch", "nautilus-watch" );
     grunt.registerTask( "watch", function () {
         nautilus.buildTask();
         
-        grunt.task.run( "dowatch" );
+        grunt.task.run( "nautilus-watch" );
     });
     
     

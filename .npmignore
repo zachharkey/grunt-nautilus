@@ -1,15 +1,16 @@
 ########################
+# node
+########################
+bower_components
+
+
+########################
 # gruntplugin
 ########################
 tmp
 dist
-test/expected/css
-test/expected/js/lib/*.js
-test/expected/js/vendor/*.js
-test/expected/js/app/core/*.js
-test/expected/js/app/util/*.js
-test/expected/js/app/feature/*.js
-example.Gruntfile.js
+test
+server
 
 
 ########################

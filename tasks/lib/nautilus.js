@@ -613,7 +613,7 @@ module.exports = function ( grunt, options ) {
             var scriptTasks = mergeTasks( "watch", ["concat", "clean:nautilus-tmp"] ),
                 stylesTasks = "compass:"+(options.env || "development");
             
-            coreConfig.dowatch({
+            coreConfig.watch({
                 scripts: {
                     files: coreTasks.watchJs,
                     tasks: scriptTasks
