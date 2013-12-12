@@ -8,47 +8,53 @@
  *
  *
  */
-module.exports = function ( grunt ) {
+module.exports = function ( grunt, options ) {
     
     var _ = grunt.util._,
-        _options = grunt.config.get( "nautilus" ).options,
-        _global = require( "./global" ),
-        _utils = require( "./utils" )( grunt ),
-        _logger = require( "./logger" )( grunt ),
-        _libs = require( "./libs" ),
+    
+        coreGlobal = require( "./global" ),
+        coreUtils = require( "./utils" )( grunt, options ),
+        coreLogger = require( "./logger" )( grunt, options ),
+        coreLibs = require( "./libs" ),
+        
+        rSlash = /\//g,
+        rLib = new RegExp( coreGlobal+"\\.(?!app\/)(.*?)(?=(,|\\)))", "g" ),
+        rSyntax = /\n\}\)|;$/g,
+        rLastLine = /\n.*$/,
+        rSlashDot = /\/|\./g,
+        empty = "()",
+        
         __console__ = "console.log",
         __exports__ = "__exports__",
-        __applog__ = "app.log",
-        _rSlash = /\//g,
-        _rLib = new RegExp( _global+"\\.(?!app\/)(.*?)(?=(,|\\)))", "g" ),
-        _rSyntax = /\n\}\)|;$/g,
-        _rLastLine = /\n.*$/,
-        _rSlashDot = /\/|\./g,
-        _empty = "()";
+        __applog__ = "app.log";
     
     return {
         globals: function ( namespace, file ) {
-            var end = file.match( _rLastLine ),
-                rep = end[ 0 ].replace( _rSyntax, "" ),
-                libs = rep.match( _rLib );
+            var end = file.match( rLastLine ),
+                libs,
+                rep;
+            
+            end = end[ 0 ].replace( rSyntax, "" );
+            rep = end;
+            libs = rep.match( rLib );
             
             file = file.replace(
-                __exports__+"."+_utils.moduleName( namespace ),
-                __exports__+"."+namespace.replace( _rSlash, "." )
+                __exports__+"."+coreUtils.moduleName( namespace ),
+                __exports__+"."+namespace.replace( rSlash, "." )
             );
             
             _.each( libs, function ( lib ) {
-                var module = lib.split( _rSlashDot ).reverse()[ 0 ],
+                var module = lib.split( rSlashDot ).reverse()[ 0 ],
                     modlow = module.toLowerCase(),
                     global;
                 
                 // Validate against libs insensitive
-                if ( _libs[ modlow ] ) {
-                    global = _libs[ module ].context;
+                if ( coreLibs[ modlow ] ) {
+                    global = coreLibs[ module ].context;
                 
                 // Validate jsGlobals
-                } else if ( _options.jsGlobals ) {
-                    _.each( _options.jsGlobals, function ( val, key, list ) {
+                } else if ( options.jsGlobals ) {
+                    _.each( options.jsGlobals, function ( val, key, list ) {
                         if ( key.toLowerCase() === modlow ) {
                             global = key;
                         }
@@ -57,16 +63,16 @@ module.exports = function ( grunt ) {
                 
                 // Throw warning if it wasn't found
                 if ( !global ) {
-                    _logger.log( "GLOBAL_UNDEFINED", {
+                    coreLogger.log( "GLOBAL_UNDEFINED", {
                         global: module
                     });
                 }
                 
-                rep = rep.replace( lib, _global+"."+global );
+                rep = rep.replace( lib, coreGlobal+"."+global );
             });
             
-            if ( rep !== _empty ) {
-                file = file.replace( end, rep.replace( _rSlash, "." ) );
+            if ( rep !== empty ) {
+                file = file.replace( end, rep.replace( rSlash, "." ) );
                 file = file.replace( __console__, __applog__ );
             }
             

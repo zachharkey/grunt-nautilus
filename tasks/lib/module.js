@@ -8,18 +8,18 @@
  *
  *
  */
-module.exports = function ( grunt ) {
+module.exports = function ( grunt, options ) {
     
-    var _options = grunt.config.get( "nautilus" ).options,
-        _logger = require( "./logger" )( grunt ),
-        _utils = require( "./utils" )( grunt ),
-        _dirs = require( "./dirs" ),
-        _rDub = /\/(\/)/g,
-        _reserved = [
+    var _ = grunt.util._,
+        
+        coreLogger = require( "./logger" )( grunt, options ),
+        coreUtils = require( "./utils" )( grunt, options ),
+        coreDirs = require( "./dirs" ),
+        rDub = /\/(\/)/g,
+        reserved = [
             "log",
             "exec"
-        ],
-        _ = grunt.util._;
+        ];
     
     return {
         create: function () {
@@ -30,32 +30,32 @@ module.exports = function ( grunt ) {
                     
                     return el;
                 }),
-                module = _utils.camelCase( args.pop() ),
+                module = coreUtils.camelCase( args.pop() ),
                 namespace = args.join( "/" ),
-                filePath = (_options.jsAppRoot+"/"+namespace+"/"+module+".js").replace( _rDub, "$1" ),
+                filePath = (options.jsAppRoot+"/"+namespace+"/"+module+".js").replace( rDub, "$1" ),
                 fileData = {
                     data: {
                         module: module,
                         namespace: namespace
                     }
                 },
-                template = _dirs.app+"/templates/module.js",
+                template = coreDirs.app+"/templates/module.js",
                 contents;
             
-            if ( _.contains( _reserved, args[ 0 ] ) ) {
-                _logger.log( "NAMESPACE_RESERVED", {
+            if ( _.contains( reserved, args[ 0 ] ) ) {
+                coreLogger.log( "NAMESPACE_RESERVED", {
                     namespace: args[ 0 ]
                 });
             }
             
             if ( grunt.file.exists( filePath ) && !grunt.option( "force" ) ) {
-                _logger.log( "MODULE_EXISTS", {
+                coreLogger.log( "MODULE_EXISTS", {
                     path: filePath
                 });
             }
             
             if ( _.contains( args, "controllers" ) ) {
-                template = _dirs.app+"/templates/controller.js";
+                template = coreDirs.app+"/templates/controller.js";
             }
             
             template = grunt.file.read( template );
@@ -63,7 +63,7 @@ module.exports = function ( grunt ) {
             
             grunt.file.write( filePath, contents );
             
-            _logger.log( "NEW_MODULE", {
+            coreLogger.log( "NEW_MODULE", {
                 path: filePath
             });
         }

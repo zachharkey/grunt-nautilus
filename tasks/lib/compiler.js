@@ -8,11 +8,10 @@
  *
  *
  */
-module.exports = function ( grunt ) {
+module.exports = function ( grunt, options ) {
     
-    var _options = grunt.config.get( "nautilus" ).options,
-        _jsLibs = require( "./libs" ),
-        _global = require( "./global" ),
+    var jsLibs = require( "./libs" ),
+        global = require( "./global" ),
         
         // Compiler Class
         Compiler = require( "es6-module-transpiler" ).Compiler;
@@ -21,10 +20,10 @@ module.exports = function ( grunt ) {
         transpile: function ( filePath, module ) {
             var contents = grunt.file.read( filePath ),
                 options = {
-                    global: _global
+                    global: global
                 };
             
-            if ( _options.type === "globals" ) {
+            if ( options.type === "globals" ) {
                 return new Compiler( contents, module, options );
                 
             } else {
@@ -34,10 +33,10 @@ module.exports = function ( grunt ) {
         
         closure: function ( scripts ) {
             return [
-                "(function ("+_global+", app, undefined) {",
+                "(function ("+global+", app, undefined) {",
                     "  \"use strict\";",
                     "  "+scripts,
-                "})("+_global+", "+_global+".app);"
+                "})("+global+", "+global+".app);"
                 
             ].join( "\n" );
         }

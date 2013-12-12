@@ -8,109 +8,99 @@
  *
  *
  */
-// need a better "is-init" condition
 module.exports = function ( grunt ) {
     
     
     "use strict";
     
     
-    var _ = grunt.util._,
-        Nautilus = require( "./lib/nautilus" )( grunt ),
-        _path = require( "path" ),
-        _options = grunt.config.get( "nautilus" ).options,
-        _isInit = (grunt.file.isDir( _path.join( _options.jsRoot, "app" ) )),
-        _tasks = [
-            "app",
-            "dev",
-            "build",
-            "deploy",
-            "default"
-        ];
-        
-    
-    /*!
-     * 
-     * Initialize the setup.
-     *
-     */
-    if ( !_isInit ) {
-        if ( !grunt.option( "init" ) ) {
-            grunt.fail.warn( "Initialize grunt-nautilus with `grunt --init`" );
+    var _ = grunt.util._;
+    var defaults = require( "./lib/options" );
+    var mergeOptions = function ( options ) {
+        _.each( defaults, function ( val, key, list ) {
+            // Use user value or merge
+            if ( options[ key ] ) {
+                if ( _.isObject( val ) ) {
+                    options[ key ] = _.extend( options[ key ], val );
+                }
             
-        } else {
-            require( "./lib/init" )( grunt, _options );
-        }
-    
-    /*!
-     * 
-     * Perform the grunt-nautilus building.
-     *
-     * @task: ender
-     * @task: watch
-     * @task: clean
-     * @task: jshint
-     * @task: uglify
-     * @task: concat
-     * @task: compass
-     *
-     * Load required plugins and their tasks.
-     *
-     * @task: ender
-     * @task: watch
-     * @task: clean
-     * @task: jshint
-     * @task: uglify
-     * @task: concat
-     * @task: compass
-     *
-     */
-    } else {
-        Nautilus.typeCheck();
-        Nautilus.load();
-        Nautilus.layout();
-        Nautilus.scan();
-        Nautilus.parse();
-        Nautilus.recurse();
-        Nautilus.compile();
-        Nautilus.config();
-    }
-    
-    
-    /*!
-     * 
-     * Register other tasks.
-     *
-     * @task: app
-     * @task: dev
-     * @task: build
-     * @task: deploy
-     * @task: default
-     *
-     */
-    _.each( _tasks, function ( task ) {
-        grunt.registerTask( task, function () {
-            var command = [ "nautilus", task ].concat( [].slice.call( arguments, 0 ) ).join( ":" );
-                
-            grunt.task.run( command );
+            // Consume default value    
+            } else {
+                options[ key ] = val;
+            }
         });
+        
+        grunt.config.set( "nautilus", {
+            options: options
+        });
+        
+        return grunt.config.get( "nautilus" ).options;
+    };
+    var options = mergeOptions( grunt.config.get( "nautilus" ).options );
+    var nautilus = require( "./lib/nautilus" )( grunt, options );
+    
+    
+    /*!
+     *
+     * Check if we need to create directories.
+     *
+     */
+    require( "./lib/init" )( grunt, options );
+    
+    
+    /*!
+     *
+     * Execute the nautilus stack.
+     *
+     */
+    nautilus.parseFlags( grunt.option.flags() );
+    nautilus.executeStack();
+    nautilus.watchTask();
+    nautilus.jsHintTask();
+    nautilus.cleanTask();
+    
+    
+    /*!
+     *
+     * Overthrow the "watch" task.
+     *
+     */
+    grunt.event.on( "watch", function ( filepath, watchtask ) {
+        
     });
+    grunt.renameTask( "watch", "dowatch" );
+    grunt.registerTask( "watch", function () {
+        nautilus.buildTask();
+        
+        grunt.task.run( "dowatch" );
+    });
+    
+    
+    /*!
+     * 
+     * Throw error if required options are missing.
+     *
+     */
+    grunt.config.requires(
+        "nautilus",
+        "nautilus.options",
+        "nautilus.options.pubRoot",
+        "nautilus.options.jsRoot",
+        "nautilus.options.jsAppRoot",
+        "nautilus.options.jsLibRoot",
+        "nautilus.options.jsDistRoot"
+    );
     
     
     /*!
      * 
      * Register the "nautilus" task.
      *
-     * @usage: grunt nautilus
+     * @usage: grunt nautilus [,flags...]
      *
      */
-    grunt.registerTask( "nautilus", "A grunt plugin for modular, javascript application development.", function ( task ) {
-        if ( (_.contains( _tasks, task )) && (_.isFunction( Nautilus[ task ] )) ) {
-            Nautilus[ task ].apply( Nautilus, [].slice.call( arguments, 1 ) );
-            
-        } else {
-            grunt.fail.warn( "Invalid arguments and options." );
-        }
+    grunt.registerTask( "nautilus", "Build modular javascript applications.", function () {
+        nautilus.parseArgs( this.args );
     });
     
     

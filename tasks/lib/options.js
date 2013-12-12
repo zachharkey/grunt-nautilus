@@ -10,9 +10,8 @@
  */
 module.exports = {
     buildIn: undefined,
-    compass: undefined,
-    ender: undefined,
-    gruntFile: "Gruntfile.js",
+    env: undefined,
+    expanded: false,
     hintAt: [],
     hintOn: [],
     jsAppRoot: undefined,

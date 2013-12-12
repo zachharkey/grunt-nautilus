@@ -45,11 +45,50 @@ module.exports = function ( grunt ) {
         },
         
         
+        // Manage the ender build.
+        ender: {
+            options: {
+                output: "test/expected/js/lib/ender/ender",
+                dependencies: ["jeesh"]
+            }
+        },
+        
+        
+        // Manage the compass build.
+        compass: {
+            options: {
+                cssDir: "test/expected/css",
+                fontsDir: "test/expected/fonts",
+                force: true,
+                httpPath: "/",
+                imagesDir: "test/expected/img",
+                javascriptsDir: "test/expected/js",
+                noLineComments: true,
+                sassDir: "test/expected/sass"
+            },
+            
+            development: {
+                options: {
+                    environment: "development",
+                    outputStyle: "expanded",
+                    sassDir: "test/fixtures/sass/dev"
+                }
+            },
+            
+            production: {
+                options: {
+                    environment: "production",
+                    outputStyle: "compressed",
+                    sassDir: "test/fixtures/sass/prod"
+                }
+            }
+        },
+        
+        
         // Configuration to be run (and then tested).
         nautilus: {
             // Default options for testing.
             options: {
-                gruntFile: "Gruntfile.js",
                 jsRoot: "test/expected/js",
                 jsAppRoot: "test/expected/js/app",
                 jsDistRoot: "test/expected/js/dist",
@@ -69,46 +108,6 @@ module.exports = function ( grunt ) {
                     "build",
                     "deploy"
                 ],
-                
-                
-                // Manage the ender build.
-                ender: {
-                    options: {
-                        output: "test/expected/js/lib/ender/ender",
-                        dependencies: ["jeesh"]
-                    }
-                },
-                
-                
-                // Manage the compass build.
-                compass: {
-                    options: {
-                        cssDir: "test/expected/css",
-                        fontsDir: "test/expected/fonts",
-                        force: true,
-                        httpPath: "/",
-                        imagesDir: "test/expected/img",
-                        javascriptsDir: "test/expected/js",
-                        noLineComments: true,
-                        sassDir: "test/expected/sass"
-                    },
-                    
-                    development: {
-                        options: {
-                            environment: "development",
-                            outputStyle: "expanded",
-                            sassDir: "test/fixtures/sass/dev"
-                        }
-                    },
-                    
-                    production: {
-                        options: {
-                            environment: "production",
-                            outputStyle: "compressed",
-                            sassDir: "test/fixtures/sass/prod"
-                        }
-                    }
-                },
                 
                 
                 // Test buildIn scripts.

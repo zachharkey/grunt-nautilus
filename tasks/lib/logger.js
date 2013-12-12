@@ -8,11 +8,10 @@
  *
  *
  */
-module.exports = function ( grunt ) {
+module.exports = function ( grunt, options ) {
     
     var _ = grunt.util._,
-        _options = grunt.config.get( "nautilus" ).options,
-        _logs = {
+        logs = {
             MISSING_MODULE: {
                 type: "fatal",
                 log: "Could not locate import found in <%= file %>"
@@ -76,10 +75,25 @@ module.exports = function ( grunt ) {
             GLOBAL_UNDEFINED: {
                 type: "warn",
                 log: "Could not parse global scope reference for <%= global %>"
+            },
+            
+            MAIN_NOMATCH: {
+                type: "warn",
+                log: "Could not match files for options.main"
+            },
+            
+            MISSING_ARGUMENTS: {
+                type: "warn",
+                log: "You didn't pass any arguments to the nautilus task"
+            },
+            
+            INVALID_ARGUMENTS: {
+                type: "warn",
+                log: "The arguments you passed to the nautilus task are not supported"
             }
         },
-        _log = function ( type, msg ) {
-            if ( _options.quiet ) {
+        log = function ( type, msg ) {
+            if ( options.quiet ) {
                 return;
             }
             
@@ -93,9 +107,14 @@ module.exports = function ( grunt ) {
     
     return {
         log: function ( key, data ) {
-            var log = _logs[ key ];
+            var msg = logs[ key ],
+                render = msg.log;
+            
+            if ( data ) {
+                render = _.template( msg.log, data );
+            }
         
-            _log( log.type, _.template( log.log, data ) );
+            log( msg.type, render );
         },
         
         console: function () {
