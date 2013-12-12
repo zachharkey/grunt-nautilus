@@ -117,6 +117,7 @@ module.exports = function ( grunt, options ) {
         coreModule = require( "./module" )( grunt, options ),
         coreConfig = require( "./config" )( grunt, options ),
         coreParser = require( "./parser" )( grunt, options ),
+        rimraf = require( "rimraf" ),
         
         // Supported plugin compilers
         ender = grunt.config.get( "ender" ),
@@ -243,6 +244,9 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.executeStack = function () {
+            // "Clean" the .tmp directory before stack calls.
+            rimraf.sync( __tmp__ );
+            
             // Throw warning on unsupported es6-module-transpiler type option.
             this.checkES6Type();
             
@@ -593,7 +597,11 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.compileModuleDistFiles = function () {
-            var config = {};
+            var config = {
+                options: {
+                    banner: "<%= banner %>"
+                }
+            };
             
             _.each( instance.modules, function ( module, key, list ) {
                 config[ key ] = module.dist;
@@ -610,25 +618,26 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.watchTask = function () {
-            var scriptTasks = mergeTasks( "watch", ["concat", "clean:nautilus-tmp"] ),
-                stylesTasks = "compass:"+(options.env || "development");
+            var scriptTasks = mergeTasks( "watch", ["concat", "clean:nautilus"] ),
+                stylesTasks = "compass:"+(options.env || "development"),
+                watch = {
+                    scripts: {
+                        files: coreTasks.watchJs,
+                        tasks: scriptTasks
+                    },
+                    
+                    compass: {
+                        files: coreTasks.watchSass,
+                        tasks: stylesTasks
+                    },
+                    
+                    gruntfile: {
+                        files: "Gruntfile.js",
+                        tasks: "jshint:gruntfile"
+                    }
+                };
             
-            coreConfig.watch({
-                scripts: {
-                    files: coreTasks.watchJs,
-                    tasks: scriptTasks
-                },
-                
-                compass: {
-                    files: coreTasks.watchSass,
-                    tasks: stylesTasks
-                },
-                
-                gruntfile: {
-                    files: "Gruntfile.js",
-                    tasks: "jshint:gruntfile"
-                }
-            });
+            coreConfig.watch( watch );
         };
         
         /*!
@@ -710,7 +719,7 @@ module.exports = function ( grunt, options ) {
          */
         this.cleanTask = function () {
             coreConfig.clean({
-                "nautilus-tmp": [__tmp__]
+                "nautilus": [__tmp__]
             });
         };
         
@@ -718,8 +727,7 @@ module.exports = function ( grunt, options ) {
          * 
          * Nautilus.prototype.appTask.
          *
-         * Creates a new modules for the app.
-         * Can be core, controller or util.
+         * Creates a new modules for the application schema.
          *
          */
         this.appTask = function () {
@@ -737,12 +745,10 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.buildTask = function () {
-            var tasks = mergeTasks( "build", ["concat", "clean:nautilus-tmp"] );
+            var tasks = mergeTasks( "build", ["concat"/* , "clean:nautilus" */] );
             
             __func__ = function () {
                 grunt.task.run( tasks );
-                
-                instance.cleanTask();
             };
             
             // Check for compass
@@ -770,12 +776,10 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.deployTask = function () {
-            var tasks = mergeTasks( "deploy", ["uglify", "clean:nautilus-tmp"] );
+            var tasks = mergeTasks( "deploy", ["uglify", "clean:nautilus"] );
             
             __func__ = function () {
                 grunt.task.run( tasks );
-                
-                instance.cleanTask();
             };
             
             // Check for compass

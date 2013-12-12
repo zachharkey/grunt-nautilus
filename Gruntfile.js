@@ -21,9 +21,31 @@ module.exports = function ( grunt ) {
     
     // Project configuration.
     grunt.initConfig({
+        // Project meta.
+        meta: {
+            version: "0.1.0"
+        },
+        
+        
+        // Project banner.
+        banner:
+            "/*!\n"+
+            " * \n"+
+            " * \n"+
+            " * Grunt Nautilus - v<%= meta.version %> - <%= grunt.template.today('yyyy-mm-dd') %>\n"+
+            " * @author: Brandon Lee Kitajchuk\n"+
+            " * @url: http://github.com/kitajchuk/\n"+
+            " * Copyright (c) <%= grunt.template.today('yyyy') %>\n"+
+            " * Licensed MIT\n"+
+            " * \n"+
+            " * \n"+
+            " */\n"+
+            "\n",
+            
+            
         // Jshint config.
         jshint: {
-            plugin: [
+            nautilus_plugin: [
                 "Gruntfile.js",
                 "tasks/**/*.js"
             ],
@@ -36,7 +58,7 @@ module.exports = function ( grunt ) {
         
         // Clean config.
         clean: {
-            tests: [
+            nautilus_plugin: [
                 "test/expected/js/**/*",
                 "test/expected/css",
                 "test/expected/img",
@@ -129,14 +151,9 @@ module.exports = function ( grunt ) {
         
         // Unit tests.
         nodeunit: {
-            app: ["test/nautilus_app_test.js"],
-            compass: ["test/nautilus_compass_test.js"],
-            concat: ["test/nautilus_concat_test.js"],
-            uglify: ["test/nautilus_uglify_test.js"],
-            build: ["test/nautilus_build_test.js"],
-            default: ["test/nautilus_build_test.js"],
-            deploy: ["test/nautilus_deploy_test.js"],
-            ender: ["test/nautilus_ender_test.js"]
+            nautilus: [
+                "test/nautilus_test.js"
+            ]
         }
     });
     
@@ -173,6 +190,10 @@ module.exports = function ( grunt ) {
         });
         
     });
+    
+    
+    // Register default task.
+    grunt.registerTask( "default", ["nautilus:build"] );
     
 
 };

@@ -16,7 +16,10 @@ module.exports = function ( grunt ) {
     
     var _ = grunt.util._;
     var defaults = require( "./lib/options" );
-    var mergeOptions = function ( options ) {
+    var mergeOptions = function () {
+        var config = grunt.config.get( "nautilus" ),
+            options = config.options || {};
+        
         _.each( defaults, function ( val, key, list ) {
             // Use user value or merge
             if ( options[ key ] ) {
@@ -34,9 +37,9 @@ module.exports = function ( grunt ) {
             options: options
         });
         
-        return grunt.config.get( "nautilus" ).options;
+        return options;
     };
-    var options = mergeOptions( grunt.config.get( "nautilus" ).options );
+    var options = mergeOptions();
     var nautilus = require( "./lib/nautilus" )( grunt, options );
     
     
@@ -55,9 +58,9 @@ module.exports = function ( grunt ) {
      */
     nautilus.parseFlags( grunt.option.flags() );
     nautilus.executeStack();
+    nautilus.cleanTask();
     nautilus.watchTask();
     nautilus.jsHintTask();
-    nautilus.cleanTask();
     
     
     /*!
@@ -65,9 +68,9 @@ module.exports = function ( grunt ) {
      * Overthrow the "watch" task.
      *
      */
-    grunt.event.on( "watch", function ( filepath, watchtask ) {
-        
-    });
+    //grunt.event.on( "watch", function ( filepath, watchtask ) {
+    //    console.log( "onwatch", filepath, watchtask );
+    //});
     grunt.renameTask( "watch", "nautilus-watch" );
     grunt.registerTask( "watch", function () {
         nautilus.buildTask();
@@ -96,7 +99,7 @@ module.exports = function ( grunt ) {
      * 
      * Register the "nautilus" task.
      *
-     * @usage: grunt nautilus [,flags...]
+     * @usage: grunt nautilus[:,args...] [,flags...]
      *
      */
     grunt.registerTask( "nautilus", "Build modular javascript applications.", function () {
