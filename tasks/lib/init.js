@@ -68,9 +68,4 @@ module.exports = function ( grunt, options ) {
         grunt.file.mkdir( options.jsRoot+"/lib" );
         grunt.file.write( options.jsRoot+"/lib/.gitkeep" );
     }
-    
-    //grunt.log.writeln( "\nGrunt Nautilus initialized." );
-    //grunt.log.writeln( "\n- @kitajchuk\n" );
-    
-    //process.exit( 0 );
 };

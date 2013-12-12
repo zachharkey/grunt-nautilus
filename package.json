@@ -31,7 +31,8 @@
     },
     "dependencies": {
         "rimraf": "~2.2",
-        "es6-module-transpiler": "~0.3"
+        "es6-module-transpiler": "~0.3",
+        "grunt-sails-linker": "~0.9"
     },
     "peerDependencies": {
         "grunt": "~0.4",

@@ -38,7 +38,7 @@ module.exports = function ( grunt, options ) {
                     "  "+scripts,
                 "})("+global+", "+global+".app);"
                 
-            ].join( "\n" );
+            ].join( grunt.util.linefeed );
         }
     };
     

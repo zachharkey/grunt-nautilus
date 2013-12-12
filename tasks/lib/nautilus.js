@@ -150,12 +150,13 @@ module.exports = function ( grunt, options ) {
         __func__ = function () {},
         
         // Regex
-        rAppModule = /\.tmp\/module_\d{1,2}\.app\.|\.tmp\/\.app\.js/,
+        rAppModule = /\.tmp\/module-\d{1,2}-app-|\.tmp\/\.app\.js/,
         rController = /controller/,
         rQuoted = /"|'/g,
         rLib = /^lib\//,
         rApp = /^app\//,
         rGlob = /\*/,
+        rDot = /\//g,
         
         // Use .jshintrc for jshint settings
         jshintrc = JSON.parse( grunt.file.read( nodePath.join( coreDirs.root, ".jshintrc" ) ) ),
@@ -168,7 +169,13 @@ module.exports = function ( grunt, options ) {
         },
         
         // Singleton
-        instance;
+        instance,
+        
+        // Flags that are not options
+        flagsSet = {
+            expanded: false,
+            env: undefined
+        };
     
     
     /*!
@@ -246,6 +253,7 @@ module.exports = function ( grunt, options ) {
         this.executeStack = function () {
             // "Clean" the .tmp directory before stack calls.
             rimraf.sync( __tmp__ );
+            //rimraf.sync( __dist__ );
             
             // Throw warning on unsupported es6-module-transpiler type option.
             this.checkES6Type();
@@ -310,6 +318,8 @@ module.exports = function ( grunt, options ) {
                     });
                 }
             });
+            
+            grunt.loadNpmTasks( "grunt-sails-linker" );
         };
         
         /*!
@@ -556,6 +566,44 @@ module.exports = function ( grunt, options ) {
             instance.modules = modules;
         };
         
+        // Need the reverse of this to write the concat/uglify dist file.
+        this.sailsLinkerTask = function () {
+            var sailsLinkerOptions = {};
+            
+            _.each( instance.modules, function ( module, key, list ) {
+                var moduleName = coreUtils.moduleName( key ),
+                    jsTemplate = options.jsTemplate[ moduleName ],
+                    files = [];
+                
+                if ( jsTemplate ) {
+                    _.each( module.dependencies, function ( dep, key, list ) {
+                        var fileName = key.replace( rDot, "-" );
+                        var expandedPath = ( dep.tmp ) ? nodePath.join( __dist__, moduleName, fileName+__ext__ ) : dep.src;
+                        var scriptPath = ( dep.tmp ) ? (__dist__+"/"+moduleName+"/"+fileName+__ext__) : dep.src;
+                        
+                        grunt.file.write( expandedPath, grunt.file.read( (dep.tmp || dep.src) ) );
+                        
+                        files.push( scriptPath );
+                    });
+                    
+                    var filesOptions = {};
+                        filesOptions[ jsTemplate ] = files;
+                    
+                    sailsLinkerOptions[ key ] = {
+                        options: {
+                            startTag: "<!--SCRIPTS-->",
+                            endTag: "<!--SCRIPTS END-->",
+                            fileTmpl: "<script src=\"/%s\"></script>"
+                        },
+                        
+                        files: filesOptions
+                    };
+                }
+            });
+            
+            grunt.config.set( "sails-linker", sailsLinkerOptions );
+        };
+        
         /*!
          * 
          * Nautilus.prototype.writeModuleTmpFiles.
@@ -745,11 +793,16 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.buildTask = function () {
-            var tasks = mergeTasks( "build", ["concat"/* , "clean:nautilus" */] );
+            var tasks = mergeTasks( "build", ["concat", "clean:nautilus"] );
             
             __func__ = function () {
                 grunt.task.run( tasks );
             };
+            
+            // Check for Sails linker
+            if ( options.expanded ) {
+                tasks.push( "sails-linker" );
+            }
             
             // Check for compass
             if ( compass ) {

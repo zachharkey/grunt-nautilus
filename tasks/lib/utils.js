@@ -32,7 +32,7 @@ module.exports = function ( grunt ) {
         },
         
         tempName: function ( str ) {
-            return [_.uniqueId( "module_" )].concat( str.split( "/" ) ).join( "." ); 
+            return [_.uniqueId( "module-" )].concat( str.split( "/" ) ).join( "-" ); 
         }
     };
 };

@@ -27,6 +27,7 @@ router = function ( app ) {
 	this.app.get( "/foo/", router.foo );
 	this.app.get( "/bar/", router.bar );
 	this.app.get( "/baz/", router.baz );
+	this.app.get( "/admin/", router.admin );
 	this.app.get( "/server/*", router.denied );
 	this.app.get( "/template/*", router.denied );
 };
@@ -60,6 +61,12 @@ router.bar = function ( request, response ) {
 router.baz = function ( request, response ) {
 	tpl.load( "baz", function ( html ) {
 		response.send( tpl.render( html, {scripts: "ishmael"} ) );
+	});
+};
+
+router.admin = function ( request, response ) {
+	tpl.load( "admin", function ( html ) {
+		response.send( html );
 	});
 };
 

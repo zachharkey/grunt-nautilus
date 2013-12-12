@@ -126,7 +126,6 @@ module.exports = function ( grunt ) {
                         builds: ["fractal"]
                     }
                 },
-                expanded: false,
                 hintAt: [],
                 hintOn: [
                     "watch",
@@ -139,12 +138,15 @@ module.exports = function ( grunt ) {
                 jsGlobals: {},
                 jsLibRoot: "test/expected/js/lib",
                 jsRoot: "test/expected/js",
+                jsTemplate: {
+                    admin: "test/expected/html/admin.html"
+                },
                 main: [
                     "app.js",
                     "controllers/**/*.js"
                 ],
                 pubRoot: "test/expected",
-                quiet: true
+                quiet: false
             }
         },
         
