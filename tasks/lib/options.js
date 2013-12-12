@@ -8,10 +8,14 @@
  *
  *
  */
+// Flags
+// expanded: bool
+// loud: bool
+// env: string
 module.exports = {
     buildIn: undefined,
-    env: undefined,
-    expanded: false,
+    //env: undefined,
+    //expanded: false,
     hintAt: [],
     hintOn: [],
     jsAppRoot: undefined,
@@ -34,6 +38,5 @@ module.exports = {
         "controllers/**/*.js"
     ],
     pubRoot: undefined,
-    type: "globals", // Secret option for now
-    quiet: false
+    type: "globals" // Secret option for now
 };

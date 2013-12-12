@@ -31,23 +31,21 @@
     },
     "dependencies": {
         "rimraf": "~2.2",
-        "es6-module-transpiler": "~0.3",
-        "grunt-sails-linker": "~0.9"
+        "es6-module-transpiler": "~0.3"
     },
     "peerDependencies": {
         "grunt": "~0.4",
-        "grunt-contrib-clean": "~0.5",
         "grunt-contrib-jshint": "~0.7",
         "grunt-contrib-concat": "~0.3",
         "grunt-contrib-uglify": "~0.2",
         "grunt-contrib-watch": "~0.5",
         "grunt-contrib-compass": "~0.6",
-        "grunt-ender": "0.2.1"
+        "grunt-ender": "0.2.1",
+        "grunt-sails-linker": "~0.9"
     },
     "devDependencies": {
         "socket.io": "~0.9",
         "express": "~3.4",
-        "templite": "~2.0",
         "grunt": "~0.4",
         "grunt-contrib-nodeunit": "~0.2",
         "grunt-contrib-clean": "~0.5",
@@ -56,7 +54,8 @@
         "grunt-contrib-uglify": "~0.2",
         "grunt-contrib-watch": "~0.5",
         "grunt-contrib-compass": "~0.6",
-        "grunt-ender": "0.2.1"
+        "grunt-ender": "0.2.1",
+        "grunt-sails-linker": "~0.9"
     },
     "keywords": [
         "grunt",

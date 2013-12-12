@@ -114,16 +114,14 @@ module.exports = function ( grunt ) {
                 buildIn: {
                     priorityZero: {
                         files: ["test/expected/bower_components/momentjs/moment.js"],
-                        // Before main build
-                        priority: 0,
+                        priority: 1,
                         builds: ["nautilus"]
                     },
                     
                     priorityOne: {
                         files: ["test/expected/bower_components/mustache/mustache.js"],
-                        // After main build
-                        priority: 1,
-                        builds: ["fractal"]
+                        priority: 0,
+                        builds: ["admin"]
                     }
                 },
                 hintAt: [],
@@ -135,7 +133,9 @@ module.exports = function ( grunt ) {
                 jsAppRoot: "test/expected/js/app",
                 jsDistRoot: "test/expected/js/dist",
                 // These get merged into jshint globals
-                jsGlobals: {},
+                jsGlobals: {
+                    Mustache: true
+                },
                 jsLibRoot: "test/expected/js/lib",
                 jsRoot: "test/expected/js",
                 jsTemplate: {
@@ -145,8 +145,7 @@ module.exports = function ( grunt ) {
                     "app.js",
                     "controllers/**/*.js"
                 ],
-                pubRoot: "test/expected",
-                quiet: false
+                pubRoot: "test/expected"
             }
         },
         

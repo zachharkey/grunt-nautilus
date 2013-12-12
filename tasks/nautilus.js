@@ -8,6 +8,7 @@
  *
  *
  */
+//grunt-contrib-compress
 module.exports = function ( grunt ) {
     
     
@@ -56,7 +57,6 @@ module.exports = function ( grunt ) {
      * Execute the nautilus stack.
      *
      */
-    nautilus.parseFlags( grunt.option.flags() );
     nautilus.executeStack();
     nautilus.cleanTask();
     nautilus.watchTask();

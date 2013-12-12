@@ -93,7 +93,7 @@ module.exports = function ( grunt, options ) {
             }
         },
         log = function ( type, msg ) {
-            if ( options.quiet ) {
+            if ( !grunt.option( "loud" ) ) {
                 return;
             }
             

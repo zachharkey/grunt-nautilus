@@ -51,6 +51,10 @@ module.exports = function ( grunt, options ) {
         concatUglify: function ( opts ) {
             mergeConfig( "concat", opts );
             mergeConfig( "uglify", opts );
+        },
+        
+        sailsLinker: function ( opts ) {
+            mergeConfig( "sails-linker", opts );
         }
     };
     

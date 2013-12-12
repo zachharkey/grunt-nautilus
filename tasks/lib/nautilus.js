@@ -82,23 +82,6 @@ module.exports = function ( grunt, options ) {
         return filesArray;
     };
     
-    var parseFlags = function ( flags ) {
-        var ret = {};
-        
-        _.each( flags, function ( el, i, list ) {
-            var els = el.split( "=" );
-            
-            if ( els[ 1 ] ) {
-                ret[ els[ 0 ] ] = els[ 1 ];
-                
-            } else {
-                ret[ els[ 0 ] ] = true;
-            }
-        });
-        
-        return ret;
-    };
-    
     
     /*!
      * 
@@ -169,13 +152,7 @@ module.exports = function ( grunt, options ) {
         },
         
         // Singleton
-        instance,
-        
-        // Flags that are not options
-        flagsSet = {
-            expanded: false,
-            env: undefined
-        };
+        instance;
     
     
     /*!
@@ -186,33 +163,6 @@ module.exports = function ( grunt, options ) {
     var Nautilus = function () {
         instance = this;
         
-        
-        /*!
-         * 
-         * Nautilus.prototype.parseFlags.
-         *
-         * Read [flags] and handle them.
-         *
-         */
-        this.parseFlags = function ( flags ) {
-            // Flags format
-            // --flag=value OR --flag value --flag value
-            if ( flags.length ) {
-                flags = parseFlags( flags );
-                
-                if ( flags[ "--expanded" ] ) {
-                    options.expanded = true;
-                }
-                
-                if ( flags[ "--quiet" ] ) {
-                    options.quiet = true;
-                }
-                
-                if ( flags[ "--env" ] ) {
-                    options.env = flags[ "--env" ];
-                }
-            }
-        };
         
         /*!
          * 
@@ -318,8 +268,6 @@ module.exports = function ( grunt, options ) {
                     });
                 }
             });
-            
-            grunt.loadNpmTasks( "grunt-sails-linker" );
         };
         
         /*!
@@ -566,44 +514,6 @@ module.exports = function ( grunt, options ) {
             instance.modules = modules;
         };
         
-        // Need the reverse of this to write the concat/uglify dist file.
-        this.sailsLinkerTask = function () {
-            var sailsLinkerOptions = {};
-            
-            _.each( instance.modules, function ( module, key, list ) {
-                var moduleName = coreUtils.moduleName( key ),
-                    jsTemplate = options.jsTemplate[ moduleName ],
-                    files = [];
-                
-                if ( jsTemplate ) {
-                    _.each( module.dependencies, function ( dep, key, list ) {
-                        var fileName = key.replace( rDot, "-" );
-                        var expandedPath = ( dep.tmp ) ? nodePath.join( __dist__, moduleName, fileName+__ext__ ) : dep.src;
-                        var scriptPath = ( dep.tmp ) ? (__dist__+"/"+moduleName+"/"+fileName+__ext__) : dep.src;
-                        
-                        grunt.file.write( expandedPath, grunt.file.read( (dep.tmp || dep.src) ) );
-                        
-                        files.push( scriptPath );
-                    });
-                    
-                    var filesOptions = {};
-                        filesOptions[ jsTemplate ] = files;
-                    
-                    sailsLinkerOptions[ key ] = {
-                        options: {
-                            startTag: "<!--SCRIPTS-->",
-                            endTag: "<!--SCRIPTS END-->",
-                            fileTmpl: "<script src=\"/%s\"></script>"
-                        },
-                        
-                        files: filesOptions
-                    };
-                }
-            });
-            
-            grunt.config.set( "sails-linker", sailsLinkerOptions );
-        };
-        
         /*!
          * 
          * Nautilus.prototype.writeModuleTmpFiles.
@@ -615,9 +525,11 @@ module.exports = function ( grunt, options ) {
             var modules = {};
             
             _.each( instance.modules, function ( module, key, list ) {
+                var moduleName = coreUtils.moduleName( key );
+                
                 module.dist = {
                     src: [],
-                    dest: nodePath.join( __dist__, coreUtils.moduleName( key )+__ext__ )
+                    dest: nodePath.join( __dist__, moduleName+__ext__ )
                 };
                 
                 _.each( module.dependencies, function ( val, key, list ) {
@@ -630,6 +542,8 @@ module.exports = function ( grunt, options ) {
                         module.dist.src.push( val.src );
                     }
                 });
+                
+                module.dist.src = mergeBuildIn( module.dist.src, moduleName );
                 
                 modules[ key ] = module;
             });
@@ -660,6 +574,69 @@ module.exports = function ( grunt, options ) {
         
         /*!
          * 
+         * Nautilus.prototype.sailsLinkerTask.
+         *
+         * Write expanded OR compiled js to template using sails-linker.
+         *
+         */
+        this.sailsLinkerTask = function () {
+            var sailsLinkerOptions = {
+                options: {
+                    startTag: "<!--SCRIPTS-->",
+                    endTag: "<!--SCRIPTS END-->",
+                    fileTmpl: "<script src=\"/%s\"></script>"
+                }
+            };
+            
+            if ( grunt.option( "expanded" ) ) {
+                _.each( instance.modules, function ( module, key, list ) {
+                    var moduleName = coreUtils.moduleName( key ),
+                        jsTemplate = options.jsTemplate[ moduleName ],
+                        files = [];
+                    
+                    if ( jsTemplate ) {
+                        _.each( module.dependencies, function ( dep, key, list ) {
+                            var fileName = key.replace( rDot, "-" );
+                            var expandedPath = ( dep.tmp ) ? nodePath.join( __dist__, moduleName, fileName+__ext__ ) : dep.src;
+                            var scriptPath = ( dep.tmp ) ? (__dist__+"/"+moduleName+"/"+fileName+__ext__) : dep.src;
+                            
+                            grunt.file.write( expandedPath, grunt.file.read( (dep.tmp || dep.src) ) );
+                            
+                            files.push( scriptPath );
+                        });
+                        
+                        files = mergeBuildIn( files, moduleName );
+                        
+                        var filesOptions = {};
+                            filesOptions[ jsTemplate ] = files;
+                        
+                        sailsLinkerOptions[ key ] = {
+                            files: filesOptions
+                        };
+                    }
+                });
+                
+            } else {
+                _.each( instance.modules, function ( module, key, list ) {
+                    var moduleName = coreUtils.moduleName( key ),
+                        jsTemplate = options.jsTemplate[ moduleName ];
+                    
+                    if ( jsTemplate ) {
+                        var filesOptions = {};
+                            filesOptions[ jsTemplate ] = __dist__+"/"+moduleName+__ext__;
+                        
+                        sailsLinkerOptions[ key ] = {
+                            files: filesOptions
+                        };
+                    }
+                });
+            }
+            
+            coreConfig.sailsLinker( sailsLinkerOptions );
+        };
+        
+        /*!
+         * 
          * Nautilus.prototype.watchTask.
          *
          * Make sure we watch the files nautilus is handling.
@@ -667,7 +644,7 @@ module.exports = function ( grunt, options ) {
          */
         this.watchTask = function () {
             var scriptTasks = mergeTasks( "watch", ["concat", "clean:nautilus"] ),
-                stylesTasks = "compass:"+(options.env || "development"),
+                stylesTasks = "compass:"+(grunt.option( "env" ) || "development"),
                 watch = {
                     scripts: {
                         files: coreTasks.watchJs,
@@ -698,16 +675,20 @@ module.exports = function ( grunt, options ) {
         this.jsHintTask = function () {
             var config = grunt.config.get( "jshint" ),
                 jshint = {};
-            
+                
             if ( config && config.options ) {
                 jshint.options = _.extend( config.options, jshintrc );
                 
-                if ( jshint.options.globals ) {
-                    jshint.options.globals = _.extend( jshint.options.globals, options.jsGlobals );
-                }
+            } else {
+                jshint.options = jshintrc;
+            }
+            
+            if ( jshint.options.globals ) {
+                jshint.options.globals = _.extend( jshint.options.globals, options.jsGlobals );
                 
             } else {
-                jshint.options = _.extend( jshintrc, {globals: options.jsGlobals} );
+                jshint.options = jshintrc;
+                jshint.options.globals = options.jsGlobals;
             }
             
             jshint.gruntfile = {
@@ -756,6 +737,8 @@ module.exports = function ( grunt, options ) {
             });
             
             coreConfig.jshint( jshint );
+            
+            console.log( grunt.config.get( "jshint" ) );
         };
         
         /*!
@@ -793,20 +776,15 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.buildTask = function () {
-            var tasks = mergeTasks( "build", ["concat", "clean:nautilus"] );
+            var tasks = mergeTasks( "build", ["concat", "clean:nautilus", "sails-linker"] );
             
             __func__ = function () {
                 grunt.task.run( tasks );
             };
             
-            // Check for Sails linker
-            if ( options.expanded ) {
-                tasks.push( "sails-linker" );
-            }
-            
             // Check for compass
             if ( compass ) {
-                tasks.push( "compass:"+(options.env || "development") );
+                tasks.push( "compass:"+(grunt.option( "env" ) || "development") );
             }
             
             // Check for ender
@@ -837,7 +815,7 @@ module.exports = function ( grunt, options ) {
             
             // Check for compass
             if ( compass ) {
-                tasks.push( "compass:"+(options.env || "production") );
+                tasks.push( "compass:"+(grunt.option( "env" ) || "production") );
             }
             
             // Check for ender

@@ -9,9 +9,13 @@
 
 (function ( exports ) {
 
-var tpl = require( "./template" ).template,
+var router,
 	
-	router,
+	fs = require( "fs" ),
+	
+	path = require( "path" ),
+	
+	dir = path.join( __dirname, "../../test/expected/html/" ),
 	
 	_instance;
 
@@ -24,49 +28,28 @@ router = function ( app ) {
 	
 	this.app = app;
 	this.app.get( "/", router.index );
-	this.app.get( "/foo/", router.foo );
-	this.app.get( "/bar/", router.bar );
-	this.app.get( "/baz/", router.baz );
 	this.app.get( "/admin/", router.admin );
-	this.app.get( "/server/*", router.denied );
-	this.app.get( "/template/*", router.denied );
 };
 
 router.prototype.get = function ( key ) {
 	return this[ key ];
 };
 
-router.denied = function ( request, response ) {
-	response.end( "<O_o Access Denied o_O>" );
-};
-
 router.index = function ( request, response ) {
-	tpl.load( "index", function ( html ) {
-		response.send( tpl.render( html, {scripts: "ishmael"} ) );
-	});
-};
-
-router.foo = function ( request, response ) {
-	tpl.load( "foo", function ( html ) {
-		response.send( tpl.render( html, {scripts: "ishmael"} ) );
-	});
-};
-
-router.bar = function ( request, response ) {
-	tpl.load( "bar", function ( html ) {
-		response.send( tpl.render( html, {scripts: "ishmael"} ) );
-	});
-};
-
-router.baz = function ( request, response ) {
-	tpl.load( "baz", function ( html ) {
-		response.send( tpl.render( html, {scripts: "ishmael"} ) );
+	fs.readFile( dir+"index.html", "utf8", function ( error, html ) {
+    	if ( !error ) {
+    	    console.log( html );
+    	    
+    	    response.send( html );
+    	}
 	});
 };
 
 router.admin = function ( request, response ) {
-	tpl.load( "admin", function ( html ) {
-		response.send( html );
+	fs.readFile( dir+"admin.html", "utf8", function ( error, html ) {
+    	if ( !error ) {
+    	    response.send( html );
+    	}
 	});
 };
 
