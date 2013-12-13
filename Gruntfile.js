@@ -45,7 +45,7 @@ module.exports = function ( grunt ) {
             
         // Jshint config.
         jshint: {
-            nautilus_plugin: [
+            nautilus: [
                 "Gruntfile.js",
                 "tasks/**/*.js"
             ],
@@ -58,7 +58,7 @@ module.exports = function ( grunt ) {
         
         // Clean config.
         clean: {
-            nautilus_plugin: [
+            plugin: [
                 "test/expected/js/**/*",
                 "test/expected/css",
                 "test/expected/img",
@@ -69,12 +69,14 @@ module.exports = function ( grunt ) {
         
         
         // Ender config.
+        /*
         ender: {
             options: {
                 output: "test/expected/js/lib/ender/ender",
                 dependencies: ["jeesh"]
             }
         },
+        */
         
         
         // Compass config.
@@ -93,16 +95,14 @@ module.exports = function ( grunt ) {
             development: {
                 options: {
                     environment: "development",
-                    outputStyle: "expanded",
-                    sassDir: "test/fixtures/sass/dev"
+                    outputStyle: "expanded"
                 }
             },
             
             production: {
                 options: {
                     environment: "production",
-                    outputStyle: "compressed",
-                    sassDir: "test/fixtures/sass/prod"
+                    outputStyle: "compressed"
                 }
             }
         },
@@ -173,23 +173,28 @@ module.exports = function ( grunt ) {
     var tasks = {
         app: [
             "nautilus:app:sonata",
-            "nautilus:app:controller:fractal",
-            "nautilus:app:controller:nautilus"
+            "nautilus:app:controller:fractal"
+        ],
+        
+        build: [
+            "nautilus:build"
+        ],
+        
+        deploy: [
+            "nautilus:deploy"
         ]
     };
     
     grunt.registerTask( "test", "Test each nautilus task", function () {
-        
-        grunt.task.run( "jshint:plugin" );
+        grunt.task.run( "jshint:nautilus" );
         
         _.each( tasks, function ( val, key, list ) {
             _.each( val, function ( el, i ) {
                 grunt.task.run( el );
             });
             
-            grunt.task.run( "nodeunit:"+key );
+            //grunt.task.run( "nodeunit:nautilus" );
         });
-        
     });
     
     

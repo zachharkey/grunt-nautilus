@@ -762,7 +762,7 @@ module.exports = function ( grunt, options ) {
         this.appTask = function () {
             coreModule.create.apply( coreModule, arguments );
             
-            process.exit( 0 );
+            //process.exit( 0 );
         };
         
         /*!
