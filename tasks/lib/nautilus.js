@@ -737,8 +737,6 @@ module.exports = function ( grunt, options ) {
             });
             
             coreConfig.jshint( jshint );
-            
-            console.log( grunt.config.get( "jshint" ) );
         };
         
         /*!
