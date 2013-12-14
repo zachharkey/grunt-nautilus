@@ -17,64 +17,93 @@ module.exports = function ( grunt, options ) {
         coreLogger = require( "./logger" )( grunt, options ),
         coreLibs = require( "./libs" ),
         
-        rSlash = /\//g,
-        rLib = new RegExp( coreGlobal+"\\.(?!app\/)(.*?)(?=(,|\\)))", "g" ),
-        rSyntax = /\n\}\)|;$/g,
-        rLastLine = /\n.*$/,
+        rExports = new RegExp( "__exports__\\..*?(?=\\s=)" ),
+        rLib = new RegExp( "^"+coreGlobal+"\\.(?!app\\/)(.*?)$" ),
+        rSyntax = /function|\(|\)|\{|\}|;|\s|\n/g
+        rLastLine = /\n(.*?)$/,
+        rFirstLine = /^(.*?)\n/,
         rSlashDot = /\/|\./g,
-        empty = "()",
+        rNew = /\n|\r/g,
+        rConsoleCall = /console\.log\(/g,
         
-        __console__ = "console.log",
-        __exports__ = "__exports__",
-        __applog__ = "app.log";
+        appDotLogCall = "app.log(";
     
     return {
         globals: function ( namespace, file ) {
-            var end = file.match( rLastLine ),
-                libs,
-                rep;
+            var lastLine = file.match( rLastLine ),
+                firstLine = file.match( rFirstLine ),
+                firstNoSyntax = firstLine[ 1 ].replace( rSyntax, "" ),
+                lastNoSyntax = lastLine[ 1 ].replace( rSyntax, "" ),
+                exported = file.match( rExports ),
+                replaceDependencies = [],
+                replaceFirsts = [],
+                replaceLasts = [],
+                dottedExport = namespace.replace( rSlashDot, "." ),
+                firsts,
+                lasts;
             
-            end = end[ 0 ].replace( rSyntax, "" );
-            rep = end;
-            libs = rep.match( rLib );
+            firsts = firstNoSyntax.split( "," );
+            lasts = lastNoSyntax.split( "," );
             
-            file = file.replace(
-                __exports__+"."+coreUtils.moduleName( namespace ),
-                __exports__+"."+namespace.replace( rSlash, "." )
-            );
-            
-            _.each( libs, function ( lib ) {
-                var module = lib.split( rSlashDot ).reverse()[ 0 ],
-                    modlow = module.toLowerCase(),
-                    global;
-                
-                // Validate against libs insensitive
-                if ( coreLibs[ modlow ] ) {
-                    global = coreLibs[ module ].context;
-                
-                // Validate jsGlobals
-                } else if ( options.jsGlobals ) {
-                    _.each( options.jsGlobals, function ( val, key, list ) {
-                        if ( key.toLowerCase() === modlow ) {
-                            global = key;
+            if ( firsts.length && lasts.length ) {
+                _.each( lasts, function ( el, i, list ) {
+                    var module = el.split( rSlashDot ).reverse()[ 0 ],
+                        modlow = module.toLowerCase(),
+                        globalArg,
+                        globalParam;
+                    
+                    if ( rLib.test( el ) ) {
+                        
+                        if ( coreLibs[ modlow ] ) {
+                            globalParam = coreLibs[ modlow ].context;
+                            globalArg = (coreLibs[ modlow ].shorthand || coreLibs[ modlow ].context);
+                            
+                        } else if ( options.jsGlobals ) {
+                            _.each( options.jsGlobals, function ( val, key, list ) {
+                                if ( key.toLowerCase() === modlow ) {
+                                    globalParam = key;
+                                    globalArg = key;
+                                }
+                            });
                         }
-                    });   
-                }
+                        
+                        if ( globalArg && globalParam ) {
+                            replaceDependencies.push( {__dependency__: firsts[ i ], replacement: globalArg} );
+                            replaceFirsts.push( globalArg );
+                            replaceLasts.push( [coreGlobal, globalParam].join( "." ) );
+                        }
+                        
+                    } else {
+                        replaceDependencies.push( {__dependency__: firsts[ i ], replacement: module} );
+                        replaceFirsts.push( module );
+                        replaceLasts.push( el.replace( rSlashDot, "." ) );
+                    }
+                });
                 
-                // Throw warning if it wasn't found
-                if ( !global ) {
-                    coreLogger.log( "GLOBAL_UNDEFINED", {
-                        global: module
-                    });
-                }
+                file = file.replace( firstLine[ 1 ], "(function("+replaceFirsts.join( ", " )+") {" );
+                file = file.replace( lastLine[ 1 ], "})("+replaceLasts.join( ", " )+");" );
+            }
+            
+            // Handle parsing module exports
+            if ( exported && exported.length === 1 ) {
+                file = file.replace(
+                    exported[ 0 ],
+                    coreGlobal+"."+dottedExport
+                );
                 
-                rep = rep.replace( lib, coreGlobal+"."+global );
+            } else {
+                //coreLogger.log( "MULTIPLE_EXPORTS", {
+                //    namespace: namespace
+                //});
+            }
+            
+            // Handle all dependency replacements
+            _.each( replaceDependencies, function ( el, i, list ) {
+                file = file.replace( new RegExp( el.__dependency__, "g" ), el.replacement );
             });
             
-            if ( rep !== empty ) {
-                file = file.replace( end, rep.replace( rSlash, "." ) );
-                file = file.replace( __console__, __applog__ );
-            }
+            // Handle all console.log replacements
+            file = file.replace( rConsoleCall, appDotLogCall );
             
             return file;
         }

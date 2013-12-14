@@ -38,8 +38,6 @@ router.prototype.get = function ( key ) {
 router.index = function ( request, response ) {
 	fs.readFile( dir+"index.html", "utf8", function ( error, html ) {
     	if ( !error ) {
-    	    console.log( html );
-    	    
     	    response.send( html );
     	}
 	});

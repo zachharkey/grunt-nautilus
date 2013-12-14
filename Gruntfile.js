@@ -16,6 +16,7 @@
 module.exports = function ( grunt ) {
     
     
+    // Underscore 4 life.
     var _ = grunt.util._;
     
     
@@ -45,7 +46,7 @@ module.exports = function ( grunt ) {
             
         // Jshint config.
         jshint: {
-            nautilus: [
+            plugin: [
                 "Gruntfile.js",
                 "tasks/**/*.js"
             ],
@@ -115,44 +116,45 @@ module.exports = function ( grunt ) {
                     priorityZero: {
                         files: ["test/expected/bower_components/momentjs/moment.js"],
                         priority: 1,
-                        builds: ["nautilus"]
+                        builds: ["app"]
                     },
                     
                     priorityOne: {
                         files: ["test/expected/bower_components/mustache/mustache.js"],
                         priority: 0,
-                        builds: ["admin"]
+                        builds: ["app"]
                     }
                 },
                 hintAt: [],
                 hintOn: [
-                    "watch",
-                    "build",
-                    "deploy"
+                    //"watch",
+                    //"build",
+                    //"deploy"
                 ],
                 jsAppRoot: "test/expected/js/app",
                 jsDistRoot: "test/expected/js/dist",
                 // These get merged into jshint globals
                 jsGlobals: {
-                    Mustache: true
+                    angular: true,
+                    jQuery: true,
+                    $: true
                 },
                 jsLibRoot: "test/expected/js/lib",
                 jsRoot: "test/expected/js",
                 jsTemplate: {
-                    admin: "test/expected/html/admin.html"
+                    index: "test/expected/html/index.html"
                 },
                 main: [
-                    "app.js",
-                    "controllers/**/*.js"
+                    "docs/index.js"
                 ],
                 pubRoot: "test/expected"
             }
         },
         
         
-        // Unit tests.
+        // Nodeunit tests.
         nodeunit: {
-            nautilus: [
+            plugin: [
                 "test/nautilus_test.js"
             ]
         }
@@ -169,32 +171,11 @@ module.exports = function ( grunt ) {
     grunt.loadNpmTasks( "grunt-contrib-jshint" );
     
     
-    // Test all of grunt-nautilus' tasks in a deployment manner.
-    var tasks = {
-        app: [
-            "nautilus:app:sonata",
-            "nautilus:app:controller:fractal"
-        ],
-        
-        build: [
-            "nautilus:build"
-        ],
-        
-        deploy: [
-            "nautilus:deploy"
-        ]
-    };
-    
+    // Register the test task.
     grunt.registerTask( "test", "Test each nautilus task", function () {
         grunt.task.run( "jshint:nautilus" );
         
-        _.each( tasks, function ( val, key, list ) {
-            _.each( val, function ( el, i ) {
-                grunt.task.run( el );
-            });
-            
-            //grunt.task.run( "nodeunit:nautilus" );
-        });
+        grunt.log.ok( "Need to build nodeuinit test suite..." );
     });
     
     

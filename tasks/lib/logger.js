@@ -90,10 +90,15 @@ module.exports = function ( grunt, options ) {
             INVALID_ARGUMENTS: {
                 type: "warn",
                 log: "The arguments you passed to the nautilus task are not supported"
+            },
+            
+            MULTIPLE_EXPORTS: {
+                type: "warn",
+                log: "Enforced one export per module rule broken at <%= namespace %>"
             }
         },
         log = function ( type, msg ) {
-            if ( !grunt.option( "loud" ) ) {
+            if ( !grunt.option( "loud" ) && type === "ok" ) {
                 return;
             }
             

@@ -9,10 +9,7 @@
  *
  */
 // TODO:
-// environment specific compiled/uncompiled option
 // enforce 1 export statement per module rule
-
-// DONE:
 module.exports = function ( grunt, options ) {
     
     
@@ -203,7 +200,6 @@ module.exports = function ( grunt, options ) {
         this.executeStack = function () {
             // "Clean" the .tmp directory before stack calls.
             rimraf.sync( __tmp__ );
-            //rimraf.sync( __dist__ );
             
             // Throw warning on unsupported es6-module-transpiler type option.
             this.checkES6Type();
@@ -447,7 +443,7 @@ module.exports = function ( grunt, options ) {
                 var path = nodePath.join( __js__, key+__ext__ );
                 
                 val.dependencies = {};
-                val.dependencies[ "app/core" ] = instance.appCore;
+                val.dependencies[ "app" ] = instance.appCore;
                 val.dependencies = recurse( val.dependencies, val );
                 val.dependencies[ key ] = {
                     src: path,
@@ -479,7 +475,7 @@ module.exports = function ( grunt, options ) {
                     val.fileContent = file;
                     
                     // Only make temps for application
-                    if ( rApp.test( key ) ) {
+                    if ( rApp.test( key ) || key === "app" ) {
                         file = val.compiler[ es6Types[ options.type ] ]();
                         file = coreParser[ options.type ]( key, file );
                         
@@ -629,6 +625,8 @@ module.exports = function ( grunt, options ) {
                             files: filesOptions
                         };
                     }
+                    
+                    rimraf.sync( nodePath.join( __dist__, moduleName ) );
                 });
             }
             
@@ -762,7 +760,7 @@ module.exports = function ( grunt, options ) {
         this.appTask = function () {
             coreModule.create.apply( coreModule, arguments );
             
-            //process.exit( 0 );
+            rimraf.sync( __tmp__ );
         };
         
         /*!

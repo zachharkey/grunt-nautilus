@@ -24,7 +24,10 @@ module.exports = function ( grunt ) {
         _.each( defaults, function ( val, key, list ) {
             // Use user value or merge
             if ( options[ key ] ) {
-                if ( _.isObject( val ) ) {
+                if ( _.isArray( val ) ) {
+                    options[ key ] = _.union( options[ key ], val );
+                    
+                } else if ( _.isObject( val ) ) {
                     options[ key ] = _.extend( options[ key ], val );
                 }
             

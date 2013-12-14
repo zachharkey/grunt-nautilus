@@ -22,7 +22,7 @@ var io = function ( server, callback ) {
 		self.io.set( "log level", 0 );
 		//self.io.set( "origins", "localhost:5050" );
 		self.io.set( "authorization", function ( handshake, callback ) {
-			//console.log( handshake );
+			console.log( handshake );
 			
 			callback( null, true );
 		});
@@ -35,7 +35,7 @@ io.prototype.connected = function ( callback ) {
 	var self = this;
 	
 	this.io.sockets.on( "connection", function ( socket ) {
-		//console.log( self.io.sockets.clients().length );
+		console.log( self.io.sockets.clients().length );
 		
 		if ( typeof callback === "function" ) {
 			callback( socket );
