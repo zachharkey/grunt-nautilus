@@ -17,7 +17,6 @@ grunt-nautilus
 [es6-module-transpiler]: https://github.com/square/es6-module-transpiler
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
 
-
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
 
@@ -34,6 +33,17 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks( "grunt-nautilus" );
 ```
 
+### Peer dependencies
+This plugin loads a handful of other grunt plugins as peer dependencies. If you're using this plugin, you won't need to load any of the following yourself:
+ - [grunt-contrib-jshint][]
+ - [grunt-contrib-concat][]
+ - [grunt-contrib-uglify][]
+ - [grunt-contrib-watch][]
+ - [grunt-contrib-compass][]
+ - [grunt-contrib-clean][]
+ - [grunt-ender]
+ - [grunt-sails-linker]
+
 
 
 
@@ -42,21 +52,30 @@ _Run this task with the `grunt nautilus` command._
 
 Task targets, files and options may be specified according to the grunt [Configuring tasks](http://gruntjs.com/configuring-tasks) guide.
 
+This is the recommended default task implementation and also what you'll see in your Gruntfle if you used the init template:
+
+```js
+grunt.registerTask( "default", ["nautilus:build"] );
+```
+
 
 ### Arguments
-This plugin has some reserved task arguments. You can think of them as super-powered task configuration that you don't have to configure.
+This plugin has some reserved task arguments. You can think of them as super-powered task configuration that you don't have to configure yourself. Some of the tasks executed by the `build` and `deploy` arguments are optional. For instance, if you don't have anything specified for the `hintOn` option, jshint will not run. Likewise, if you don't have grunt config specified for `compass` or `ender` those will not run as well. This is the nice thing about this plugin. It does a lot but not too much. If you configure for what it looks for, you don't have to do much yourself.
 
 #### `nautilus:build`
-For development sandbox modes this argument runs nautilus core without uglification.
+For development sandbox modes this argument runs nautilus core without uglification.  
+Tasks: `jshint`, `concat`, `clean`, `sails-linker`, `compass`, `ender`
 
 #### `nautilus:deploy`
-For real world environments, this argument runs nautilus core with uglification.
+For real world environments, this argument runs nautilus core with uglification.  
+Tasks: `jshint`, `uglify`, `clean`, `sails-linker`, `compass`, `ender`
 
 #### `nautilus:app[:args...]`
 This argument creates new js files for you from starter templates using the es6 module syntax.
 
 
 ### Options
+These are the supported options for this plugin. It may be helpfull to glance over an example of a [Gruntfile with all available options and configuration specified](#example-gruntfile-with-all-specified-options-and-configuration) to get an idea of what all you can let grunt-nautilus handle for you.
 
 #### jsRoot
 Type: `String`  
@@ -90,7 +109,7 @@ Specifies the target public resources directory. Your js root is usually in this
 
 #### jsGlobals
 Type: `Object`  
-Default: `{app: true, console: true, module: true}`
+Default: ```js{app: true, console: true, module: true}```
 
 Same as `jshint.options.globals`. Your globals will be merged with the defaults.
 
@@ -98,11 +117,11 @@ Same as `jshint.options.globals`. Your globals will be merged with the defaults.
 Type: `Object`  
 Default: `undefined`
 
-Configuration for the `--expanded` flag to be used with `[grunt-sails-linker][]`.
+Configuration to be used with [grunt-sails-linker][].
 
 #### main
 Type: `Array`  
-Default: `["app.js", "controllers/**/*.js"]`
+Default: ```js["app.js", "controllers/**/*.js"]```
 
 Specifies target control js relative to `jsAppRoot`. Your dist files are compiled from these.
 
@@ -121,15 +140,38 @@ A list of non-app files that you would like js linting to occur against.
 
 
 
+### Flags
+There are a few optional flags available when working with grunt-nautilus.
+
+#### --loud
+Type: `Boolean`  
+Default: `undefined`
+
+Tell grunt-nautilus to log everything it is doing. This is handy for development of the plugin and for understanding how the plugin works from a user's perspective. But, ultimately, these logs will become cumbersome to see and you likely won't want this running all the time.
+
+#### --expanded
+Type: `Boolean`  
+Default: `undefined`
+
+Tell grunt-nautilus to us the `jsTemplate` option to compile all the non-concatenated dist js for a dist build to all bound templates.
+
+#### --env
+Type: `String`  
+Default: `undefined`
+
+Tell grunt-nautilus to use this specified environment for executing `compass` on build and deploy. For example, if you prefer to use the environment `dev` over `development`, pass `grunt nautilus:build --env dev` or the equivalent `grunt nautilus:build --env=dev`.
+
+
+
+
 ### Usage examples
 
 #### Using jsGlobals
+The jsGlobals option is an object that will be merged with jshint.options.globals.
 ```js
-// Project configuration.
 grunt.initConfig({
     nautilus: {
         options: {
-            // Merged with jshint.options.globals.
             jsGlobals: {
                 $: true,
                 jQuery: true
@@ -140,22 +182,16 @@ grunt.initConfig({
 ```
 
 #### Using hintOn and hintAt
+The hintOn option specifies tasks you want linting to run on. The hintAt option specifies files outside of your authored app you want to be linted.
 ```js
-// Project configuration.
 grunt.initConfig({
     nautilus: {
         options: {
-            // Tasks to be linted with jshint.
             hintOn: [
                 "watch",
                 "build",
                 "deploy"
             ],
-            
-            // Files outside of app to be linted.
-            // Typically you would only want to lint
-            // your own, authored files. In case you
-            // want to do otherwise, this is useful.
             hintAt: [
                 "lib/plugins/**/*.js"
             ]
@@ -165,13 +201,11 @@ grunt.initConfig({
 ```
 
 #### Using jsTemplate
-This option allows you to bind a template to a dist js build. If the `--expanded` flag is present, [grunt-sails-linker][] will be used to write all scripts that make up your dist js as separate `<script>` elements to your template. Sometimes this can make javascript debugging easier than going through one giant, concatenated file in dev sandbox mode.
+This option allows you to bind a template to a dist js build. If the `--expanded` flag is present, [grunt-sails-linker][] will be used to write all scripts that make up your dist js as separate `<script>` elements to your template. Sometimes this can make javascript debugging easier than going through one giant, concatenated file in dev sandbox mode. The following example binds the admin dist js to the specified template.
 ```js
-// Project configuration.
 grunt.initConfig({
     nautilus: {
         options: {
-            // Bind your admin.js dist js to a template
             jsTemplate: {
                 admin: "templates/admin/index.html"
             }
@@ -183,7 +217,7 @@ Without this option, you would have something like this in a template somewhere:
 ```html
 <script src="/js/dist/application.js"></script>
 ```
-Using this option along with the `--expanded` flag could output something like this:
+Using this option along with the `--expanded` flag and the comment wrapper for sails-linker in your template could output something like this:
 ```html
 <!--SCRIPTS-->
 <script src="/js/dist/application/app.js"></script>
@@ -195,6 +229,87 @@ Using this option along with the `--expanded` flag could output something like t
 <script src="/js/dist/application/app-docs-controllers.js"></script>
 <script src="/js/dist/application/app-docs-application.js"></script>
 <!--SCRIPTS END-->
+```
+
+### Example Gruntfile with ALL specified options and configuration
+This is a helpful example of all the options and configuration grunt-nautilus will work with. The `compass` and `ender` config is totally optional. If present though, grunt-nautilus will execute `compass:development` on the build task and `compass:production` on the deploy task. Optionally, you can pass a `--env` flag with a value to override what compass environment is called. If the ender config is present than grunt-nautilus will execute your ender build on every build/deploy task execution ensuring your dist js is always up to date with your latest ender config.
+```js
+module.exports = function ( grunt ) {
+    var pubRoot = ".",
+        sassRoot = "./sass",
+        cssRoot = "./css",
+        fontsRoot = "./fonts",
+        imgRoot = "./img",
+        jsRoot = "./js",
+        appRoot = jsRoot+"/app",
+        libRoot = jsRoot+"/lib",
+        distRoot = jsRoot+"/dist";
+        
+    grunt.initConfig({
+        // Nautilus config.
+        nautilus: {
+            options: {
+                hintAt: [],
+                hintOn: [
+                    "watch",
+                    "build",
+                    "deploy"
+                ],
+                jsAppRoot: appRoot,
+                jsDistRoot: distRoot,
+                jsGlobals: {
+                    $: true,
+                    ender: true
+                },
+                jsLibRoot: libRoot,
+                jsRoot: jsRoot,
+                jsTemplate: {
+                    myApp: "index.html"
+                },
+                main: [
+                    "myApp.js"
+                ],
+                pubRoot: pubRoot
+            }
+        },
+        // Compass config. ( optional )
+        compass: {
+            options: {
+                cssDir: cssRoot,
+                fontsDir: fontsRoot,
+                force: true,
+                httpPath: "/",
+                imagesDir: imgRoot,
+                javascriptsDir: jsRoot,
+                noLineComments: true,
+                sassDir: sassRoot
+            },
+            development: {
+                options: {
+                    environment: "development",
+                    outputStyle: "expanded"
+                }
+            },
+            production: {
+                options: {
+                    environment: "production",
+                    outputStyle: "compressed"
+                }
+            }
+        },
+        // Ender config. ( optional )
+        ender: {
+            options: {
+                output: libRoot+"/ender/ender",
+                dependencies: ["jeesh"]
+            }
+        }
+    });
+    
+    grunt.loadNpmTasks( "grunt-nautilus" );
+    
+    grunt.registerTask( "default", ["nautilus:build"] );
+};
 ```
 
 
@@ -212,14 +327,31 @@ grunt nautilus:app:controller:index
 ```
 A new module controller will be generated for you at app/controllers/index.js within your jsRoot.
 ```js
-/*!
- *
- * App Controller: controllers/index
- *
- * A nice description of what this controller does...
- *
- *
- */
+var index = {
+    init: function () {
+        
+    }
+};
+
+export default = index;
+```
+Now run `grunt nautilus:build` and you're controller will compile to this:
+```js
+(function(window) {
+  "use strict";
+  
+  var index = {
+      init: function () {
+          
+      }
+  };
+
+  window.app.controllers.index = index;
+})(window);
+```
+Now add an import, say you're managing your jQuery build with bower:
+```js
+import "bower_components/jquery/jquery";
 
 var index = {
     init: function () {
@@ -227,43 +359,27 @@ var index = {
     }
 };
 
-
-/******************************************************************************
- * Export
-*******************************************************************************/
 export default = index;
-```
-Now run `grunt nautilus:build` and you're controller will compile to this:
-```js
-(function(window) {
-  "use strict";
-  /*!
-   *
-   * App Controller: controllers/index
-   *
-   * A nice description of what this controller does...
-   *
-   *
-   */
 
+```
+Which will compile to the following, sandboxing jQuery as $ into your closure for this module and ensuring jQuery is compiled into your dist js above your module in the stack:
+```js
+(function(window, $) {
+  "use strict";
+  
   var index = {
       init: function () {
           
       }
   };
 
-
-  /******************************************************************************
-   * Export
-  *******************************************************************************/
   window.app.controllers.index = index;
-})(window);
+})(window, window.jQuery);
 ```
 
 
 
 
-
-### Release History
+## Release History
 - 0.3.20 Last stable release
 - 0.4.0  Current beta release
