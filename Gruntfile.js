@@ -112,6 +112,7 @@ module.exports = function ( grunt ) {
         // Nautilus config.
         nautilus: {
             options: {
+                /*
                 buildIn: {
                     priorityZero: {
                         files: ["test/expected/bower_components/momentjs/moment.js"],
@@ -125,6 +126,7 @@ module.exports = function ( grunt ) {
                         builds: ["app"]
                     }
                 },
+                */
                 hintAt: [],
                 hintOn: [
                     //"watch",

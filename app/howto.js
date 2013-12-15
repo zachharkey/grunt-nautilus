@@ -9,10 +9,10 @@
  *
  * Application Layout:
  * -----------------------------------------------------------------
- * Keep all your application files in the app dir in your js root.
+ * Keep all your application files in the app dir of your js root.
  *      @example: static/js/app/yourmodules...
  *
- * Keep all your third party files in the lib dir in your js root.
+ * Keep all your third party files in the lib dir of your js root.
  *      @example: static/js/lib/theirmodules...
  *
  *
@@ -20,7 +20,7 @@
  * -----------------------------------------------------------------
  * Controllers are how scripts are compiled and built,
  * that is to say they are the "control" files or starting points
- * for your applications. Controllers build into their own scripts
+ * for your applications. Controllers build into their own dist js
  * and can be included as such on your web pages.
  *      - @example: static/js/app/controllers/foo.js
  *      - This will compile to static/js/dist/foo.js
