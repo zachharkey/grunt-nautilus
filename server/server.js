@@ -1,5 +1,5 @@
 /*
- * grunt-nautilus-test server
+ * grunt-nautilus server
  * https://github.com/kitajchuk/grunt-nautilus
  *
  * Copyright (c) 2013 Brandon Kitajchuk
@@ -9,15 +9,9 @@
 
 (function () {
 
-var _app = require( "./lib/application" ).application,
-	_server = require( "http" ).Server( _app ).listen( _app.get( "port" ) ),
-	_router = require( "./lib/routing" ).router( _app ),
-	_sock = require( "./lib/socket.io" ).io( _server );
-
-_sock.connected(function ( socket ) {
-	
-	console.log( "[grunt-nautilus test server running]" );
-	
-});
+var app = require( "./lib/application" ).application,
+	server = require( "http" ).Server( app ).listen( app.get( "port" ) ),
+	router = require( "./lib/routing" ).router( app ),
+	sock = require( "./lib/socket.io" ).io( server );
 
 })();

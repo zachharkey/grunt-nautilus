@@ -142,10 +142,10 @@ module.exports = function ( grunt ) {
                 jsLibRoot: "test/expected/js/lib",
                 jsRoot: "test/expected/js",
                 jsTemplate: {
-                    index: "test/expected/html/index.html"
+                    application: "test/expected/html/index.html"
                 },
                 main: [
-                    "docs/index.js"
+                    "docs/application.js"
                 ],
                 pubRoot: "test/expected"
             }
