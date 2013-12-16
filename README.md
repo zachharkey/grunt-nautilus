@@ -17,6 +17,9 @@ grunt-nautilus
 [es6-module-transpiler]: https://github.com/square/es6-module-transpiler
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
 
+### Built on grunt-nautilus
+- [Zelda Trials of Link](https://github.com/kitajchuk/zelda-trials-of-link)
+
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
 
@@ -320,6 +323,12 @@ This plugin uses the [es6-module-transpiler][] to parse es6 syntax within your a
 
 Any application schema can be created using the `app` argument and passing it any number of additional arguments. The arguments are parsed into a directory path with the last argument being the module js file. A core application file will preceed all your modules in the dependency stack for dist js builds. This file creates the base global app that is used for the custom compiled output of your application. You can review that core file [here](https://github.com/kitajchuk/grunt-nautilus/blob/master/app/app.js).
 
+Module import paths will be relative to your `jsRoot` option:
+ - `import { baz } from "app/foo/bar/baz";`
+ - `import "lib/ender/ender";`
+
+In terms of looking up module imports, grunt-nautilus will first look in your `jsAppRoot`, then in your `jsRoot` and lastly in your `pubRoot`. This should be more than enough in terms of application organization in conjunction with using third party package managers like npm or bower. When using third party imports that don't utilize the es6 export syntax, grunt-nautilus will try to find a global to match it to. A config of popular js libs is maintained internally to try to do this. If your import is not found there, the `jsGlobals` option will be referenced. If no match is found, the import will be assumed global and included in the dist stack but not sandboxed into the current modules closure.
+
 ### Example application module
 To create a new `index` controller module for you application run the following:
 ```shell
@@ -360,7 +369,6 @@ var index = {
 };
 
 export default = index;
-
 ```
 Which will compile to the following, sandboxing jQuery as $ into your closure for this module and ensuring jQuery is compiled into your dist js above your module in the stack:
 ```js
@@ -376,6 +384,86 @@ Which will compile to the following, sandboxing jQuery as $ into your closure fo
   window.app.controllers.index = index;
 })(window, window.jQuery);
 ```
+
+### Assigning modules to variables
+You can directly assign a module to a variable for use in your application. The following imports the default export of the module `baz`:
+```js
+import baz from "app/foo/bar/baz";
+
+var index = {
+    init: function () {
+        
+    }
+};
+
+export default = index;
+```
+This will compile to the following:
+```js
+(function(baz) {
+  "use strict";
+  
+  var baz = baz;
+  
+  var index = {
+      init: function () {
+          
+      }
+  };
+
+  window.app.controllers.index = index;
+})(window.app.foo.bar.baz);
+```
+This syntax would assume the baz module is an object with properties that can be individually imported:
+```js
+import { bot } from "app/foo/bar/baz";
+
+var index = {
+    init: function () {
+        
+    }
+};
+
+export default = index;
+```
+This will compile to the following:
+```js
+(function(baz) {
+  "use strict";
+  
+  var bot = baz.bot;
+  
+  var index = {
+      init: function () {
+          
+      }
+  };
+
+  window.app.controllers.index = index;
+})(window.app.foo.bar.baz);
+```
+To put this in context, the baz module may look something like this:
+```js
+var bot = "bot";
+var bat = "bat";
+
+export { bot, bat };
+```
+
+### Assuming the global app
+Alternatively, the global `app` object is assumed for you application and you can do plain imports and reference modules in a global scope manner as well:
+```js
+import "app/foo/bar/baz";
+
+var index = {
+    init: function () {
+        console.log( app.foo.bar.baz );
+    }
+};
+
+export default = index;
+```
+This is a nice way to import third party scripts like jQuery or ender where you would want the sandboxed `$` as opposed to a variable assigned `$`.
 
 
 
