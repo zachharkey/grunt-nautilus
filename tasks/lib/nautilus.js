@@ -527,6 +527,18 @@ module.exports = function ( grunt, options ) {
                 };
                 
                 _.each( module.dependencies, function ( val, key, list ) {
+                    if ( val.compiler.imports.length ) {
+                        _.each( val.compiler.imports, function ( imp ) {
+                            var mod = module.dependencies[ imp.source.value ];
+                            
+                            if ( mod && mod.tmp ) {
+                                grunt.file.write( mod.tmp, mod.fileContent );
+                                
+                                module.dist.src.push( mod.tmp );
+                            }
+                        });
+                    }
+                    
                     if ( val.tmp ) {
                         grunt.file.write( val.tmp, val.fileContent );
                         
@@ -538,6 +550,7 @@ module.exports = function ( grunt, options ) {
                 });
                 
                 module.dist.src = mergeBuildIn( module.dist.src, moduleName );
+                module.dist.src = _.uniq( module.dist.src );
                 
                 modules[ key ] = module;
             });
