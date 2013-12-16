@@ -387,7 +387,7 @@ module.exports = function ( grunt, options ) {
                             _.each( [__js__, __pub__], function ( root, i, list ) {
                                 var lookup = nodePath.join( root, el );
                                 
-                                if ( grunt.file.exists( lookup+__ext__ ) ) {
+                                if ( grunt.file.isFile( lookup+__ext__ ) || grunt.file.isDir( lookup ) ) {
                                     path = lookup;
                                 }
                             });
