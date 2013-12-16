@@ -8,8 +8,6 @@
  *
  *
  */
-// TODO:
-// enforce 1 export statement per module rule
 module.exports = function ( grunt, options ) {
     
     
@@ -443,7 +441,7 @@ module.exports = function ( grunt, options ) {
                 var path = nodePath.join( __js__, key+__ext__ );
                 
                 val.dependencies = {};
-                val.dependencies[ "app" ] = instance.appCore;
+                val.dependencies.app = instance.appCore;
                 val.dependencies = recurse( val.dependencies, val );
                 val.dependencies[ key ] = {
                     src: path,
@@ -576,6 +574,10 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.sailsLinkerTask = function () {
+            if ( !options.jsTemplate ) {
+                return;
+            }
+            
             var sailsLinkerOptions = {
                 options: {
                     startTag: "<!--SCRIPTS-->",
@@ -772,11 +774,16 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.buildTask = function () {
-            var tasks = mergeTasks( "build", ["concat", "clean:nautilus", "sails-linker"] );
+            var tasks = mergeTasks( "build", ["concat", "clean:nautilus"] );
             
             __func__ = function () {
                 grunt.task.run( tasks );
             };
+            
+            // Check for sails-linker
+            if ( options.jsTemplate ) {
+                tasks.push( "sails-linker" );
+            }
             
             // Check for compass
             if ( compass ) {

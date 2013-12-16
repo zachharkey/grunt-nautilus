@@ -68,7 +68,7 @@ Tasks: `jshint`, `concat`, `clean`, `sails-linker`, `compass`, `ender`
 
 #### `nautilus:deploy`
 For real world environments, this argument runs nautilus core with uglification.  
-Tasks: `jshint`, `uglify`, `clean`, `sails-linker`, `compass`, `ender`
+Tasks: `jshint`, `uglify`, `clean`, `compass`, `ender`
 
 #### `nautilus:app[:args...]`
 This argument creates new js files for you from starter templates using the es6 module syntax.

@@ -8,7 +8,6 @@
  *
  *
  */
-//grunt-contrib-compress ?
 module.exports = function ( grunt ) {
     
     
@@ -106,7 +105,7 @@ module.exports = function ( grunt ) {
      * @usage: grunt nautilus[:,args...] [,flags...]
      *
      */
-    grunt.registerTask( "nautilus", "Build modular javascript applications.", function () {
+    grunt.registerTask( "nautilus", "Build modular javascript applications that make sense", function () {
         nautilus.parseArgs( this.args );
     });
     
