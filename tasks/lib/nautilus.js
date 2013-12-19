@@ -527,7 +527,7 @@ module.exports = function ( grunt, options ) {
                 };
                 
                 _.each( module.dependencies, function ( val, key, list ) {
-                    if ( val.compiler.imports.length ) {
+                    if ( val.compiler && val.compiler.imports.length ) {
                         _.each( val.compiler.imports, function ( imp ) {
                             var mod = module.dependencies[ imp.source.value ];
                             
