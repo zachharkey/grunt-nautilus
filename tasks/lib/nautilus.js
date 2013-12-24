@@ -107,7 +107,7 @@ module.exports = function ( grunt, options ) {
         },
         
         // Write/read dirs
-        __sass__ = (compass.options.sassDir || compass[ grunt.option( "env" ) ].options.sassDir),
+        __sass__ = ( compass && compass.options ) ? (compass.options.sassDir || compass[ grunt.option( "env" ) ].options.sassDir) : null,
         __dist__ = options.jsDistRoot,
         __pub__ = options.pubRoot,
         __app__ = options.jsAppRoot,
