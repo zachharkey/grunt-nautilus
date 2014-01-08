@@ -394,7 +394,7 @@ module.exports = function ( grunt, options ) {
                         }
                         
                         // Matched a file
-                        if ( grunt.file.isFile( path+__ext__ ) ) {
+                        if ( path && grunt.file.isFile( path+__ext__ ) ) {
                             if ( !deps[ el ] ) {
                                 var compiler = coreCompiler.transpile( path+__ext__, el );
                                 
@@ -407,7 +407,7 @@ module.exports = function ( grunt, options ) {
                             }
                         
                         // Matched a dir    
-                        } else if ( grunt.file.isDir( path ) ) {
+                        } else if ( path && grunt.file.isDir( path ) ) {
                             paths = grunt.file.expand( nodePath.join( path, "**/*"+__ext__ ) );
                             
                             _.each( paths, function ( el, i, list ) {
