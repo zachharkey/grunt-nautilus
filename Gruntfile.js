@@ -110,44 +110,11 @@ module.exports = function ( grunt ) {
         // Nautilus config.
         nautilus: {
             options: {
-                /*
-                buildIn: {
-                    priorityZero: {
-                        files: ["test/expected/bower_components/momentjs/moment.js"],
-                        priority: 1,
-                        builds: ["app"]
-                    },
-                    
-                    priorityOne: {
-                        files: ["test/expected/bower_components/mustache/mustache.js"],
-                        priority: 0,
-                        builds: ["app"]
-                    }
-                },
-                */
-                hintAt: [],
-                hintOn: [
-                    //"watch",
-                    //"build",
-                    //"deploy"
-                ],
-                jsAppRoot: "test/expected/js/app",
                 jsDistRoot: "test/expected/js/dist",
-                // These get merged into jshint globals
-                jsGlobals: {
-                    angular: true,
-                    jQuery: true,
-                    $: true
-                },
+                jsAppRoot: "test/expected/js/app",
                 jsLibRoot: "test/expected/js/lib",
-                jsRoot: "test/expected/js",
-                jsTemplate: {
-                    application: "test/expected/html/index.html"
-                },
-                main: [
-                    "docs/application.js"
-                ],
-                pubRoot: "test/expected"
+                pubRoot: "test/expected",
+                jsRoot: "test/expected/js"
             }
         },
         
@@ -171,16 +138,16 @@ module.exports = function ( grunt ) {
     grunt.loadNpmTasks( "grunt-contrib-jshint" );
     
     
+    // Register default task.
+    grunt.registerTask( "default", ["nautilus:build"] );
+    
+    
     // Register the test task.
     grunt.registerTask( "test", "Test each nautilus task", function () {
         grunt.task.run( "jshint:nautilus" );
         
         grunt.log.ok( "Need to build nodeuinit test suite..." );
     });
-    
-    
-    // Register default task.
-    grunt.registerTask( "default", ["nautilus:build"] );
     
 
 };

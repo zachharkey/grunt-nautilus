@@ -76,9 +76,15 @@ module.exports = function ( grunt ) {
     //});
     grunt.renameTask( "watch", "nautilus-watch" );
     grunt.registerTask( "watch", function () {
+        var task = "nautilus-watch";
+        
         nautilus.buildTask();
         
-        grunt.task.run( "nautilus-watch" );
+        if ( this.args.length && _.contains( ["scripts", "compass", "gruntfile"], _.first( this.args ) ) ) {
+            task += ":"+_.first( this.args );
+        }
+        
+        grunt.task.run( task );
     });
     
     
