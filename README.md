@@ -18,7 +18,9 @@ grunt-nautilus
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
 
 ### Built on grunt-nautilus
-- [Nike Community](http://nike.com/community/) - Using tagged [v0.3.20](https://github.com/kitajchuk/grunt-nautilus/releases/tag/v0.3.20)
+- [Nike Community](http://nike.com/community/) - Tagged  Version [0.3.20](https://github.com/kitajchuk/grunt-nautilus/releases/tag/v0.3.20)
+- [WordsUp Communication](http://wordsupcommunication.com/) - Latest Version
+
 
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
