@@ -197,7 +197,7 @@ module.exports = function ( grunt, options ) {
          */
         this.executeStack = function () {
             // "Clean" the .tmp directory before stack calls.
-            rimraf.sync( __tmp__ );
+            this.cleanUp();
             
             // Throw warning on unsupported es6-module-transpiler type option.
             this.checkES6Type();
@@ -640,8 +640,6 @@ module.exports = function ( grunt, options ) {
                             files: filesOptions
                         };
                     }
-                    
-                    rimraf.sync( nodePath.join( __dist__, moduleName ) );
                 });
             }
             
@@ -765,6 +763,16 @@ module.exports = function ( grunt, options ) {
             });
         };
         
+        this.cleanUp = function () {
+            rimraf.sync( __tmp__ );
+            
+            if ( !grunt.option( "expanded" ) ) {
+                _.each( instance.modules, function ( module, key, list ) {
+                    rimraf.sync( nodePath.join( __dist__, coreUtils.moduleName( key ) ) );
+                });
+            }
+        };
+        
         /*!
          * 
          * Nautilus.prototype.appTask.
@@ -775,7 +783,7 @@ module.exports = function ( grunt, options ) {
         this.appTask = function () {
             coreModule.create.apply( coreModule, arguments );
             
-            rimraf.sync( __tmp__ );
+            this.cleanUp();
         };
         
         /*!

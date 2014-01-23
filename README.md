@@ -18,7 +18,7 @@ grunt-nautilus
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
 
 ### Built on grunt-nautilus
-- [Zelda Trials of Link](https://github.com/kitajchuk/zelda-trials-of-link)
+- [Nike Community](http://nike.com/community/) - Using tagged [v0.3.20](https://github.com/kitajchuk/grunt-nautilus/releases/tag/v0.3.20)
 
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
@@ -386,35 +386,7 @@ Which will compile to the following, sandboxing jQuery as $ into your closure fo
 ```
 
 ### Assigning modules to variables
-You can directly assign a module to a variable for use in your application. The following imports the default export of the module `baz`:
-```js
-import baz from "app/foo/bar/baz";
-
-var index = {
-    init: function () {
-        
-    }
-};
-
-export default = index;
-```
-This will compile to the following:
-```js
-(function(baz) {
-  "use strict";
-  
-  var baz = baz;
-  
-  var index = {
-      init: function () {
-          
-      }
-  };
-
-  window.app.controllers.index = index;
-})(window.app.foo.bar.baz);
-```
-This syntax would assume the baz module is an object with properties that can be individually imported:
+You can directly assign a module to a variable for use in your application. This syntax would assume the baz module is an object with properties that can be individually imported:
 ```js
 import { bot } from "app/foo/bar/baz";
 
@@ -469,5 +441,6 @@ This is a nice way to import third party scripts like jQuery or ender where you 
 
 
 ## Release History
-- 0.3.20 Last stable release
-- 0.4.0  Current beta release
+- 0.3.20 Stable early release
+- 0.4.0  Beta es6-module-transpiler release
+- 0.4.7  Stable es6-module-transpiler release
