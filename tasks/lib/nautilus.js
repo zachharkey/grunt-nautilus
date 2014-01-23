@@ -396,14 +396,15 @@ module.exports = function ( grunt, options ) {
                         // Matched a file
                         if ( path && grunt.file.isFile( path+__ext__ ) ) {
                             if ( !deps[ el ] ) {
-                                var compiler = coreCompiler.transpile( path+__ext__, el );
+                                var compiler = coreCompiler.transpile( path+__ext__, el ),
+                                    dep = {
+                                        src: path+__ext__,
+                                        compiler: compiler
+                                    };
                                 
-                                deps[ el ] = {
-                                    src: path+__ext__,
-                                    compiler: compiler
-                                };
+                                deps = recurse( deps, dep );
                                 
-                                deps = recurse( deps, deps[ el ] );
+                                deps[ el ] = dep;
                             }
                         
                         // Matched a dir    
@@ -415,14 +416,15 @@ module.exports = function ( grunt, options ) {
                                     nameSpace = coreUtils.nameSpace( el );
                                 
                                 if ( !deps[ moduleName ] ) {
-                                    var compiler = coreCompiler.transpile( el, moduleName );
+                                    var compiler = coreCompiler.transpile( el, moduleName ),
+                                        dep = {
+                                            src: el,
+                                            compiler: compiler
+                                        };
                                     
-                                    deps[ nameSpace ] = {
-                                        src: el,
-                                        compiler: compiler
-                                    };
+                                    deps = recurse( deps, dep );
                                     
-                                    deps = recurse( deps, deps[ nameSpace ] );
+                                    deps[ nameSpace ] = dep;
                                 }
                             });
                         
