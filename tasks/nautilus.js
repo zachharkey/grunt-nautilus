@@ -64,7 +64,7 @@ module.exports = function ( grunt ) {
     nautilus.watchTask();
     nautilus.jsHintTask();
     nautilus.sailsLinkerTask();
-    nautilus.cleanUp();
+    //nautilus.cleanUp();
     
     
     /*!
