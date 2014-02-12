@@ -73,7 +73,7 @@ module.exports = function ( grunt ) {
         ender: {
             options: {
                 output: "test/expected/js/lib/ender/ender",
-                dependencies: ["jeesh"]
+                dependencies: ["more-jeesh"]
             }
         },
         
@@ -114,7 +114,12 @@ module.exports = function ( grunt ) {
                 jsAppRoot: "test/expected/js/app",
                 jsLibRoot: "test/expected/js/lib",
                 pubRoot: "test/expected",
-                jsRoot: "test/expected/js"
+                jsRoot: "test/expected/js",
+                hintOn: [
+                    "watch",
+                    "build",
+                    "deploy"
+                ]
             }
         },
         
@@ -144,7 +149,7 @@ module.exports = function ( grunt ) {
     
     // Register the test task.
     grunt.registerTask( "test", "Test each nautilus task", function () {
-        grunt.task.run( "jshint:nautilus" );
+        //grunt.task.run( "jshint:plugin" );
         
         grunt.log.ok( "Need to build nodeuinit test suite..." );
     });

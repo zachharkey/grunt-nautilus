@@ -6,6 +6,9 @@
  * Copyright (c) 2013 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
+ * Resources
+ * http://wiki.ecmascript.org/doku.php?id=harmony:modules
+ *
  *
  */
 module.exports = function ( grunt, options ) {
@@ -160,6 +163,21 @@ module.exports = function ( grunt, options ) {
         
         
         /*!
+         *
+         * Nautilus.prototype._task.
+         *
+         */
+        this._task = null;
+        
+        /*!
+         *
+         * Nautilus.prototype._args.
+         *
+         */
+        this._args = null;
+        
+        
+        /*!
          * 
          * Nautilus.prototype.parseArgs.
          *
@@ -167,22 +185,28 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.parseArgs = function ( args ) {
+            this._args = args;
+            
             // 0.1 grunt nautilus [, flags...]
             if ( !args.length ) {
                 coreLogger.log( "MISSING_ARGUMENTS" );
                 
             // 0.2 grunt nautilus:app:[:, args...] [, flags...]
             } else if ( _.first( args ) === "app" ) {
-                this.appTask.apply( this, [].slice.call( args, 1 ) );
+                this._task = "app";
                 
             // 0.3 grunt nautilus:build [, flags...]
             } else if ( _.first( args ) === "build" ) {
-                this.buildTask();
+                this._task = "build";
                 
             // 0.4 grunt nautilus:deploy [, flags...]
             } else if ( _.first( args ) === "deploy" ) {
-                this.deployTask();
-                
+                this._task = "deploy";
+            
+            // 0.5 grunt watch
+            } else if ( _.first( args ) === "watch" ) {
+                this._task = "watch";
+                    
             } else {
                 coreLogger.log( "INVALID_ARGUMENTS" );
             }
@@ -202,29 +226,52 @@ module.exports = function ( grunt, options ) {
             // Throw warning on unsupported es6-module-transpiler type option.
             this.checkES6Type();
             
-            // Load the peerDependency packages from package.json;
-            this.loadPlugins();
-            
             // Parse the application schema by walking the app directory.
             this.loadSchema();
             
-            // Expand the files from {options.main} and create base modules.
-            this.loadModules();
-            
-            // Parse the modules using the es6-module-transpiler node_module.
-            this.parseModules();
-            
-            // Recursively walk up modules parsing imports as dependencies.
-            this.recursiveFindModules();
-            
-            // Build the pre-compiled data for the final write+dist.
-            this.preCompileModules();
-            
-            // Write all build files at once to the .tmp directory.
-            this.writeModuleTmpFiles();
-            
-            // Use concat/uglify to compile distribution files.
-            this.compileModuleDistFiles();
+            // What do we need to do...
+            if ( this._task === "app" ) {
+                this.appTask.apply( this, [].slice.call( this._args, 1 ) );
+                
+                return this;
+                
+            // watch, build or deploy    
+            } else {
+                // Perform any pre-module tasks ( ender for example )
+                this.preLoadModuleTasks(function () {
+                    // Expand the files from {options.main} and create base modules.
+                    instance.loadModules();
+                    
+                    // Parse the modules using the es6-module-transpiler node_module.
+                    instance.parseModules();
+                    
+                    // Recursively walk up modules parsing imports as dependencies.
+                    instance.recursiveFindModules();
+                    
+                    // Build the pre-compiled data for the final write+dist.
+                    instance.preCompileModules();
+                    
+                    // Write all build files at once to the .tmp directory.
+                    instance.writeModuleTmpFiles();
+                    
+                    // Use concat/uglify to compile distribution files.
+                    instance.compileModuleDistFiles();
+                    
+                    // Execute the correct task.
+                    if ( instance._task === "build" || instance._task === "watch" ) {
+                        instance.buildTask();
+                        
+                    } else if ( instance._task === "deploy" ) {
+                        instance.deployTask();
+                    }
+                    
+                    // These tasks will be needed either way.
+                    instance.watchTask();
+                    instance.cleanTask();
+                    instance.jsHintTask();
+                    instance.sailsLinkerTask();
+                });
+            }
         };
         
         /*!
@@ -298,6 +345,21 @@ module.exports = function ( grunt, options ) {
             
             instance.schema = schema;
             instance.appCore = app;
+        };
+        
+        /*!
+         * 
+         * Nautilus.prototype.preLoadModuleTasks.
+         *
+         * Make sure we run important tasks before module parsing.
+         *
+         */
+        this.preLoadModuleTasks = function ( callback ) {
+            if ( ender ) {
+                __func__ = _.once( callback );
+                
+                grunt.task.run( "ender" );
+            }
         };
         
         /*!
@@ -656,7 +718,7 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.watchTask = function () {
-            var scriptTasks = mergeTasks( "watch", ["concat", "clean:nautilus"] ),
+            var scriptTasks = mergeTasks( "watch", ["nautilus:build", "clean:nautilus"] ),
                 stylesTasks = "compass:"+(grunt.option( "env" ) || "development"),
                 watch = {
                     scripts: {
@@ -742,7 +804,20 @@ module.exports = function ( grunt, options ) {
             }
             
             _.each( instance.modules, function ( module, key, list ) {
-                jshint[ key ] = _.filter( module.dist.src, function ( el ) {
+                var raw = [];
+                
+                /* @todo: lint raw js files
+                _.each( module.dependencies, function ( dep, key, list ) {
+                    if ( rApp.test( key ) ) {
+                        raw.push( dep.src );
+                    }
+                });
+                
+                jshint[ key+"-RAW" ] = raw;
+                */
+                
+                // lint parsed .tmp js files
+                jshint[ key+"-PARSED" ] = _.filter( module.dist.src, function ( el ) {
                     if ( rAppModule.test( el ) ) {
                         return el;
                     }
@@ -799,10 +874,6 @@ module.exports = function ( grunt, options ) {
         this.buildTask = function () {
             var tasks = mergeTasks( "build", ["concat", "clean:nautilus"] );
             
-            __func__ = function () {
-                grunt.task.run( tasks );
-            };
-            
             // Check for sails-linker
             if ( options.jsTemplate ) {
                 tasks.push( "sails-linker" );
@@ -813,15 +884,7 @@ module.exports = function ( grunt, options ) {
                 tasks.push( "compass:"+(grunt.option( "env" ) || "development") );
             }
             
-            // Check for ender
-            if ( ender ) {
-                grunt.task.run( "ender" );
-                
-                __func__ = _.once( __func__ );
-                
-            } else {
-                __func__();
-            }
+            grunt.task.run( tasks );
         };
         
         /*!
@@ -835,24 +898,12 @@ module.exports = function ( grunt, options ) {
         this.deployTask = function () {
             var tasks = mergeTasks( "deploy", ["uglify", "clean:nautilus"] );
             
-            __func__ = function () {
-                grunt.task.run( tasks );
-            };
-            
             // Check for compass
             if ( compass ) {
                 tasks.push( "compass:"+(grunt.option( "env" ) || "production") );
             }
             
-            // Check for ender
-            if ( ender ) {
-                grunt.task.run( "ender" );
-                
-                __func__ = _.once( __func__ );
-                
-            } else {
-                __func__();
-            }
+            grunt.task.run( tasks );
         };
         
         /*!
@@ -863,6 +914,12 @@ module.exports = function ( grunt, options ) {
          */
         grunt.event.on( "grunt_ender_build_done", function () {
             grunt.file.delete( ender.options.output+".min.js", {
+                force: true
+            });
+            grunt.file.delete( ender.options.output+".js.map", {
+                force: true
+            });
+            grunt.file.delete( ender.options.output+".min.js.map", {
                 force: true
             });
             

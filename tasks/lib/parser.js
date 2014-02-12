@@ -19,7 +19,7 @@ module.exports = function ( grunt, options ) {
         
         rExports = new RegExp( "__exports__\\..*?(?=\\s=)" ),
         rLib = new RegExp( "^"+coreGlobal+"\\.(?!app\\/)(.*?)$" ),
-        rSyntax = /function|\(|\)|\{|\}|;|\s|\n/g
+        rSyntax = /function|\(|\)|\{|\}|;|\s|\n/g,
         rLastLine = /\n(.*?)$/,
         rFirstLine = /^(.*?)\n/,
         rSlashDot = /\/|\./g,

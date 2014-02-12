@@ -48,7 +48,7 @@ module.exports = function ( grunt ) {
     
     /*!
      *
-     * Check if we need to create directories.
+     * Init directories.
      *
      */
     require( "./lib/init" )( grunt, options );
@@ -56,15 +56,10 @@ module.exports = function ( grunt ) {
     
     /*!
      *
-     * Execute the nautilus stack.
+     * Load the peer packages.
      *
      */
-    nautilus.executeStack();
-    nautilus.cleanTask();
-    nautilus.watchTask();
-    nautilus.jsHintTask();
-    nautilus.sailsLinkerTask();
-    //nautilus.cleanUp();
+    nautilus.loadPlugins();
     
     
     /*!
@@ -72,14 +67,13 @@ module.exports = function ( grunt ) {
      * Overthrow the "watch" task.
      *
      */
-    //grunt.event.on( "watch", function ( filepath, watchtask ) {
-    //    console.log( "onwatch", filepath, watchtask );
-    //});
+    //grunt.event.on( "watch", function ( filepath, watchtask ) {});
     grunt.renameTask( "watch", "nautilus-watch" );
     grunt.registerTask( "watch", function () {
         var task = "nautilus-watch";
         
-        nautilus.buildTask();
+        nautilus.parseArgs( ["watch"] );
+        nautilus.executeStack();
         
         if ( this.args.length && _.contains( ["scripts", "compass", "gruntfile"], _.first( this.args ) ) ) {
             task += ":"+_.first( this.args );
@@ -114,6 +108,7 @@ module.exports = function ( grunt ) {
      */
     grunt.registerTask( "nautilus", "Build modular javascript applications that make sense", function () {
         nautilus.parseArgs( this.args );
+        nautilus.executeStack();
     });
     
     
