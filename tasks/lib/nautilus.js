@@ -42,7 +42,7 @@ module.exports = function ( grunt, options ) {
         
         for ( var i = 0; i < dir.length; i++ ) {
             var name = dir[ i ],
-                target = path+"/"+name,
+                target = path + "/" + name,
                 stats = nodeFs.statSync( target );
                 
             if ( stats.isDirectory() ) {
@@ -125,7 +125,7 @@ module.exports = function ( grunt, options ) {
         
         // Core {app} framework include
         __dep0__ = grunt.file.read( nodePath.join( coreDirs.app, "app.js" ) ),
-        __appt__ = nodePath.join( __tmp__, ".app"+__ext__ ),
+        __appt__ = nodePath.join( __tmp__, ".app" + __ext__ ),
         
         // Process function
         __func__ = function () {},
@@ -144,9 +144,9 @@ module.exports = function ( grunt, options ) {
         
         // Core globs for app dev
         coreTasks = {
-            watchJs: [__js__+"/**/*.js", "!"+__js__+"/dist/*.js"],
-            watchSass: [__sass__+"/**/*.scss"],
-            jshint: [__app__+"/**/*.js"]
+            watchJs: [__js__ + "/**/*.js", "!" + __js__ + "/dist/*.js"],
+            watchSass: [__sass__ + "/**/*.scss"],
+            jshint: [__app__ + "/**/*.js"]
         },
         
         // Singleton
@@ -449,18 +449,18 @@ module.exports = function ( grunt, options ) {
                             _.each( [__js__, __pub__], function ( root, i, list ) {
                                 var lookup = nodePath.join( root, el );
                                 
-                                if ( grunt.file.isFile( lookup+__ext__ ) || grunt.file.isDir( lookup ) ) {
+                                if ( grunt.file.isFile( lookup + __ext__ ) || grunt.file.isDir( lookup ) ) {
                                     path = lookup;
                                 }
                             });
                         }
                         
                         // Matched a file
-                        if ( path && grunt.file.isFile( path+__ext__ ) ) {
+                        if ( path && grunt.file.isFile( path + __ext__ ) ) {
                             if ( !deps[ el ] ) {
-                                var compiler = coreCompiler.transpile( path+__ext__, el ),
+                                var compiler = coreCompiler.transpile( path + __ext__, el ),
                                     dep = {
-                                        src: path+__ext__,
+                                        src: path + __ext__,
                                         compiler: compiler
                                     };
                                 
@@ -471,7 +471,7 @@ module.exports = function ( grunt, options ) {
                         
                         // Matched a dir    
                         } else if ( path && grunt.file.isDir( path ) ) {
-                            paths = grunt.file.expand( nodePath.join( path, "**/*"+__ext__ ) );
+                            paths = grunt.file.expand( nodePath.join( path, "**/*" + __ext__ ) );
                             
                             _.each( paths, function ( el, i, list ) {
                                 var moduleName = coreUtils.moduleName( el ),
@@ -502,7 +502,7 @@ module.exports = function ( grunt, options ) {
                 };
             
             _.each( instance.modules, function ( val, key, list ) {
-                var path = nodePath.join( __js__, key+__ext__ );
+                var path = nodePath.join( __js__, key + __ext__ );
                 
                 val.dependencies = {};
                 val.dependencies.app = instance.appCore;
@@ -542,7 +542,7 @@ module.exports = function ( grunt, options ) {
                         file = coreParser[ options.type ]( key, file );
                         
                         val.fileContent = file;
-                        val.tmp = nodePath.join( __tmp__, coreUtils.tempName( key )+__ext__ );
+                        val.tmp = nodePath.join( __tmp__, coreUtils.tempName( key ) + __ext__ );
                     
                     // Third-party can compile from source    
                     } else {
@@ -555,10 +555,10 @@ module.exports = function ( grunt, options ) {
                 });
                 
                 if ( rController.test( key ) ) {
-                    var exec = coreCompiler.closure( "app.exec( \""+coreUtils.moduleName( key )+"\" );" ),
-                        path = nodePath.join( __tmp__, coreUtils.tempName( key+"/exec" )+__ext__ );
+                    var exec = coreCompiler.closure( "app.exec( \"" + coreUtils.moduleName( key ) + "\" );" ),
+                        path = nodePath.join( __tmp__, coreUtils.tempName( key + "/exec" ) + __ext__ );
                     
-                    module.dependencies[ key+"/exec" ] = {
+                    module.dependencies[ key + "/exec" ] = {
                         src: path,
                         fileContent: exec,
                         compiler: null,
@@ -587,7 +587,7 @@ module.exports = function ( grunt, options ) {
                 
                 module.dist = {
                     src: [],
-                    dest: nodePath.join( __dist__, moduleName+__ext__ )
+                    dest: nodePath.join( __dist__, moduleName + __ext__ )
                 };
                 
                 _.each( module.dependencies, function ( val, key, list ) {
@@ -672,8 +672,8 @@ module.exports = function ( grunt, options ) {
                     if ( jsTemplate ) {
                         _.each( module.dependencies, function ( dep, key, list ) {
                             var fileName = key.replace( rDot, "-" );
-                            var expandedPath = ( dep.tmp ) ? nodePath.join( __dist__, moduleName, fileName+__ext__ ) : dep.src;
-                            var scriptPath = ( dep.tmp ) ? (__dist__+"/"+moduleName+"/"+fileName+__ext__) : dep.src;
+                            var expandedPath = ( dep.tmp ) ? nodePath.join( __dist__, moduleName, fileName + __ext__ ) : dep.src;
+                            var scriptPath = ( dep.tmp ) ? (__dist__ + "/" + moduleName + "/" + fileName + __ext__) : dep.src;
                             
                             grunt.file.write( expandedPath, grunt.file.read( (dep.tmp || dep.src) ) );
                             
@@ -698,7 +698,7 @@ module.exports = function ( grunt, options ) {
                     
                     if ( jsTemplate ) {
                         var filesOptions = {};
-                            filesOptions[ jsTemplate ] = __dist__+"/"+moduleName+__ext__;
+                            filesOptions[ jsTemplate ] = __dist__ + "/" + moduleName + __ext__;
                         
                         sailsLinkerOptions[ key ] = {
                             files: filesOptions
@@ -719,7 +719,7 @@ module.exports = function ( grunt, options ) {
          */
         this.watchTask = function () {
             var scriptTasks = mergeTasks( "watch", ["nautilus:build", "clean:nautilus"] ),
-                stylesTasks = "compass:"+(grunt.option( "env" ) || "development"),
+                stylesTasks = "compass:" + (grunt.option( "env" ) || "development"),
                 watch = {
                     scripts: {
                         files: coreTasks.watchJs,
@@ -729,11 +729,6 @@ module.exports = function ( grunt, options ) {
                     compass: {
                         files: coreTasks.watchSass,
                         tasks: stylesTasks
-                    },
-                    
-                    gruntfile: {
-                        files: "Gruntfile.js",
-                        tasks: "jshint:gruntfile"
                     }
                 };
             
@@ -813,11 +808,11 @@ module.exports = function ( grunt, options ) {
                     }
                 });
                 
-                jshint[ key+"-RAW" ] = raw;
+                jshint[ key + "-RAW" ] = raw;
                 */
                 
                 // lint parsed .tmp js files
-                jshint[ key+"-PARSED" ] = _.filter( module.dist.src, function ( el ) {
+                jshint[ key + "-PARSED" ] = _.filter( module.dist.src, function ( el ) {
                     if ( rAppModule.test( el ) ) {
                         return el;
                     }
@@ -881,7 +876,7 @@ module.exports = function ( grunt, options ) {
             
             // Check for compass
             if ( compass ) {
-                tasks.push( "compass:"+(grunt.option( "env" ) || "development") );
+                tasks.push( "compass:" + (grunt.option( "env" ) || "development") );
             }
             
             grunt.task.run( tasks );
@@ -900,7 +895,7 @@ module.exports = function ( grunt, options ) {
             
             // Check for compass
             if ( compass ) {
-                tasks.push( "compass:"+(grunt.option( "env" ) || "production") );
+                tasks.push( "compass:" + (grunt.option( "env" ) || "production") );
             }
             
             grunt.task.run( tasks );
@@ -913,13 +908,13 @@ module.exports = function ( grunt, options ) {
          *
          */
         grunt.event.on( "grunt_ender_build_done", function () {
-            grunt.file.delete( ender.options.output+".min.js", {
+            grunt.file.delete( ender.options.output + ".min.js", {
                 force: true
             });
-            grunt.file.delete( ender.options.output+".js.map", {
+            grunt.file.delete( ender.options.output + ".js.map", {
                 force: true
             });
-            grunt.file.delete( ender.options.output+".min.js.map", {
+            grunt.file.delete( ender.options.output + ".min.js.map", {
                 force: true
             });
             

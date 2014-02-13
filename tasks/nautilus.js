@@ -76,7 +76,7 @@ module.exports = function ( grunt ) {
         nautilus.executeStack();
         
         if ( this.args.length && _.contains( ["scripts", "compass", "gruntfile"], _.first( this.args ) ) ) {
-            task += ":"+_.first( this.args );
+            task += ":" + _.first( this.args );
         }
         
         grunt.task.run( task );
