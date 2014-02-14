@@ -359,6 +359,9 @@ module.exports = function ( grunt, options ) {
                 __func__ = _.once( callback );
                 
                 grunt.task.run( "ender" );
+                
+            } else {
+                callback();
             }
         };
         
