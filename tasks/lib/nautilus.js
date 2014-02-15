@@ -22,12 +22,17 @@ module.exports = function ( grunt, options ) {
      * @functions
      *
      */
-    var mergeTasks = function ( task, tasks ) {
+    var mergeTasks = function ( task, tasks, index ) {
         // 0.1 jshint on this task
-        if ( options.hintOn && _.contains( options.hintOn, task ) ) {
+        if ( options.hintOn && _.contains( options.hintOn, task ) && task !== "watch" ) {
             tasks = ( _.isString( tasks ) ) ? [tasks] : tasks;
             
-            tasks.unshift( "jshint" );
+            if ( index ) {
+                tasks.splice( index, 0, "jshint" );
+                
+            } else {
+                tasks.unshift( "jshint" );
+            }
             
             coreLogger.log( "MATCHED_HINTON", {
                 task: task
@@ -257,6 +262,12 @@ module.exports = function ( grunt, options ) {
                     // Use concat/uglify to compile distribution files.
                     instance.compileModuleDistFiles();
                     
+                    // These tasks will be needed either way.
+                    instance.watchTask();
+                    instance.cleanTask();
+                    instance.jsHintTask();
+                    instance.sailsLinkerTask();
+                    
                     // Execute the correct task.
                     if ( instance._task === "build" || instance._task === "watch" ) {
                         instance.buildTask();
@@ -264,12 +275,6 @@ module.exports = function ( grunt, options ) {
                     } else if ( instance._task === "deploy" ) {
                         instance.deployTask();
                     }
-                    
-                    // These tasks will be needed either way.
-                    instance.watchTask();
-                    instance.cleanTask();
-                    instance.jsHintTask();
-                    instance.sailsLinkerTask();
                 });
             }
         };
@@ -763,10 +768,6 @@ module.exports = function ( grunt, options ) {
                 jshint.options = jshintrc;
                 jshint.options.globals = options.jsGlobals;
             }
-            
-            jshint.gruntfile = {
-                src: "Gruntfile.js"
-            };
             
             if ( _.isArray( options.hintAt ) && options.hintAt.length ) {
                 jshint.hintAt = {
