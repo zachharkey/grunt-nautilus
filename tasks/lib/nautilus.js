@@ -121,6 +121,7 @@ module.exports = function ( grunt, options ) {
         __app__ = options.jsAppRoot,
         __lib__ = options.jsLibRoot,
         __js__ = options.jsRoot,
+        __cwd__ = ".",
         
         // File extenstion for app
         __ext__ = ".js",
@@ -452,9 +453,9 @@ module.exports = function ( grunt, options ) {
                         } else if ( rApp.test( el ) ) {
                             path = nodePath.join( __app__, el.replace( rApp, "" ) );
                         
-                        // Try looking in pubRoot or jsRoot    
+                        // Try looking in pubRoot or jsRoot or Gruntfile root
                         } else {
-                            _.each( [__js__, __pub__], function ( root, i, list ) {
+                            _.each( [__js__, __pub__, __cwd__], function ( root, i, list ) {
                                 var lookup = nodePath.join( root, el );
                                 
                                 if ( grunt.file.isFile( lookup + __ext__ ) || grunt.file.isDir( lookup ) ) {

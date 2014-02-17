@@ -69,7 +69,15 @@ module.exports = function ( grunt ) {
         },
         
         
-        // Ender config.
+        // Nodeunit tests.
+        nodeunit: {
+            plugin: [
+                "test/nautilus_test.js"
+            ]
+        },
+        
+        
+        /** Ender config.
         ender: {
             options: {
                 output: "test/expected/js/lib/ender/ender",
@@ -104,7 +112,12 @@ module.exports = function ( grunt ) {
                     outputStyle: "compressed"
                 }
             }
-        },
+        },*/
+        
+        
+        /** Merge watch config.
+         Watch config.
+        "nautilus-watch": {},*/
         
         
         // Nautilus config.
@@ -115,20 +128,15 @@ module.exports = function ( grunt ) {
                 jsLibRoot: "test/expected/js/lib",
                 pubRoot: "test/expected",
                 jsRoot: "test/expected/js",
+                jsGlobals: {
+                    KonamiCode: true
+                },
                 hintOn: [
                     "watch",
                     "build",
                     "deploy"
                 ]
             }
-        },
-        
-        
-        // Nodeunit tests.
-        nodeunit: {
-            plugin: [
-                "test/nautilus_test.js"
-            ]
         }
     });
     

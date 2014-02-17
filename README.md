@@ -329,7 +329,7 @@ Module import paths will be relative to your `jsRoot` option:
  - `import { baz } from "app/foo/bar/baz";`
  - `import "lib/ender/ender";`
 
-In terms of looking up module imports, grunt-nautilus will first look in your `jsAppRoot`, then in your `jsRoot` and lastly in your `pubRoot`. This should be more than enough in terms of application organization in conjunction with using third party package managers like npm or bower. When using third party imports that don't utilize the es6 export syntax, grunt-nautilus will try to find a global to match it to. A config of popular js libs is maintained internally to try to do this. If your import is not found there, the `jsGlobals` option will be referenced. If no match is found, the import will be assumed global and included in the dist stack but not sandboxed into the current modules closure.
+In terms of looking up module imports, grunt-nautilus will look in the following places: `jsAppRoot`, `jsRoot`, `pubRoot` and lastly from the `Gruntfile` location. This should be more than enough in terms of application organization in conjunction with using third party package managers like npm or bower. When using third party imports that don't utilize the es6 export syntax, grunt-nautilus will try to find a global to match it to. A config of popular js libs is maintained internally to try to do this. If your import is not found there, the `jsGlobals` option will be referenced. If no match is found, the import will be assumed global and included in the dist stack but not sandboxed into the current modules closure.
 
 ### Example application module
 To create a new `index` controller module for you application run the following:
