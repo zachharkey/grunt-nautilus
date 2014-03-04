@@ -909,20 +909,14 @@ module.exports = function ( grunt, options ) {
         /*!
          * 
          * Listen for ender builds to finish.
-         * Delete ender.min.js because I'm an anal retentive bastard X-D
+         * Ender.js files that are created on build:
+         * ender.js
+         * ender.js.map
+         * ender.min.js
+         * ender.min.js.map
          *
          */
         grunt.event.on( "grunt_ender_build_done", function () {
-            grunt.file.delete( ender.options.output + ".min.js", {
-                force: true
-            });
-            grunt.file.delete( ender.options.output + ".js.map", {
-                force: true
-            });
-            grunt.file.delete( ender.options.output + ".min.js.map", {
-                force: true
-            });
-            
             __func__();
         });
         

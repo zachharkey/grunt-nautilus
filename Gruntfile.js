@@ -77,7 +77,7 @@ module.exports = function ( grunt ) {
         },
         
         
-        /** Ender config.
+        // Ender config.
         ender: {
             options: {
                 output: "test/expected/js/lib/ender/ender",
@@ -86,7 +86,7 @@ module.exports = function ( grunt ) {
         },
         
         
-        // Compass config.
+        /** Compass config.
         compass: {
             options: {
                 cssDir: "test/expected/css",
