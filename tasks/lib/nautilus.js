@@ -918,11 +918,19 @@ module.exports = function ( grunt, options ) {
          *
          */
         grunt.event.on( "grunt_ender_build_done", function () {
-            var file = ender.options.output + __ext__,
-                srcmap = "//# sourceMappingURL=" + ender.options.output + __ext__ + ".map",
-                script = grunt.file.read( file ).replace( rEnderSrcMap, srcmap );
+            // This would need to know how to serve static assets, for instance on a caribou project:
+            // //# sourceMappingURL=resources/public/js/lib/ender/ender.js.map would need to actually be:
+            // //# sourceMappingURL=/js/lib/ender/ender.js.map
             
-            grunt.file.write( file, script );
+            // The only way to do this is to have the plugin user define that for us.
+            // This is an unofficial grunt-ender option we'll use to accomplish this.
+            if ( ender.options.srcmap ) {
+                var file = ender.options.output + __ext__,
+                    srcmap = "//# sourceMappingURL=" + ender.options.srcmap + __ext__ + ".map",
+                    script = grunt.file.read( file ).replace( rEnderSrcMap, srcmap );
+                
+                grunt.file.write( file, script );
+            }
         
             __func__();
         });

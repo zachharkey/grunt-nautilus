@@ -80,6 +80,7 @@ module.exports = function ( grunt ) {
         // Ender config.
         ender: {
             options: {
+                srcmap: "/js/lib/ender/ender",
                 output: "test/expected/js/lib/ender/ender",
                 dependencies: ["more-jeesh"]
             }
