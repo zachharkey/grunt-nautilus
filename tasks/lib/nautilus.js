@@ -137,6 +137,7 @@ module.exports = function ( grunt, options ) {
         __func__ = function () {},
         
         // Regex
+        rEnderSrcMap = /\/\/#\ssourceMappingURL=(.*?)ender\.js\.map/,
         rAppModule = /\.tmp\/module-\d{1,2}-app-|\.tmp\/\.app\.js/,
         rController = /controller/,
         rQuoted = /"|'/g,
@@ -917,6 +918,12 @@ module.exports = function ( grunt, options ) {
          *
          */
         grunt.event.on( "grunt_ender_build_done", function () {
+            var file = ender.options.output + __ext__,
+                srcmap = "//# sourceMappingURL=" + ender.options.output + __ext__ + ".map",
+                script = grunt.file.read( file ).replace( rEnderSrcMap, srcmap );
+            
+            grunt.file.write( file, script );
+        
             __func__();
         });
         
