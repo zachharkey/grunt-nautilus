@@ -365,6 +365,7 @@ module.exports = function ( grunt, options ) {
             if ( ender ) {
                 __func__ = _.once( callback );
                 
+                /* grunt.task.run( "ender:refresh" ); */
                 grunt.task.run( "ender" );
                 
             } else {
@@ -757,7 +758,7 @@ module.exports = function ( grunt, options ) {
                 jshint = {};
                 
             if ( config && config.options ) {
-                jshint.options = _.extend( config.options, jshintrc );
+                jshint.options = _.extend( jshintrc, config.options );
                 
             } else {
                 jshint.options = jshintrc;
