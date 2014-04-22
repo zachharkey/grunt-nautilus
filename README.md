@@ -78,6 +78,9 @@ Tasks: `jshint`, `uglify`, `clean`, `compass`, `ender`
 #### `nautilus:app[:args...]`
 This argument creates new js files for you from starter templates using the es6 module syntax.
 
+#### `nautilus:whitespace`
+This argument uses the `whitespace` config settings to bulk clean trailing whitespace lines.
+
 
 ### Options
 These are the supported options for this plugin. It may be helpfull to glance over an example of a [Gruntfile with all available options and configuration specified](#example-gruntfile-with-all-specified-options-and-configuration) to get an idea of what all you can let grunt-nautilus handle for you.
@@ -141,6 +144,12 @@ Type: `Array`
 Default: `undefined`
 
 A list of non-app files that you would like js linting to occur against.
+
+#### whitespace
+Type: `Object`  
+Default: `undefined`
+
+Set this with `files` array and `watch` flag properties if you would like trailing whitespace cleaned. The `files` property should be an array and supports standard Grunt globbing patterns.
 
 
 

@@ -49,11 +49,13 @@ module.exports = function ( grunt ) {
             plugin: [
                 "Gruntfile.js",
                 "tasks/**/*.js"
-            ],
+            ]
             
+            /*
             options: {
                 jshintrc: ".jshintrc"
             }
+            */
         },
         
         
@@ -136,7 +138,14 @@ module.exports = function ( grunt ) {
                     "watch",
                     "build",
                     "deploy"
-                ]
+                ],
+                whitespace: {
+                    files: [
+                        "test/expected/js/app/**/*.js"
+                    ],
+                    
+                    watch: true
+                }
             }
         }
     });

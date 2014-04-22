@@ -95,6 +95,11 @@ module.exports = function ( grunt, options ) {
             MULTIPLE_EXPORTS: {
                 type: "warn",
                 log: "Enforced one export per module rule broken at <%= namespace %>"
+            },
+            
+            WHITESPACE_CLEANED: {
+                type: "ok",
+                log: "Whitespace cleaned in <%= file %>"
             }
         },
         log = function ( type, msg ) {

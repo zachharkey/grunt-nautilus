@@ -38,5 +38,6 @@ module.exports = {
         "controllers/**/*.js"
     ],
     pubRoot: undefined,
-    type: "globals" // Secret option for now
+    type: "globals", // Secret option for now
+    whitespace: undefined
 };

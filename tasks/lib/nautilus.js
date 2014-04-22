@@ -85,6 +85,14 @@ module.exports = function ( grunt, options ) {
         return filesArray;
     };
     
+    var cleanWhiteSpace = function ( filepath ) {
+        var regex = /^\s\s+$/gm,
+            content = grunt.file.read( filepath ),
+            cleaned = content.replace( regex, "\n" );
+
+        grunt.file.write( filepath, cleaned );
+    };
+    
     
     /*!
      * 
@@ -214,6 +222,10 @@ module.exports = function ( grunt, options ) {
             } else if ( _.first( args ) === "watch" ) {
                 this._task = "watch";
                     
+            // 0.6 grunt whitespace
+            } else if ( _.first( args ) === "whitespace" ) {
+                this._task = "whitespace";
+                    
             } else {
                 coreLogger.log( "INVALID_ARGUMENTS" );
             }
@@ -239,6 +251,11 @@ module.exports = function ( grunt, options ) {
             // What do we need to do...
             if ( this._task === "app" ) {
                 this.appTask.apply( this, [].slice.call( this._args, 1 ) );
+                
+                return this;
+            
+            } else if ( this._task === "whitespace" ) {
+                this.whiteSpaceTask();
                 
                 return this;
                 
@@ -867,6 +884,31 @@ module.exports = function ( grunt, options ) {
         
         /*!
          * 
+         * Nautilus.prototype.whiteSpaceTask.
+         *
+         * Bulk clean all whitespace in files.
+         *
+         */
+        this.whiteSpaceTask = function () {
+            var files = [];
+            
+            if ( options.whitespace && options.whitespace.files ) {
+                _.each( options.whitespace.files, function ( el, i, list ) {
+                    files = files.concat( grunt.file.expand( el ) );
+                });
+                
+                _.each( files, function ( el, i, list ) {
+                    cleanWhiteSpace( el );
+                    
+                    coreLogger.log( "WHITESPACE_CLEANED", {
+                        file: el
+                    });
+                });
+            }
+        };
+        
+        /*!
+         * 
          * Nautilus.prototype.buildTask.
          *
          * Compile javascript and sass.
@@ -934,6 +976,19 @@ module.exports = function ( grunt, options ) {
             }
         
             __func__();
+        });
+        
+        
+        /*!
+         * 
+         * Listen for watch event.
+         * Cleans whitespace lines from files if option is set to true.
+         *
+         */
+        grunt.event.on( "watch", function ( action, filepath ) {
+            if ( options.whitespace && options.whitespace.watch ) {
+                cleanWhiteSpace( filepath );
+            }
         });
         
         

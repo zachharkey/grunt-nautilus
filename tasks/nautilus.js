@@ -67,7 +67,6 @@ module.exports = function ( grunt ) {
      * Overthrow the "watch" task.
      *
      */
-    //grunt.event.on( "watch", function ( filepath, watchtask ) {});
     grunt.renameTask( "watch", "nautilus-watch" );
     grunt.registerTask( "watch", function () {
         var task = "nautilus-watch";
