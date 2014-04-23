@@ -86,11 +86,24 @@ module.exports = function ( grunt, options ) {
     };
     
     var cleanWhiteSpace = function ( filepath ) {
-        var regex = /^\s\s+$/gm,
+        var regex = /^\s+$/m,
+            rspace = /\s/g,
             content = grunt.file.read( filepath ),
-            cleaned = content.replace( regex, "\n" );
+            matched = content.match( regex ),
+            match,
+            index,
+            length;
+            
+        while ( matched ) {
+            match = matched[ 0 ];
+            length = match.length;
+            index = matched.index;
+            
+            content = content.substr( 0, index ) + match.replace( rspace, "" ) + content.substr( index + length );
+            matched = content.match( regex );
+        }
 
-        grunt.file.write( filepath, cleaned );
+        grunt.file.write( filepath, content );
     };
     
     
