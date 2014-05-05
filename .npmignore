@@ -1,19 +1,8 @@
-########################
-# node
-########################
-bower_components
-
-
-########################
-# gruntplugin
-########################
+server.js
+Gruntfile.js
+/*.html
 tmp
-dist
 test
-server
-
-
-########################
-# misc / editors
-########################
+dist
 .sass-cache
+.grunt

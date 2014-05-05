@@ -48,12 +48,16 @@ module.exports = function ( grunt, options ) {
         for ( var i = 0; i < dir.length; i++ ) {
             var name = dir[ i ],
                 target = path + "/" + name,
-                stats = nodeFs.statSync( target );
+                stats = nodeFs.statSync( target ),
+                rjs = /\.js$/;
                 
             if ( stats.isDirectory() ) {
                 obj[ name ] = {};
                 
                 walkDirectory( target, obj[ name ] );
+
+            } else if ( rjs.test( name ) && name !== "app.js" ) {
+                obj[ name.replace( rjs, "" ) ] = {};
             }
         }
     };

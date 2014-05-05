@@ -1,7 +1,7 @@
 {
     "name": "grunt-nautilus",
     "description": "Build modular javascript applications that make sense",
-    "version": "0.4.20",
+    "version": "0.4.21",
     "homepage": "https://github.com/kitajchuk/grunt-nautilus",
     "readmeFilename": "README.md",
     "author": {
@@ -45,17 +45,17 @@
         "grunt-sails-linker": "~0.9"
     },
     "devDependencies": {
-        "jsource": "~0.1",
         "grunt": "~0.4",
         "grunt-contrib-nodeunit": "~0.2",
-        "grunt-contrib-clean": "~0.5",
         "grunt-contrib-jshint": "~0.8",
         "grunt-contrib-concat": "~0.3",
         "grunt-contrib-uglify": "~0.3",
         "grunt-contrib-watch": "~0.5",
         "grunt-contrib-compass": "~0.7",
+        "grunt-contrib-clean": "~0.5",
         "grunt-ender": "0.2.1",
-        "grunt-sails-linker": "~0.9"
+        "grunt-sails-linker": "~0.9",
+        "express": "~4.1"
     },
     "keywords": [
         "grunt",

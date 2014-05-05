@@ -23,48 +23,14 @@ var grunt = require( "grunt" );
 */
 
 exports.nautilus = {
-    
-    app_module_test: function ( test ) {
-        test.expect( 1 );
-        
-        var actual = grunt.file.read( "test/fixtures/js/sonata.js" );
-        var expected = grunt.file.read( "test/expected/js/app/sonata.js" );
-        
-        test.equal( actual, expected, "Should parse app module into named .js file" );
-        
-        test.done();
-    },
-    
-    app_controller_test: function ( test ) {
-        test.expect( 1 );
-        
-        var actual = grunt.file.read( "test/fixtures/js/fractal.js" );
-        var expected = grunt.file.read( "test/expected/js/app/controllers/fractal.js" );
-        
-        test.equal( actual, expected, "Should parse app controller into named .js file" );
-        
-        test.done();
-    },
-    
-    build_test: function ( test ) {
-        test.expect( 1 );
-        
-        var actual = grunt.file.read( "test/fixtures/js/dist/fractal.js" );
-        var expected = grunt.file.read( "test/expected/js/dist/fractal.js" );
-        
-        test.equal( actual, expected, "Should compile js using concat and es6-module-transpiler" );
-        
-        test.done();
-    },
-    
-    deploy_test: function ( test ) {
-        test.expect( 1 );
-        
-        var actual = grunt.file.read( "test/fixtures/js/dist/sonata.js" );
-        var expected = grunt.file.read( "test/expected/js/dist/sonata.js" );
-        
-        test.equal( actual, expected, "Should compile js using uglify and es6-module-transpiler" );
-        
+
+    gruntNautilusTest: function ( test ) {
+        var path = require( "path" );
+
+        test.expect( 2 );
+        test.ok( grunt.file.isFile( path.join( __dirname, "out/css/screen.css" ) ), "Grunt Nautilus compiled app.js" );
+        test.ok( grunt.file.isFile( path.join( __dirname, "out/js/dist/app.js" ) ), "Grunt Nautilus compiled screen.css" );
         test.done();
     }
+
 };

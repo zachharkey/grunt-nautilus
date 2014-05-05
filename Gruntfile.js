@@ -1,7 +1,7 @@
 /*!
  *
  * grunt-nautilus
- * https://github.com/brandonkitajchuk/grunt-nautilus
+ * https://github.com/kitajchuk/grunt-nautilus
  *
  * Copyright (c) 2013 Brandon Kitajchuk
  * Licensed under the MIT license.
@@ -14,20 +14,19 @@
 
 
 module.exports = function ( grunt ) {
-    
-    
-    // Underscore 4 life.
+
+
     var _ = grunt.util._;
-    
-    
+
+
     // Project configuration.
     grunt.initConfig({
         // Project meta.
         meta: {
-            version: "0.1.0"
+            version: "0.4.21"
         },
-        
-        
+
+
         // Project banner.
         banner:
             "/*!\n"+
@@ -42,97 +41,104 @@ module.exports = function ( grunt ) {
             " * \n"+
             " */\n"+
             "\n",
-            
-            
+
+
         // Jshint config.
         jshint: {
             plugin: [
-                "Gruntfile.js",
+                //"Gruntfile.js",
                 "tasks/**/*.js"
             ]
-            
-            /*
-            options: {
-                jshintrc: ".jshintrc"
-            }
-            */
         },
-        
-        
+
+
         // Clean config.
         clean: {
             plugin: [
-                "test/expected/js/**/*",
-                "test/expected/css",
-                "test/expected/img",
-                "test/expected/fonts",
-                "test/expected/sass"
+                "test/out/js/**/*.js",
+                "test/out/css/**/*.css"
             ]
         },
-        
-        
+
+
         // Nodeunit tests.
         nodeunit: {
             plugin: [
-                "test/nautilus_test.js"
+                "test/nautilus_tests.js"
             ]
         },
-        
-        
-        // Ender config.
+
+
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        //
+        // PLUGIN TESTING:
+        //
+        // This config handles build testing for the plugin.
+        // Using the "nautilus-watch" config will merge watch tasks.
+        //
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        /** Ender config. */
         ender: {
             options: {
                 srcmap: "/js/lib/ender/ender",
-                output: "test/expected/js/lib/ender/ender",
+                output: "test/src/js/lib/ender/ender",
                 dependencies: ["more-jeesh"]
             }
         },
-        
-        
-        /** Compass config.
+
+
+        /** Compass config. */
         compass: {
             options: {
-                cssDir: "test/expected/css",
-                fontsDir: "test/expected/fonts",
+                cssDir: "test/out/css",
                 force: true,
                 httpPath: "/",
-                imagesDir: "test/expected/img",
-                javascriptsDir: "test/expected/js",
                 noLineComments: true,
-                sassDir: "test/expected/sass"
+                sassDir: "test/src/sass"
             },
-            
             development: {
                 options: {
                     environment: "development",
                     outputStyle: "expanded"
                 }
             },
-            
             production: {
                 options: {
                     environment: "production",
                     outputStyle: "compressed"
                 }
             }
-        },*/
-        
-        
-        /** Merge watch config.
-         Watch config.
-        "nautilus-watch": {},*/
-        
-        
-        // Nautilus config.
+        },
+
+
+        /** Nautilus config. */
         nautilus: {
             options: {
-                jsDistRoot: "test/expected/js/dist",
-                jsAppRoot: "test/expected/js/app",
-                jsLibRoot: "test/expected/js/lib",
-                pubRoot: "test/expected",
-                jsRoot: "test/expected/js",
+                jsDistRoot: "test/out/js/dist",
+                jsAppRoot: "test/src/js/app",
+                jsLibRoot: "test/src/js/lib",
+                pubRoot: "test/src",
+                jsRoot: "test/src/js",
                 jsGlobals: {
-                    KonamiCode: true
+                    $: true
                 },
                 hintOn: [
                     "watch",
@@ -141,7 +147,7 @@ module.exports = function ( grunt ) {
                 ],
                 whitespace: {
                     files: [
-                        "test/expected/js/app/**/*.js"
+                        "test/src/js/app/**/*.js"
                     ],
                     
                     watch: true
@@ -149,28 +155,29 @@ module.exports = function ( grunt ) {
             }
         }
     });
-    
-    
+
+
     // Actually load this plugin's task(s).
     grunt.loadTasks( "tasks" );
-    
-    
+
+
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks( "grunt-contrib-clean" );
     grunt.loadNpmTasks( "grunt-contrib-nodeunit" );
     grunt.loadNpmTasks( "grunt-contrib-jshint" );
-    
-    
+
+
     // Register default task.
     grunt.registerTask( "default", ["nautilus:build"] );
-    
-    
+
+
     // Register the test task.
     grunt.registerTask( "test", "Test each nautilus task", function () {
-        //grunt.task.run( "jshint:plugin" );
-        
-        grunt.log.ok( "Need to build nodeuinit test suite..." );
+        grunt.task.run( "jshint:plugin" );
+        grunt.task.run( "clean:plugin" );
+        grunt.task.run( "nautilus:build" );
+        grunt.task.run( "nodeunit:plugin" );
     });
-    
+
 
 };

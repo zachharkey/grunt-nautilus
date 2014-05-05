@@ -1,25 +1,9 @@
-########################
-# npm / node
-########################
-bower_components
-node_modules
-npm-debug.log
-
-
-########################
-# gruntplugin
-########################
 tmp
 dist
-test/expected/fonts
-test/expected/img
-test/expected/sass
-test/expected/css
-test/expected/js
-
-
-########################
-# misc / editors
-########################
-.DS_Store
+test/out
+test/src/js/lib/ender
+node_modules
+npm-debug.log
 .sass-cache
+.grunt
+.DS_Store

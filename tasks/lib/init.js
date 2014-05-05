@@ -20,27 +20,27 @@ module.exports = function ( grunt, options ) {
         compass = compass.options || compass[ env ].options;
         
         // Test/make css
-        if ( !grunt.file.exists( compass.cssDir ) ) {
+        if ( compass.cssDir && !grunt.file.exists( compass.cssDir ) ) {
             grunt.file.mkdir( compass.cssDir );
         }
         
         // Test/make img
-        if ( !grunt.file.exists( compass.imagesDir ) ) {
+        if ( compass.imagesDir && !grunt.file.exists( compass.imagesDir ) ) {
             grunt.file.mkdir( compass.imagesDir );
         }
         
         // Test/make fonts
-        if ( !grunt.file.exists( compass.fontsDir ) ) {
+        if ( compass.fontsDir && !grunt.file.exists( compass.fontsDir ) ) {
             grunt.file.mkdir( compass.fontsDir );
         }
         
         // Test/make sass
-        if ( !grunt.file.exists( compass.sassDir ) ) {
+        if ( compass.sassDir && !grunt.file.exists( compass.sassDir ) ) {
             grunt.file.mkdir( compass.sassDir );
         }
             
-            if ( !grunt.file.exists( compass.sassDir+"/screen.scss" ) ) {
-                grunt.file.write( compass.sassDir+"/screen.scss", "/* -- start styling -- */" );
+            if ( !grunt.file.exists( compass.sassDir + "/screen.scss" ) ) {
+                grunt.file.write( compass.sassDir + "/screen.scss", "/* -- start styling -- */" );
             }
     }
     
@@ -50,22 +50,22 @@ module.exports = function ( grunt, options ) {
     }
     
     // Test/make js/app structure
-    if ( !grunt.file.exists( options.jsRoot+"/app" ) ) {
-        grunt.file.mkdir( options.jsRoot+"/app" );
-        grunt.file.write( options.jsRoot+"/app/.gitkeep" );
+    if ( !grunt.file.exists( options.jsRoot + "/app" ) ) {
+        grunt.file.mkdir( options.jsRoot + "/app" );
+        grunt.file.write( options.jsRoot + "/app/.gitkeep" );
     }
     
-        if ( !grunt.file.exists( options.jsRoot+"/app/app.js" ) ) {
-            grunt.file.copy( dirs.app+"/howto.js", options.jsRoot+"/app/app.js" );
+        if ( !grunt.file.exists( options.jsRoot + "/app/app.js" ) ) {
+            grunt.file.copy( dirs.app + "/howto.js", options.jsRoot + "/app/app.js" );
         }
     
-    if ( !grunt.file.exists( options.jsRoot+"/app/controllers" ) ) {
-        grunt.file.mkdir( options.jsRoot+"/app/controllers" );
-        grunt.file.write( options.jsRoot+"/app/controllers/.gitkeep" );
+    if ( !grunt.file.exists( options.jsRoot + "/app/controllers" ) ) {
+        grunt.file.mkdir( options.jsRoot + "/app/controllers" );
+        grunt.file.write( options.jsRoot + "/app/controllers/.gitkeep" );
     }    
     
-    if ( !grunt.file.exists( options.jsRoot+"/lib" ) ) {
-        grunt.file.mkdir( options.jsRoot+"/lib" );
-        grunt.file.write( options.jsRoot+"/lib/.gitkeep" );
+    if ( !grunt.file.exists( options.jsRoot + "/lib" ) ) {
+        grunt.file.mkdir( options.jsRoot + "/lib" );
+        grunt.file.write( options.jsRoot + "/lib/.gitkeep" );
     }
 };

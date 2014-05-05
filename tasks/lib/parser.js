@@ -17,8 +17,8 @@ module.exports = function ( grunt, options ) {
         coreLogger = require( "./logger" )( grunt, options ),
         coreLibs = require( "./libs" ),
         
-        rExports = new RegExp( "__exports__\\..*?(?=\\s=)" ),
-        rLib = new RegExp( "^"+coreGlobal+"\\.(?!app\\/)(.*?)$" ),
+        rExports = new RegExp( "__exports__\\..*?(?=\\s=)", "g" ),
+        rLib = new RegExp( "^" + coreGlobal + "\\.(?!app\\/)(.*?)$" ),
         rSyntax = /function|\(|\)|\{|\}|;|\s|\n/g,
         rLastLine = /\n(.*?)$/,
         rFirstLine = /^(.*?)\n/,
@@ -39,12 +39,29 @@ module.exports = function ( grunt, options ) {
                 replaceFirsts = [],
                 replaceLasts = [],
                 dottedExport = namespace.replace( rSlashDot, "." ),
-                firsts,
-                lasts;
+                firsts = firstNoSyntax.split( "," ),
+                lasts = lastNoSyntax.split( "," );
             
-            firsts = firstNoSyntax.split( "," );
-            lasts = lastNoSyntax.split( "," );
+            // Handle parsing module exports
+            if ( exported && exported.length === 1 ) {
+                file = file.replace(
+                    exported[ 0 ],
+                    coreGlobal + "." + dottedExport
+                );
             
+            // Multi-Export situations
+            } else {
+                _.each( exported, function ( exp ) {
+                    var module = exp.split( rSlashDot ).pop();
+                    
+                    file = file.replace(
+                        exp,
+                        coreGlobal + "." + dottedExport + "." + module
+                    );
+                });
+            }
+            
+            // Handle replacing the parameters and arguments for the function closure
             if ( firsts.length && lasts.length ) {
                 _.each( lasts, function ( el, i, list ) {
                     var module = el.split( rSlashDot ).reverse()[ 0 ],
@@ -80,21 +97,8 @@ module.exports = function ( grunt, options ) {
                     }
                 });
                 
-                file = file.replace( firstLine[ 1 ], "(function("+replaceFirsts.join( ", " )+") {" );
-                file = file.replace( lastLine[ 1 ], "})("+replaceLasts.join( ", " )+");" );
-            }
-            
-            // Handle parsing module exports
-            if ( exported && exported.length === 1 ) {
-                file = file.replace(
-                    exported[ 0 ],
-                    coreGlobal+"."+dottedExport
-                );
-                
-            } else {
-                //coreLogger.log( "MULTIPLE_EXPORTS", {
-                //    namespace: namespace
-                //});
+                file = file.replace( firstLine[ 1 ], "(function(" + replaceFirsts.join( ", " ) + ") {" );
+                file = file.replace( lastLine[ 1 ], "})(" + replaceLasts.join( ", " ) + ");" );
             }
             
             // Handle all dependency replacements
