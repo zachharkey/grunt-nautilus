@@ -1,8 +1,10 @@
 /*!
+ * 
+ * grunt-nautilus
+ * https://github.com/kitajchuk/grunt-nautilus
  *
- * App: Model
- *
- * Creates global {app}
+ * Copyright (c) 2013 Brandon Kitajchuk
+ * Licensed under the MIT license.
  *
  *
  */
@@ -15,30 +17,42 @@ var app,
     executed = {},
     
     // Handle console fallback
-    console = window.console || {
+    console = (window.console || {
         log: function () {}
-    };
+    });
 
 
-/******************************************************************************
- * App schema.
-*******************************************************************************/
+/**
+ *
+ * App {object}
+ * @namespace app
+ * @memberof! <global>
+ *
+ */
 app = <%= schema %>;
 
 
-/******************************************************************************
- * App environment.
-*******************************************************************************/
-app.env = "dev";
+/**
+ *
+ * Environment setting
+ * @member env
+ * @memberof app
+ *
+ */ 
+app.env = "<%= env %>";
 
 
-/******************************************************************************
- * App logging. Any app.env value !== "dev" will suppress.
-*******************************************************************************/
+/**
+ *
+ * Console.log polyfill
+ * @method log
+ * @memberof app
+ *
+ */
 app.log = function () {
     var args = [].slice.call( arguments, 0 );
     
-    if ( app.env !== "dev" ) {
+    if ( !/^dev/.test( app.env ) ) {
         return;
     }
     
@@ -56,10 +70,15 @@ app.log = function () {
 };
 
 
-/******************************************************************************
- * App execution. Used for controllers. app.exec( "controller" ).
- * Applies a "one init per controller" rule like underscore's .once().
-*******************************************************************************/
+/**
+ *
+ * Controller executor
+ * @method exec
+ * @param {string} module The name of the module controller to execute
+ * @memberof app
+ * @example app.exec( "foo" )
+ *
+ */
 app.exec = function ( module ) {
     var moduleName = module;
     
@@ -71,7 +90,7 @@ app.exec = function ( module ) {
     }
     
     if ( executed[ moduleName ] ) {
-            app.log( "Module "+moduleName+" already executed! Backing out..." );
+            app.log( "Module " + moduleName + " already executed! Backing out..." );
             
     } else if ( module && (typeof module.init === "function") ) {
         module.init();
@@ -83,7 +102,9 @@ app.exec = function ( module ) {
 };
 
 
-/******************************************************************************
- * Export global {app}
-*******************************************************************************/
-export default = app;
+/**
+ *
+ * Expose app to global scope
+ *
+ */
+export { app };

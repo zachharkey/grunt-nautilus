@@ -19,6 +19,11 @@ module.exports = {
         shorthand: "$"
     },
     
+    zepto: {
+        context: "Zepto",
+        shorthand: "$"
+    },
+    
     angular: {
         context: "angular"
     },
@@ -37,5 +42,9 @@ module.exports = {
     
     underscore: {
         context: "_"
+    },
+    
+    hammer: {
+        context: "Hammer"
     }
 };

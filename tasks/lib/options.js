@@ -13,9 +13,6 @@
 // loud: bool
 // env: string
 module.exports = {
-    //buildIn: undefined,
-    //env: undefined,
-    //expanded: false,
     hintAt: [],
     hintOn: [],
     jsAppRoot: undefined,

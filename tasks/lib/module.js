@@ -32,14 +32,14 @@ module.exports = function ( grunt, options ) {
                 }),
                 module = coreUtils.camelCase( args.pop() ),
                 namespace = args.join( "/" ),
-                filePath = (options.jsAppRoot+"/"+namespace+"/"+module+".js").replace( rDub, "$1" ),
+                filePath = (options.jsAppRoot + "/" + namespace + "/" + module + ".js").replace( rDub, "$1" ),
                 fileData = {
                     data: {
                         module: module,
                         namespace: namespace
                     }
                 },
-                template = coreDirs.app+"/templates/module.js",
+                template = coreDirs.app + "/templates/module.js",
                 contents;
             
             if ( _.contains( reserved, args[ 0 ] ) ) {
@@ -55,7 +55,7 @@ module.exports = function ( grunt, options ) {
             }
             
             if ( _.contains( args, "controllers" ) ) {
-                template = coreDirs.app+"/templates/controller.js";
+                template = coreDirs.app + "/templates/controller.js";
             }
             
             template = grunt.file.read( template );

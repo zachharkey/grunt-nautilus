@@ -15,7 +15,7 @@ module.exports = function ( grunt ) {
     return {
         camelCase: function ( str ) {
             return str.replace( /[-|_]([a-z]|[0-9])/ig, function ( all, letter ) {
-                return ( ""+letter ).toUpperCase();
+                return ( "" + letter ).toUpperCase();
             });
         },
         

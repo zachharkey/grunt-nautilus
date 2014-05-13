@@ -33,10 +33,10 @@ module.exports = function ( grunt, options ) {
         
         closure: function ( scripts ) {
             return [
-                "(function ("+global+", app, undefined) {",
+                "(function ( " + global + ", app, undefined ) {",
                     "  \"use strict\";",
-                    "  "+scripts,
-                "})("+global+", "+global+".app);"
+                    "  " + scripts,
+                "})( " + global + ", " + global + ".app );"
                 
             ].join( grunt.util.linefeed );
         }

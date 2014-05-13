@@ -97,8 +97,8 @@ module.exports = function ( grunt, options ) {
                     }
                 });
                 
-                file = file.replace( firstLine[ 1 ], "(function(" + replaceFirsts.join( ", " ) + ") {" );
-                file = file.replace( lastLine[ 1 ], "})(" + replaceLasts.join( ", " ) + ");" );
+                file = file.replace( firstLine[ 1 ], "(function( " + replaceFirsts.join( ", " ) + " ) {" );
+                file = file.replace( lastLine[ 1 ], "})( " + replaceLasts.join( ", " ) + " );" );
             }
             
             // Handle all dependency replacements

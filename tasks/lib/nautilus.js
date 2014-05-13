@@ -370,6 +370,7 @@ module.exports = function ( grunt, options ) {
             walkDirectory( __app__, schema );
             
             scripts = _.template( __dep0__, {
+                env: (grunt.option( "env" ) || "development"),
                 schema: JSON.stringify( schema, null, 4 ).replace( rQuoted, "" )
             });
             
@@ -589,7 +590,7 @@ module.exports = function ( grunt, options ) {
                         val.fileContent = file;
                         val.tmp = nodePath.join( __tmp__, coreUtils.tempName( key ) + __ext__ );
                     
-                    // Third-party can compile from source    
+                    // Third-party can compile from source
                     } else {
                         coreLogger.log( "THIRD_PARTY", {
                             src: nodePath.join( key )
