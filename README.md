@@ -357,7 +357,7 @@ export default = index;
 ```
 Now run `grunt nautilus:build` and you're controller will compile to this:
 ```js
-(function(window) {
+(function( window, document, undefined ) {
   "use strict";
   
   var index = {
@@ -367,7 +367,7 @@ Now run `grunt nautilus:build` and you're controller will compile to this:
   };
 
   window.app.controllers.index = index;
-})(window);
+})( window, window.document );
 ```
 Now add an import, say you're managing your jQuery build with bower:
 ```js
@@ -383,7 +383,7 @@ export default = index;
 ```
 Which will compile to the following, sandboxing jQuery as $ into your closure for this module and ensuring jQuery is compiled into your dist js above your module in the stack:
 ```js
-(function(window, $) {
+(function( window, document, $, undefined ) {
   "use strict";
   
   var index = {
@@ -393,7 +393,7 @@ Which will compile to the following, sandboxing jQuery as $ into your closure fo
   };
 
   window.app.controllers.index = index;
-})(window, window.jQuery);
+})( window, window.document, window.jQuery );
 ```
 
 ### Assigning modules to variables
@@ -411,7 +411,7 @@ export default = index;
 ```
 This will compile to the following:
 ```js
-(function(baz) {
+(function( window, document, baz, undefined ) {
   "use strict";
   
   var bot = baz.bot;
@@ -423,7 +423,7 @@ This will compile to the following:
   };
 
   window.app.controllers.index = index;
-})(window.app.foo.bar.baz);
+})( window, window.document, window.app.foo.bar.baz );
 ```
 To put this in context, the baz module may look something like this:
 ```js

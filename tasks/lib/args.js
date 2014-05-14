@@ -8,17 +8,10 @@
  *
  *
  */
-module.exports = function () {
-    return {
-        arguments: [
-            "window",
-            "app",
-            "undefined"
-        ],
-        
-        parameters: [
-            "window",
-            "window.app"
-        ]
-    };
+var coreGlobal = require( "./global" );
+
+module.exports = {
+    args: [coreGlobal, coreGlobal + ".document"],
+    params: [coreGlobal, "document"],
+    undef: ["undefined"]
 };

@@ -34,10 +34,8 @@ module.exports = function ( grunt, options ) {
                 namespace = args.join( "/" ),
                 filePath = (options.jsAppRoot + "/" + namespace + "/" + module + ".js").replace( rDub, "$1" ),
                 fileData = {
-                    data: {
-                        module: module,
-                        namespace: namespace
-                    }
+                    module: module,
+                    namespace: namespace
                 },
                 template = coreDirs.app + "/templates/module.js",
                 contents;
@@ -59,7 +57,7 @@ module.exports = function ( grunt, options ) {
             }
             
             template = grunt.file.read( template );
-            contents = grunt.template.process( template, fileData );
+            contents = _.template( template, fileData );
             
             grunt.file.write( filePath, contents );
             

@@ -10,10 +10,10 @@
  */
 module.exports = function ( grunt, options ) {
     
-    var jsLibs = require( "./libs" ),
-        global = require( "./global" ),
+    var _ = grunt.util._,
+        coreArgs = require( "./args" ),
+        coreDirs = require( "./dirs" ),
         
-        // Compiler Class
         Compiler = require( "es6-module-transpiler" ).Compiler;
     
     return {
@@ -32,13 +32,14 @@ module.exports = function ( grunt, options ) {
         },
         
         closure: function ( scripts ) {
-            return [
-                "(function ( " + global + ", app, undefined ) {",
-                    "  \"use strict\";",
-                    "  " + scripts,
-                "})( " + global + ", " + global + ".app );"
-                
-            ].join( grunt.util.linefeed );
+            var template = grunt.file.read( coreDirs.app + "/templates/closure.js" ),
+                rendered = _.template( template, {
+                    args: coreArgs.args.join( ", " ),
+                    params: coreArgs.params.concat( coreArgs.undef ).join( ", " ),
+                    scripts: scripts
+                });
+
+            return rendered;
         }
     };
     

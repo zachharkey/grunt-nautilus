@@ -16,7 +16,7 @@ module.exports = function ( grunt, options ) {
         coreUtils = require( "./utils" )( grunt, options ),
         coreLogger = require( "./logger" )( grunt, options ),
         coreLibs = require( "./libs" ),
-        
+        coreArgs = require( "./args" ),
         rExports = new RegExp( "__exports__\\..*?(?=\\s=)", "g" ),
         rLib = new RegExp( "^" + coreGlobal + "\\.(?!app\\/)(.*?)$" ),
         rSyntax = /function|\(|\)|\{|\}|;|\s|\n/g,
@@ -25,8 +25,9 @@ module.exports = function ( grunt, options ) {
         rSlashDot = /\/|\./g,
         rNew = /\n|\r/g,
         rConsoleCall = /console\.log\(/g,
-        
-        appDotLogCall = "app.log(";
+        appDotLogCall = "app.log(",
+        closureOpen = "(function ( <%= params %> ) {",
+        closureClose = "})( <%= args %> );";
     
     return {
         globals: function ( namespace, file ) {
@@ -40,7 +41,9 @@ module.exports = function ( grunt, options ) {
                 replaceLasts = [],
                 dottedExport = namespace.replace( rSlashDot, "." ),
                 firsts = firstNoSyntax.split( "," ),
-                lasts = lastNoSyntax.split( "," );
+                lasts = lastNoSyntax.split( "," ),
+                tplOpen,
+                tplClose;
             
             // Handle parsing module exports
             if ( exported && exported.length === 1 ) {
@@ -92,13 +95,24 @@ module.exports = function ( grunt, options ) {
                         
                     } else {
                         replaceDependencies.push( {__dependency__: firsts[ i ], replacement: module} );
-                        replaceFirsts.push( module );
-                        replaceLasts.push( el.replace( rSlashDot, "." ) );
+                        
+                        if ( module !== "window" ) {
+                            replaceFirsts.push( module );
+                            replaceLasts.push( el.replace( rSlashDot, "." ) );
+                        }
                     }
                 });
                 
-                file = file.replace( firstLine[ 1 ], "(function( " + replaceFirsts.join( ", " ) + " ) {" );
-                file = file.replace( lastLine[ 1 ], "})( " + replaceLasts.join( ", " ) + " );" );
+                tplOpen = _.template( closureOpen, {
+                    params: coreArgs.params.concat( replaceFirsts ).concat( coreArgs.undef ).join( ", " )
+                });
+
+                tplClose = _.template( closureClose, {
+                    args: coreArgs.args.concat( replaceLasts ).join( ", " )
+                });
+                
+                file = file.replace( firstLine[ 1 ], tplOpen );
+                file = file.replace( lastLine[ 1 ], tplClose );
             }
             
             // Handle all dependency replacements

@@ -11,7 +11,6 @@
 module.exports = function ( grunt, options ) {
     var compass = grunt.config.get( "compass" ),
         env = (grunt.option( "env" ) || "development"),
-        args = require( "./args" )(),
         dirs = require( "./dirs" ),
         contents,
         jsLib;
@@ -52,7 +51,7 @@ module.exports = function ( grunt, options ) {
     // Test/make js/app structure
     if ( !grunt.file.exists( options.jsRoot + "/app" ) ) {
         grunt.file.mkdir( options.jsRoot + "/app" );
-        grunt.file.write( options.jsRoot + "/app/.gitkeep" );
+        //grunt.file.write( options.jsRoot + "/app/.gitkeep" );
     }
     
         if ( !grunt.file.exists( options.jsRoot + "/app/app.js" ) ) {
@@ -61,11 +60,11 @@ module.exports = function ( grunt, options ) {
     
     if ( !grunt.file.exists( options.jsRoot + "/app/controllers" ) ) {
         grunt.file.mkdir( options.jsRoot + "/app/controllers" );
-        grunt.file.write( options.jsRoot + "/app/controllers/.gitkeep" );
+        //grunt.file.write( options.jsRoot + "/app/controllers/.gitkeep" );
     }    
     
     if ( !grunt.file.exists( options.jsRoot + "/lib" ) ) {
         grunt.file.mkdir( options.jsRoot + "/lib" );
-        grunt.file.write( options.jsRoot + "/lib/.gitkeep" );
+        //grunt.file.write( options.jsRoot + "/lib/.gitkeep" );
     }
 };
