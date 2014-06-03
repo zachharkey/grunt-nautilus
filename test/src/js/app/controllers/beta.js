@@ -6,6 +6,7 @@
  *
  *
  */
+import "app/wiid";
 
 var beta = {
     init: function () {

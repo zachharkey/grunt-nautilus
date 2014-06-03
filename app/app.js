@@ -8,6 +8,9 @@
  *
  *
  */
+(function ( window, undefined ) {
+
+
 var app,
     
     // Keep track of controller modules
@@ -107,4 +110,7 @@ app.exec = function ( module ) {
  * Expose app to global scope
  *
  */
-export { app };
+window.app = app;
+
+
+})( window );

@@ -10,6 +10,19 @@
  * http://wiki.ecmascript.org/doku.php?id=harmony:modules
  *
  *
+ * @instance
+ *  _args
+ *  _task
+ *  schema
+ *  modules
+ *
+ * @instance.modules module
+ *  src
+ *  compiler
+ *  dependencies
+ *  dist
+ *
+ *
  */
 module.exports = function ( grunt, options ) {
     
@@ -156,7 +169,6 @@ module.exports = function ( grunt, options ) {
         
         // Core {app} framework include
         __dep0__ = grunt.file.read( nodePath.join( coreDirs.app, "app.js" ) ),
-        __appt__ = nodePath.join( __tmp__, ".app" + __ext__ ),
         
         // Process function
         __func__ = function () {},
@@ -369,24 +381,7 @@ module.exports = function ( grunt, options ) {
             
             walkDirectory( __app__, schema );
             
-            scripts = _.template( __dep0__, {
-                env: (grunt.option( "env" ) || "development"),
-                schema: JSON.stringify( schema, null, 4 ).replace( rQuoted, "" )
-            });
-            
-            grunt.file.write( __appt__, scripts );
-            
-            app.src = __appt__;
-            app.compiler = coreCompiler.transpile( __appt__, "app" );
-            app.tmp = __appt__;
-            app.fileContent = app.compiler[ es6Types[ options.type ] ]();
-            
-            grunt.file.delete( __appt__, {
-                force: true
-            });
-            
             instance.schema = schema;
-            instance.appCore = app;
         };
         
         /*!
@@ -551,12 +546,23 @@ module.exports = function ( grunt, options ) {
                 var path = nodePath.join( __js__, key + __ext__ );
                 
                 val.dependencies = {};
-                val.dependencies.app = instance.appCore;
                 val.dependencies = recurse( val.dependencies, val );
                 val.dependencies[ key ] = {
                     src: path,
                     compiler: coreCompiler.transpile( path, key )
                 };
+                val.schema = {};
+                
+                // Create the schema actually used by each target file
+                for ( var i in val.dependencies ) {
+                    if ( /^app/.test( i ) ) {
+                        var o = i.replace( /app/g, "" ).replace( /^\/+|\/+$/g, "" ).split( "/" ).shift();
+                        
+                        if ( o ) {
+                            val.schema[ o ] = instance.schema[ o ];
+                        }
+                    }
+                }
                 
                 modules[ key ] = val;
             });
@@ -629,10 +635,19 @@ module.exports = function ( grunt, options ) {
             var modules = {};
             
             _.each( instance.modules, function ( module, key, list ) {
-                var moduleName = coreUtils.moduleName( key );
+                var moduleName = coreUtils.moduleName( key ),
+                    
+                    // Create the uniquely compiled app framework file
+                    distFirst = _.template( __dep0__, {
+                        env: (grunt.option( "env" ) || "development"),
+                        schema: JSON.stringify( module.schema, null, 4 ).replace( rQuoted, "" )
+                    }),
+                    distFile = nodePath.join( __tmp__, ".app-" + moduleName + __ext__ );
+                
+                grunt.file.write( distFile, distFirst );
                 
                 module.dist = {
-                    src: [],
+                    src: [distFile],
                     dest: nodePath.join( __dist__, moduleName + __ext__ )
                 };
                 
@@ -684,6 +699,7 @@ module.exports = function ( grunt, options ) {
             
             _.each( instance.modules, function ( module, key, list ) {
                 config[ key ] = module.dist;
+                
             });
             
             coreConfig.concatUglify( config );
