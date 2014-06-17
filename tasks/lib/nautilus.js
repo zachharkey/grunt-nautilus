@@ -235,9 +235,9 @@ module.exports = function ( grunt, options ) {
             if ( !args.length ) {
                 coreLogger.log( "MISSING_ARGUMENTS" );
                 
-            // 0.2 grunt nautilus:app:[:, args...] [, flags...]
-            } else if ( _.first( args ) === "app" ) {
-                this._task = "app";
+            // 0.2 grunt nautilus:module:[:, args...] [, flags...]
+            } else if ( _.first( args ) === "module" ) {
+                this._task = "module";
                 
             // 0.3 grunt nautilus:build [, flags...]
             } else if ( _.first( args ) === "build" ) {
@@ -278,8 +278,8 @@ module.exports = function ( grunt, options ) {
             this.loadSchema();
             
             // What do we need to do...
-            if ( this._task === "app" ) {
-                this.appTask.apply( this, [].slice.call( this._args, 1 ) );
+            if ( this._task === "module" ) {
+                this.moduleTask.apply( this, [].slice.call( this._args, 1 ) );
                 
                 return this;
             
@@ -893,7 +893,15 @@ module.exports = function ( grunt, options ) {
             });
         };
         
+        /*!
+         * 
+         * Nautilus.prototype.cleanUp.
+         *
+         * Clean up the dist stuff.
+         *
+         */
         this.cleanUp = function () {
+            rimraf.sync( __dist__ );
             rimraf.sync( __tmp__ );
             
             if ( !grunt.option( "expanded" ) ) {
@@ -905,13 +913,13 @@ module.exports = function ( grunt, options ) {
         
         /*!
          * 
-         * Nautilus.prototype.appTask.
+         * Nautilus.prototype.moduleTask.
          *
          * Creates a new modules for the application schema.
          *
          */
-        this.appTask = function () {
-            coreModule.create.apply( coreModule, arguments );
+        this.moduleTask = function () {
+            coreModule.create.apply( coreModule, grunt.option( "path" ).split( "/" ) );
             
             this.cleanUp();
         };
@@ -952,6 +960,8 @@ module.exports = function ( grunt, options ) {
         this.buildTask = function () {
             var tasks = mergeTasks( "build", ["concat", "clean:nautilus"] );
             
+            this.cleanUp();
+            
             // Check for sails-linker
             if ( options.jsTemplate ) {
                 tasks.push( "sails-linker" );
@@ -975,6 +985,8 @@ module.exports = function ( grunt, options ) {
          */
         this.deployTask = function () {
             var tasks = mergeTasks( "deploy", ["uglify", "clean:nautilus"] );
+            
+            this.cleanUp();
             
             // Check for compass
             if ( compass ) {

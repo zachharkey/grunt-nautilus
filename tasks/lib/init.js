@@ -11,7 +11,7 @@
 module.exports = function ( grunt, options ) {
     var compass = grunt.config.get( "compass" ),
         env = (grunt.option( "env" ) || "development"),
-        dirs = require( "./dirs" ),
+        coreDirs = require( "./dirs" ),
         contents,
         jsLib;
     
@@ -39,7 +39,12 @@ module.exports = function ( grunt, options ) {
         }
             
             if ( !grunt.file.exists( compass.sassDir + "/screen.scss" ) ) {
-                grunt.file.write( compass.sassDir + "/screen.scss", "/* -- start styling -- */" );
+                grunt.file.copy( coreDirs.app + "/templates/screen.scss", compass.sassDir + "/screen.scss" );
+            }
+            
+            if ( !grunt.file.exists( compass.sassDir + "/controllers" ) ) {
+                grunt.file.mkdir( compass.sassDir + "/controllers" );
+                grunt.file.write( compass.sassDir + "/controllers/.gitkeep" );
             }
     }
     
@@ -51,20 +56,20 @@ module.exports = function ( grunt, options ) {
     // Test/make js/app structure
     if ( !grunt.file.exists( options.jsRoot + "/app" ) ) {
         grunt.file.mkdir( options.jsRoot + "/app" );
-        //grunt.file.write( options.jsRoot + "/app/.gitkeep" );
+        grunt.file.write( options.jsRoot + "/app/.gitkeep" );
     }
     
         if ( !grunt.file.exists( options.jsRoot + "/app/app.js" ) ) {
-            grunt.file.copy( dirs.app + "/howto.js", options.jsRoot + "/app/app.js" );
+            grunt.file.copy( coreDirs.app + "/howto.js", options.jsRoot + "/app/app.js" );
         }
     
     if ( !grunt.file.exists( options.jsRoot + "/app/controllers" ) ) {
         grunt.file.mkdir( options.jsRoot + "/app/controllers" );
-        //grunt.file.write( options.jsRoot + "/app/controllers/.gitkeep" );
-    }    
+        grunt.file.write( options.jsRoot + "/app/controllers/.gitkeep" );
+    }
     
     if ( !grunt.file.exists( options.jsRoot + "/lib" ) ) {
         grunt.file.mkdir( options.jsRoot + "/lib" );
-        //grunt.file.write( options.jsRoot + "/lib/.gitkeep" );
+        grunt.file.write( options.jsRoot + "/lib/.gitkeep" );
     }
 };

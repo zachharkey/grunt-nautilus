@@ -1,7 +1,7 @@
 tmp
 dist
 test/out
-test/src/js/lib/ender
+test/src
 node_modules
 npm-debug.log
 .sass-cache

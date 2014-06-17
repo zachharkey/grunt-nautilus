@@ -19,9 +19,9 @@
  * Using Controllers:
  * -----------------------------------------------------------------
  * Controllers are how scripts are compiled and built,
- * that is to say they are the "control" files or starting points
- * for your applications. Controllers build into their own dist js
- * and can be included as such on your web pages.
+ * that is to say they are the "target" files or starting points
+ * for your application to build from. Controllers build into their
+ * own dist js and can be included as such on your web pages.
  *      - @example: static/js/app/controllers/foo.js
  *      - This will compile to static/js/dist/foo.js
  *      - The compiled script will include all dependencies.
@@ -34,7 +34,7 @@
  *       }
  * };
  *
- * export default = fooController;
+ * export { fooController };
  *
  * In the compiled build this script will execute:
  * app.exec( "fooController" );
@@ -49,7 +49,7 @@
  * Importing Modules
  *      - @example: import { bar } from "app/foo/bar";
  *      - @example: import { baz as _baz } from "app/foo/baz";
- *      - @example: import $ from "lib/jquery";
+ *      - @example: import { foo, bar, baz } from "app/commons";
  *
  * Exporting Modules
  *      - @example: export default = foo;
@@ -58,3 +58,4 @@
  *
  *
  */
+console.log( "app.js" );

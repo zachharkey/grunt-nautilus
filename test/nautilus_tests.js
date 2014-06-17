@@ -28,8 +28,8 @@ exports.nautilus = {
         var path = require( "path" );
 
         test.expect( 2 );
-        test.ok( grunt.file.isFile( path.join( __dirname, "out/css/screen.css" ) ), "Grunt Nautilus compiled app.js" );
-        test.ok( grunt.file.isFile( path.join( __dirname, "out/js/dist/app.js" ) ), "Grunt Nautilus compiled screen.css" );
+        test.ok( grunt.file.isFile( path.join( __dirname, "out/css/screen.css" ) ), "Grunt Nautilus compiled screen.css" );
+        test.ok( grunt.file.isFile( path.join( __dirname, "out/js/dist/app.js" ) ), "Grunt Nautilus compiled app.js" );
         test.done();
     }
 

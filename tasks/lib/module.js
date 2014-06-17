@@ -17,6 +17,7 @@ module.exports = function ( grunt, options ) {
         coreDirs = require( "./dirs" ),
         rDub = /\/(\/)/g,
         reserved = [
+            "env",
             "log",
             "exec"
         ];
@@ -38,6 +39,9 @@ module.exports = function ( grunt, options ) {
                     namespace: namespace
                 },
                 template = coreDirs.app + "/templates/module.js",
+                compass = grunt.config.get( "compass" ),
+                env = (grunt.option( "env" ) || "development"),
+                sassPath,
                 contents;
             
             if ( _.contains( reserved, args[ 0 ] ) ) {
@@ -64,6 +68,19 @@ module.exports = function ( grunt, options ) {
             coreLogger.log( "NEW_MODULE", {
                 path: filePath
             });
+            
+            // If compass options are valid, also spin up a partial...
+            if ( compass ) {
+                compass = compass.options || compass[ env ].options;
+                
+                sassPath = compass.sassDir + "/" + namespace + "/_" + module + ".scss";
+                
+                grunt.file.write( sassPath, _.template( grunt.file.read( coreDirs.app + "/templates/partial.scss" ), fileData ));
+                
+                coreLogger.log( "NEW_MODULE", {
+                    path: sassPath
+                });
+            }
         }
     };
     

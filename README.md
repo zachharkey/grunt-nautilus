@@ -75,11 +75,39 @@ Tasks: `jshint`, `concat`, `clean`, `sails-linker`, `compass`, `ender`
 For real world environments, this argument runs nautilus core with uglification.  
 Tasks: `jshint`, `uglify`, `clean`, `compass`, `ender`
 
-#### `nautilus:app[:args...]`
-This argument creates new js files for you from starter templates using the es6 module syntax.
+#### `nautilus:module [, flags...]`
+This argument creates templated module files for you using the es6 module syntax.
 
 #### `nautilus:whitespace`
 This argument uses the `whitespace` config settings to bulk clean trailing whitespace lines.
+
+
+### Flags
+There are a few optional flags available when working with grunt-nautilus.
+
+#### --path
+Type: `String`  
+Default: `undefined`
+
+This flag is used alongside the module argument to create new modules, `grunt nautilus:module --path foo/bar`. This makes a new module for you at `/path/to/your/app/foo/bar.js`.
+
+#### --loud
+Type: `Boolean`  
+Default: `undefined`
+
+Tell grunt-nautilus to log everything it is doing. This is handy for development of the plugin and for understanding how the plugin works from a user's perspective. But, ultimately, these logs will become cumbersome to see and you likely won't want this running all the time.
+
+#### --expanded
+Type: `Boolean`  
+Default: `undefined`
+
+Tell grunt-nautilus to us the `jsTemplate` option to compile all the non-concatenated dist js for a dist build to all bound templates.
+
+#### --env
+Type: `String`  
+Default: `undefined`
+
+Tell grunt-nautilus to use this specified environment for executing `compass` on build and deploy. For example, if you prefer to use the environment `dev` over `development`, pass `grunt nautilus:build --env dev` or the equivalent `grunt nautilus:build --env=dev`.
 
 
 ### Options
@@ -150,30 +178,6 @@ Type: `Object`
 Default: `undefined`
 
 Set this with `files` array and `watch` flag properties if you would like trailing whitespace cleaned. The `files` property should be an array and supports standard Grunt globbing patterns.
-
-
-
-
-### Flags
-There are a few optional flags available when working with grunt-nautilus.
-
-#### --loud
-Type: `Boolean`  
-Default: `undefined`
-
-Tell grunt-nautilus to log everything it is doing. This is handy for development of the plugin and for understanding how the plugin works from a user's perspective. But, ultimately, these logs will become cumbersome to see and you likely won't want this running all the time.
-
-#### --expanded
-Type: `Boolean`  
-Default: `undefined`
-
-Tell grunt-nautilus to us the `jsTemplate` option to compile all the non-concatenated dist js for a dist build to all bound templates.
-
-#### --env
-Type: `String`  
-Default: `undefined`
-
-Tell grunt-nautilus to use this specified environment for executing `compass` on build and deploy. For example, if you prefer to use the environment `dev` over `development`, pass `grunt nautilus:build --env dev` or the equivalent `grunt nautilus:build --env=dev`.
 
 
 
