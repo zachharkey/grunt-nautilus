@@ -901,7 +901,6 @@ module.exports = function ( grunt, options ) {
          *
          */
         this.cleanUp = function () {
-            rimraf.sync( __dist__ );
             rimraf.sync( __tmp__ );
             
             if ( !grunt.option( "expanded" ) ) {
@@ -920,8 +919,6 @@ module.exports = function ( grunt, options ) {
          */
         this.moduleTask = function () {
             coreModule.create.apply( coreModule, grunt.option( "path" ).split( "/" ) );
-            
-            this.cleanUp();
         };
         
         /*!
@@ -959,8 +956,6 @@ module.exports = function ( grunt, options ) {
          */
         this.buildTask = function () {
             var tasks = mergeTasks( "build", ["concat", "clean:nautilus"] );
-            
-            this.cleanUp();
             
             // Check for sails-linker
             if ( options.jsTemplate ) {
