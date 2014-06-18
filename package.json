@@ -1,7 +1,7 @@
 {
     "name": "grunt-nautilus",
     "description": "Build modular javascript applications that make sense",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "homepage": "https://github.com/kitajchuk/grunt-nautilus",
     "readmeFilename": "README.md",
     "author": {
