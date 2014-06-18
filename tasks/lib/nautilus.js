@@ -981,8 +981,6 @@ module.exports = function ( grunt, options ) {
         this.deployTask = function () {
             var tasks = mergeTasks( "deploy", ["uglify", "clean:nautilus"] );
             
-            this.cleanUp();
-            
             // Check for compass
             if ( compass ) {
                 tasks.push( "compass:" + (grunt.option( "env" ) || "production") );
