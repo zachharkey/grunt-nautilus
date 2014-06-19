@@ -92,8 +92,9 @@ module.exports = function ( grunt, options ) {
                             replaceFirsts.push( globalArg );
                             replaceLasts.push( [coreGlobal, globalParam].join( "." ) );
                         }
-                        
-                    } else {
+                    
+                    // Only push onto replacers if module/el !== "", so no imports...
+                    } else if ( module && el ) {
                         replaceDependencies.push( {__dependency__: firsts[ i ], replacement: module} );
                         
                         if ( module !== "window" ) {
