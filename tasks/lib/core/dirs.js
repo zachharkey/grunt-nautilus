@@ -8,10 +8,12 @@
  *
  *
  */
-var path = require( "path" );
+module.exports = (function ( p ) {
 
-module.exports = {
-    app: path.join( __dirname, "../../../app" ),
-    root: path.join( __dirname, "../../../" ),
-    node: path.join( __dirname, "../../../node_modules" )
-};
+    return {
+        app: p.join( __dirname, "../../../app" ),
+        root: p.join( __dirname, "../../../" ),
+        node: p.join( __dirname, "../../../node_modules" )
+    };
+
+})( require( "path" ) );

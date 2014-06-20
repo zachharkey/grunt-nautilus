@@ -44,14 +44,14 @@ module.exports = (function ( g ) {
                 lasts = lastNoSyntax.split( "," ),
                 tplOpen,
                 tplClose;
-            
+
             // Handle parsing module exports
             if ( exported && exported.length === 1 ) {
                 file = file.replace(
                     exported[ 0 ],
                     "window." + dottedExport
                 );
-            
+
             // Multi-Export situations
             } else {
                 _.each( exported, function ( exp ) {
@@ -63,7 +63,7 @@ module.exports = (function ( g ) {
                     );
                 });
             }
-            
+
             // Handle replacing the parameters and arguments for the function closure
             if ( firsts.length && lasts.length ) {
                 _.each( lasts, function ( el, i, list ) {
@@ -71,13 +71,13 @@ module.exports = (function ( g ) {
                         modlow = module.toLowerCase(),
                         globalArg,
                         globalParam;
-                    
+
                     if ( rLib.test( el ) ) {
-                        
+
                         if ( coreLibs[ modlow ] ) {
                             globalParam = coreLibs[ modlow ].context;
                             globalArg = (coreLibs[ modlow ].shorthand || coreLibs[ modlow ].context);
-                            
+
                         } else if ( options.jsGlobals ) {
                             _.each( options.jsGlobals, function ( val, key, list ) {
                                 if ( key.toLowerCase() === modlow ) {
@@ -86,24 +86,24 @@ module.exports = (function ( g ) {
                                 }
                             });
                         }
-                        
+
                         if ( globalArg && globalParam ) {
                             replaceDependencies.push( {__dependency__: firsts[ i ], replacement: globalArg} );
                             replaceFirsts.push( globalArg );
                             replaceLasts.push( ["window", globalParam].join( "." ) );
                         }
-                    
+
                     // Only push onto replacers if module/el !== "", so no imports...
                     } else if ( module && el ) {
                         replaceDependencies.push( {__dependency__: firsts[ i ], replacement: module} );
-                        
+
                         if ( module !== "window" ) {
                             replaceFirsts.push( module );
                             replaceLasts.push( el.replace( rSlashDot, "." ) );
                         }
                     }
                 });
-                
+
                 tplOpen = _.template( closureOpen, {
                     params: coreArgs.params.concat( replaceFirsts ).concat( coreArgs.undef ).join( ", " )
                 });
@@ -111,19 +111,19 @@ module.exports = (function ( g ) {
                 tplClose = _.template( closureClose, {
                     args: coreArgs.args.concat( replaceLasts ).join( ", " )
                 });
-                
+
                 file = file.replace( firstLine[ 1 ], tplOpen );
                 file = file.replace( lastLine[ 1 ], tplClose );
             }
-            
+
             // Handle all dependency replacements
             _.each( replaceDependencies, function ( el, i, list ) {
                 file = file.replace( new RegExp( el.__dependency__, "g" ), el.replacement );
             });
-            
+
             // Handle all console.log replacements
             file = file.replace( rConsoleCall, appDotLogCall );
-            
+
             return file;
         }
     };

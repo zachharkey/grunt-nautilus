@@ -38,6 +38,29 @@ module.exports = (function ( g ) {
             return [_.uniqueId( "module-" )].concat( str.split( "/" ) ).join( "-" ); 
         },
 
+        mergeConfig: function ( task, settings ) {
+            var config = g.config.get( task );
+
+            // 0.1 no config exists for given task
+            if ( !config ) {
+                g.config.set( task, settings );
+                
+                coreLogger.log( "CONFIG_SET", {
+                    task: task,
+                    action: "Set"
+                });
+
+            // 0.2 merge nautilus config with existing config for given task
+            } else {
+                g.config.set( task, _.extend( config, settings ) );
+
+                coreLogger.log( "CONFIG_SET", {
+                    task: task,
+                    action: "Merge"
+                });
+            }
+        },
+
         mergeTasks: function ( task, tasks, index ) {
             // 0.1 jshint on this task
             if ( options.hintOn && _.contains( options.hintOn, task ) && task !== "watch" ) {
@@ -58,24 +81,31 @@ module.exports = (function ( g ) {
             return tasks;
         },
 
-        walkDirectory: function ( path, obj ) {
-            var dir = nodeFs.readdirSync( path );
+        getWalkedDirectory: function ( directory ) {
+            var object = {},
+                walker = function ( path ) {
+                    var dir = nodeFs.readdirSync( path );
 
-            for ( var i = 0; i < dir.length; i++ ) {
-                var name = dir[ i ],
-                    target = path + "/" + name,
-                    stats = nodeFs.statSync( target ),
-                    rjs = /\.js$/;
+                    for ( var i = 0; i < dir.length; i++ ) {
+                        var name = dir[ i ],
+                            target = path + "/" + name,
+                            stats = nodeFs.statSync( target ),
+                            rjs = /\.js$/;
 
-                if ( stats.isDirectory() ) {
-                    obj[ name ] = {};
+                        if ( stats.isDirectory() ) {
+                            object[ name ] = {};
 
-                    this.walkDirectory( target, obj[ name ] );
-    
-                } else if ( rjs.test( name ) && name !== "app.js" ) {
-                    obj[ name.replace( rjs, "" ) ] = {};
-                }
-            }
+                            walker( target );
+
+                        } else if ( rjs.test( name ) && name !== "app.js" ) {
+                            object[ name.replace( rjs, "" ) ] = {};
+                        }
+                    }
+                };
+
+            walker( directory );
+
+            return object;
         },
 
         mergeBuildIn: function ( filesArray, module ) {

@@ -13,7 +13,7 @@ module.exports = (function ( g ) {
     var _ = g.util._,
         coreArgs = require( "./args" ),
         coreDirs = require( "./dirs" ),
-        
+
         Compiler = require( "es6-module-transpiler" ).Compiler;
 
     return {

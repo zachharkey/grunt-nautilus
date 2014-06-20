@@ -11,6 +11,7 @@
  *
  *
  * @instance
+ *  _env
  *  _args
  *  _task
  *  _schema
@@ -20,6 +21,7 @@
  *  compiler
  *  dependencies
  *  dist
+ *  schema
  *
  *
  */
@@ -67,7 +69,7 @@ module.exports = (function ( grunt ) {
         __tmp__ = nodePath.join( __dist__, ".tmp" ),
 
         // Core {app} framework include
-        __dep0__ = grunt.file.read( nodePath.join( core.dirs.app, "app.js" ) ),
+        __dep__ = grunt.file.read( nodePath.join( core.dirs.app, "app.js" ) ),
 
         // Pre-compile Process function
         __func__ = function () {},
@@ -180,6 +182,7 @@ module.exports = (function ( grunt ) {
 
             this.setArgs( args );
             this.setTask();
+            this.setEnv();
             this.doClean();
             this.tryType();
             this.setScheme();
@@ -213,6 +216,7 @@ module.exports = (function ( grunt ) {
                             instance.moduleLoad
                         );
 
+                        // Everything starts from nothing
                         build( {} );
                     });
                 break;
@@ -228,14 +232,13 @@ module.exports = (function ( grunt ) {
          *
          */
         taskCompile: function ( modules ) {
-            var defEnv = ( instance._task === "deploy" ) ? "production" : "development",
-                task = ( instance._task === "deploy" ) ? instance._task : "build",
+            var task = ( instance._task === "deploy" ) ? instance._task : "build",
                 contrib = ( instance._task === "deploy" ) ? "uglify" : "concat",
                 tasks = core.util.mergeTasks( task, [contrib, "clean:nautilus"] );
 
             // Check for compass
             if ( compass ) {
-                tasks.push( "compass:" + (grunt.option( "env" ) || defEnv) );
+                tasks.push( "compass:" + instance._env );
             }
 
             grunt.task.run( tasks );
@@ -251,7 +254,7 @@ module.exports = (function ( grunt ) {
          */
         taskWatch: function ( modules ) {
             var scriptTasks = core.util.mergeTasks( "watch", ["nautilus:build", "clean:nautilus"] ),
-                stylesTasks = "compass:" + (grunt.option( "env" ) || "development"),
+                stylesTasks = "compass:" + this._env,
                 watch = {
                     scripts: {
                         files: coreTasks.watchJs,
@@ -597,8 +600,8 @@ module.exports = (function ( grunt ) {
                 var moduleName = core.util.moduleName( key ),
 
                     // Create the uniquely compiled app framework file
-                    distFirst = _.template( __dep0__, {
-                        env: (grunt.option( "env" ) || "development"),
+                    distFirst = _.template( __dep__, {
+                        env: instance._env,
                         schema: JSON.stringify( module.schema, null, 4 ).replace( rQuoted, "" )
                     }),
                     distFile = nodePath.join( __tmp__, ".app-" + moduleName + __ext__ );
@@ -709,22 +712,24 @@ module.exports = (function ( grunt ) {
 
         /**
          *
+         * Nautilus set the environment used
+         * @memberof Nautilus
+         * @method setEnv
+         *
+         */
+        setEnv: function () {
+            this._env = (grunt.option( "env" ) || ( this._task === "deploy" ) ? "production" : "development");
+        },
+
+        /**
+         *
          * Nautilus set the application object layout
          * @memberof Nautilus
          * @method setScheme
          *
          */
         setScheme: function () {
-            var scripts,
-                schema = {},
-                app = {
-                    src: null,
-                    compiler: null
-                };
-
-            core.util.walkDirectory( __app__, schema );
-
-            this._schema = schema;
+            this._schema = core.util.getWalkedDirectory( __app__ );
         },
 
         /**

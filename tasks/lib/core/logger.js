@@ -111,7 +111,7 @@ module.exports = (function ( g ) {
                 g.fail[ type ]( msg );
                 
             } else {
-                g.log[ type ]( "[Nautilog]: "+msg );
+                g.log[ type ]( "[Nautilog]: " + msg );
             }
         };
 

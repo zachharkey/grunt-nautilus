@@ -23,7 +23,7 @@ module.exports = function ( grunt ) {
     grunt.initConfig({
         // Project meta.
         meta: {
-            version: "0.5.4"
+            version: "0.5.5"
         },
 
 
@@ -149,7 +149,7 @@ module.exports = function ( grunt ) {
                     files: [
                         "test/src/js/app/**/*.js"
                     ],
-                    
+
                     watch: true
                 }
             }
