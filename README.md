@@ -12,7 +12,6 @@ grunt-nautilus
 [grunt-contrib-concat]: http://github.com/gruntjs/grunt-contrib-concat
 [grunt-contrib-uglify]: http://github.com/gruntjs/grunt-contrib-uglify
 [grunt-contrib-jshint]: http://github.com/gruntjs/grunt-contrib-jshint
-[grunt-sails-linker]: https://github.com/Zolmeister/grunt-sails-linker
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
 [es6-module-transpiler]: https://github.com/square/es6-module-transpiler
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
@@ -47,8 +46,6 @@ This plugin loads a handful of other grunt plugins as peer dependencies. If you'
  - [grunt-contrib-compass][]
  - [grunt-contrib-clean][]
  - [grunt-ender]
- - [grunt-sails-linker]
-
 
 
 
