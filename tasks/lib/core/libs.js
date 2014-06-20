@@ -13,37 +13,37 @@ module.exports = {
         context: "jQuery",
         shorthand: "$"
     },
-    
+
     ender: {
         context: "ender",
         shorthand: "$"
     },
-    
+
     zepto: {
         context: "Zepto",
         shorthand: "$"
     },
-    
+
     angular: {
         context: "angular"
     },
-    
+
     modernizr: {
         context: "Modernizr"
     },
-    
+
     mustache: {
         context: "Mustache"
     },
-    
+
     moment: {
         context: "moment"
     },
-    
+
     underscore: {
         context: "_"
     },
-    
+
     hammer: {
         context: "Hammer"
     }

@@ -9,85 +9,17 @@
  *
  */
 module.exports = function ( grunt ) {
-    
-    
+
     "use strict";
-    
-    
-    var _ = grunt.util._;
-    var defaults = require( "./lib/options" );
-    var mergeOptions = function () {
-        var config = grunt.config.get( "nautilus" ),
-            options = config.options || {};
-        
-        _.each( defaults, function ( val, key, list ) {
-            // Use user value or merge
-            if ( options[ key ] ) {
-                if ( _.isArray( val ) ) {
-                    options[ key ] = _.union( options[ key ], val );
-                    
-                } else if ( _.isObject( val ) ) {
-                    options[ key ] = _.extend( options[ key ], val );
-                }
-            
-            // Consume default value    
-            } else {
-                options[ key ] = val;
-            }
-        });
-        
-        grunt.config.set( "nautilus", {
-            options: options
-        });
-        
-        return options;
-    };
-    var options = mergeOptions();
-    var nautilus = require( "./lib/nautilus" )( grunt, options );
-    
-    
-    /*!
-     *
-     * Init directories.
-     *
-     */
-    require( "./lib/init" )( grunt, options );
-    
-    
-    /*!
-     *
-     * Load the peer packages.
-     *
-     */
-    nautilus.loadPlugins();
-    
-    
-    /*!
-     *
-     * Overthrow the "watch" task.
-     *
-     */
-    grunt.renameTask( "watch", "nautilus-watch" );
-    grunt.registerTask( "watch", function () {
-        var task = "nautilus-watch";
-        
-        nautilus.parseArgs( ["watch"] );
-        nautilus.executeStack();
-        
-        if ( this.args.length && _.contains( ["scripts", "compass", "gruntfile"], _.first( this.args ) ) ) {
-            task += ":" + _.first( this.args );
-        }
-        
-        grunt.task.run( task );
-    });
-    
-    
-    /*!
-     * 
-     * Throw error if required options are missing.
-     *
-     */
-    grunt.config.requires(
+
+    var g = grunt,
+        _ = g.util._,
+
+        // Instantiate Nautilus
+        n = require( "./lib/nautilus" );
+
+    // These are required task options.
+    g.config.requires(
         "nautilus",
         "nautilus.options",
         "nautilus.options.pubRoot",
@@ -96,19 +28,29 @@ module.exports = function ( grunt ) {
         "nautilus.options.jsLibRoot",
         "nautilus.options.jsDistRoot"
     );
-    
-    
-    /*!
-     * 
-     * Register the "nautilus" task.
-     *
-     * @usage: grunt nautilus[:,args...] [,flags...]
-     *
-     */
-    grunt.registerTask( "nautilus", "Build modular javascript applications that make sense", function () {
-        nautilus.parseArgs( this.args );
-        nautilus.executeStack();
+
+    // Hijack the watch task.
+    g.renameTask( "watch", "nautilus-watch" );
+    g.registerTask( "watch", function () {
+        var watches = ["scripts", "compass", "gruntfile"],
+            task = "nautilus-watch";
+
+        n.compile( ["watch"] );
+
+        if ( this.args.length && _.contains( watches, _.first( this.args ) ) ) {
+            task += (":" + _.first( this.args ));
+        }
+
+        g.task.run( task );
     });
-    
-    
+
+    // Register the nautilus task.
+    g.registerTask(
+        "nautilus",
+        "Build modular javascript applications that make sense",
+        function () {
+            n.compile( this.args );
+        }
+    );
+
 };

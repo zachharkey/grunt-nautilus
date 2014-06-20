@@ -97,12 +97,6 @@ Default: `undefined`
 
 Tell grunt-nautilus to log everything it is doing. This is handy for development of the plugin and for understanding how the plugin works from a user's perspective. But, ultimately, these logs will become cumbersome to see and you likely won't want this running all the time.
 
-#### --expanded
-Type: `Boolean`  
-Default: `undefined`
-
-Tell grunt-nautilus to us the `jsTemplate` option to compile all the non-concatenated dist js for a dist build to all bound templates.
-
 #### --env
 Type: `String`  
 Default: `undefined`
@@ -216,37 +210,6 @@ grunt.initConfig({
         }
     }
 });
-```
-
-#### Using jsTemplate
-This option allows you to bind a template to a dist js build. If the `--expanded` flag is present, [grunt-sails-linker][] will be used to write all scripts that make up your dist js as separate `<script>` elements to your template. Sometimes this can make javascript debugging easier than going through one giant, concatenated file in dev sandbox mode. The following example binds the admin dist js to the specified template.
-```js
-grunt.initConfig({
-    nautilus: {
-        options: {
-            jsTemplate: {
-                admin: "templates/admin/index.html"
-            }
-        }
-    }
-});
-```
-Without this option, you would have something like this in a template somewhere:
-```html
-<script src="/js/dist/application.js"></script>
-```
-Using this option along with the `--expanded` flag and the comment wrapper for sails-linker in your template could output something like this:
-```html
-<!--SCRIPTS-->
-<script src="/js/dist/application/app.js"></script>
-<script src="/bower_components/jquery/jquery.js"></script>
-<script src="/bower_components/angular/angular.js"></script>
-<script src="/bower_components/angular-route/angular-route.js"></script>
-<script src="/bower_components/angular-resource/angular-resource.js"></script>
-<script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-<script src="/js/dist/application/app-docs-controllers.js"></script>
-<script src="/js/dist/application/app-docs-application.js"></script>
-<!--SCRIPTS END-->
 ```
 
 ### Example Gruntfile with ALL specified options and configuration

@@ -8,16 +8,16 @@
  *
  *
  */
-module.exports = function ( grunt, options ) {
+module.exports = (function ( g ) {
     
-    var _ = grunt.util._,
-        coreLogger = require( "./logger" )( grunt, options ),
+    var _ = g.util._,
+        coreLogger = require( "./logger" ),
         mergeConfig = function ( task, settings ) {
-            var config = grunt.config.get( task );
+            var config = g.config.get( task );
             
             // 0.1 no config exists for given task
             if ( !config ) {
-                grunt.config.set( task, settings );
+                g.config.set( task, settings );
                 
                 coreLogger.log( "CONFIG_SET", {
                     task: task,
@@ -26,7 +26,7 @@ module.exports = function ( grunt, options ) {
             
             // 0.2 merge nautilus config with existing config for given task
             } else {
-                grunt.config.set( task, _.extend( config, settings ) );
+                g.config.set( task, _.extend( config, settings ) );
                 
                 coreLogger.log( "CONFIG_SET", {
                     task: task,
@@ -58,4 +58,4 @@ module.exports = function ( grunt, options ) {
         }
     };
     
-};
+})( require( "grunt" ) );

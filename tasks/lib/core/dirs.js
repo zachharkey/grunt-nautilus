@@ -11,7 +11,7 @@
 var path = require( "path" );
 
 module.exports = {
-    app: path.join( __dirname, "../../app" ),
-    root: path.join( __dirname, "../../" ),
-    node: path.join( __dirname, "../../node_modules" )
+    app: path.join( __dirname, "../../../app" ),
+    root: path.join( __dirname, "../../../" ),
+    node: path.join( __dirname, "../../../node_modules" )
 };

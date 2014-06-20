@@ -8,17 +8,17 @@
  *
  *
  */
-module.exports = function ( grunt, options ) {
-    
-    var _ = grunt.util._,
+module.exports = (function ( g ) {
+
+    var _ = g.util._,
         coreArgs = require( "./args" ),
         coreDirs = require( "./dirs" ),
         
         Compiler = require( "es6-module-transpiler" ).Compiler;
-    
+
     return {
         transpile: function ( filePath, module ) {
-            var contents = grunt.file.read( filePath ),
+            var contents = g.file.read( filePath ),
                 options = {
                     global: global
                 };
@@ -30,9 +30,9 @@ module.exports = function ( grunt, options ) {
                 return new Compiler( contents, module );
             }
         },
-        
+
         closure: function ( scripts ) {
-            var template = grunt.file.read( coreDirs.app + "/templates/closure.js" ),
+            var template = g.file.read( coreDirs.app + "/templates/closure.js" ),
                 rendered = _.template( template, {
                     args: coreArgs.args.join( ", " ),
                     params: coreArgs.params.concat( coreArgs.undef ).join( ", " ),
@@ -42,5 +42,5 @@ module.exports = function ( grunt, options ) {
             return rendered;
         }
     };
-    
-};
+
+})( require( "grunt" ) );

@@ -8,10 +8,8 @@
  *
  *
  */
-var coreGlobal = require( "./global" );
-
 module.exports = {
-    args: [coreGlobal, coreGlobal + ".document"],
-    params: [coreGlobal, "document"],
+    args: ["window", "window" + ".document"],
+    params: ["window", "document"],
     undef: ["undefined"]
 };

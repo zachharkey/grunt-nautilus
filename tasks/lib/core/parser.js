@@ -8,17 +8,17 @@
  *
  *
  */
-module.exports = function ( grunt, options ) {
-    
-    var _ = grunt.util._,
-    
-        coreGlobal = require( "./global" ),
-        coreUtils = require( "./utils" )( grunt, options ),
-        coreLogger = require( "./logger" )( grunt, options ),
+module.exports = (function ( g ) {
+
+    var _ = g.util._,
+
+        options = g.config.get( "nautilus" ).options,
+        coreUtils = require( "./util" ),
+        coreLogger = require( "./logger" ),
         coreLibs = require( "./libs" ),
         coreArgs = require( "./args" ),
         rExports = new RegExp( "__exports__\\..*?(?=\\s=)", "g" ),
-        rLib = new RegExp( "^" + coreGlobal + "\\.(?!app\\/)(.*?)$" ),
+        rLib = new RegExp( "^window\\.(?!app\\/)(.*?)$" ),
         rSyntax = /function|\(|\)|\{|\}|;|\s|\n/g,
         rLastLine = /\n(.*?)$/,
         rFirstLine = /^(.*?)\n/,
@@ -28,7 +28,7 @@ module.exports = function ( grunt, options ) {
         appDotLogCall = "app.log(",
         closureOpen = "(function ( <%= params %> ) {",
         closureClose = "})( <%= args %> );";
-    
+
     return {
         globals: function ( namespace, file ) {
             var lastLine = file.match( rLastLine ),
@@ -49,7 +49,7 @@ module.exports = function ( grunt, options ) {
             if ( exported && exported.length === 1 ) {
                 file = file.replace(
                     exported[ 0 ],
-                    coreGlobal + "." + dottedExport
+                    "window." + dottedExport
                 );
             
             // Multi-Export situations
@@ -59,7 +59,7 @@ module.exports = function ( grunt, options ) {
                     
                     file = file.replace(
                         exp,
-                        coreGlobal + "." + dottedExport + "." + module
+                        "window." + dottedExport + "." + module
                     );
                 });
             }
@@ -90,7 +90,7 @@ module.exports = function ( grunt, options ) {
                         if ( globalArg && globalParam ) {
                             replaceDependencies.push( {__dependency__: firsts[ i ], replacement: globalArg} );
                             replaceFirsts.push( globalArg );
-                            replaceLasts.push( [coreGlobal, globalParam].join( "." ) );
+                            replaceLasts.push( ["window", globalParam].join( "." ) );
                         }
                     
                     // Only push onto replacers if module/el !== "", so no imports...
@@ -127,4 +127,5 @@ module.exports = function ( grunt, options ) {
             return file;
         }
     };
-};
+
+})( require( "grunt" ) );
