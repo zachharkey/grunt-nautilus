@@ -33,12 +33,13 @@ module.exports = function ( grunt ) {
     g.renameTask( "watch", "nautilus-watch" );
     g.registerTask( "watch", function () {
         var watches = ["scripts", "compass", "gruntfile"],
-            task = "nautilus-watch";
+            task = "nautilus-watch",
+            arg = _.first( this.args );
 
         n.compile( ["watch"] );
 
-        if ( this.args.length && _.contains( watches, _.first( this.args ) ) ) {
-            task += (":" + _.first( this.args ));
+        if ( this.args.length && _.contains( watches, arg ) ) {
+            task += (":" + arg);
         }
 
         g.task.run( task );
@@ -47,7 +48,7 @@ module.exports = function ( grunt ) {
     // Register the nautilus task.
     g.registerTask(
         "nautilus",
-        "Build modular javascript applications that make sense",
+        "Build modular javascript applications and frameworks that make sense",
         function () {
             n.compile( this.args );
         }

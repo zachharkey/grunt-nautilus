@@ -1,7 +1,7 @@
 grunt-nautilus
 ==============
 
-> Build modular javascript applications that make sense
+> Build modular javascript applications and frameworks that make sense
 
 [ender]: http://ender.jit.su/
 [compass]: http://compass-style.org
