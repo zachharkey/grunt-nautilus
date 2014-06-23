@@ -47,14 +47,36 @@ module.exports = (function ( grunt ) {
         options = core.options,
         ender = grunt.config.get( "ender" ),
         compass = grunt.config.get( "compass" ),
+        flags = {
+            env: grunt.option( "env" ),
+            loud: grunt.option( "loud" ),
+            path: grunt.option( "path" ),
+            
+        },
 
         // Compile types
         es6Types = {
             globals: "toGlobals"
         },
 
+        // Pre-compile Process function
+        onAfterEnder = function () {},
+
+        // Regex
+        rEnderSrcMap = /\/\/#\ssourceMappingURL=(.*?)ender\.js\.map/,
+        rAppModule = /\.tmp\/module-\d{1,2}-app-|\.tmp\/\.app\.js/,
+        rController = /controller/,
+        rQuoted = /"|'/g,
+        rLib = /^lib\//,
+        rApp = /^app\//,
+        rGlob = /\*/,
+        rDot = /\//g,
+
+        // Use .jshintrc for jshint settings
+        jshintrc = JSON.parse( grunt.file.read( nodePath.join( core.dirs.root, ".jshintrc" ) ) ),
+
         // Write/read dirs
-        __sass__ = ( compass && compass.options ) ? (compass.options.sassDir || compass[ grunt.option( "env" ) ].options.sassDir) : null,
+        __sass__ = ( compass && compass.options ) ? ( compass[ flags.env ] ) ? compass[ flags.env ].options.sassDir : compass.options.sassDir : null,
         __dist__ = options.jsDistRoot,
         __pub__ = options.pubRoot,
         __app__ = options.jsAppRoot,
@@ -70,22 +92,6 @@ module.exports = (function ( grunt ) {
 
         // Core {app} framework include
         __dep__ = grunt.file.read( nodePath.join( core.dirs.app, "app.js" ) ),
-
-        // Pre-compile Process function
-        __func__ = function () {},
-
-        // Regex
-        rEnderSrcMap = /\/\/#\ssourceMappingURL=(.*?)ender\.js\.map/,
-        rAppModule = /\.tmp\/module-\d{1,2}-app-|\.tmp\/\.app\.js/,
-        rController = /controller/,
-        rQuoted = /"|'/g,
-        rLib = /^lib\//,
-        rApp = /^app\//,
-        rGlob = /\*/,
-        rDot = /\//g,
-
-        // Use .jshintrc for jshint settings
-        jshintrc = JSON.parse( grunt.file.read( nodePath.join( core.dirs.root, ".jshintrc" ) ) ),
 
         // Core globs for app dev
         coreTasks = {
@@ -192,7 +198,7 @@ module.exports = (function ( grunt ) {
                 case "module":
                     core.module.create.apply(
                         core.module,
-                        grunt.option( "path" ).split( "/" )
+                        flags.path.split( "/" )
                     );
                 break;
 
@@ -718,7 +724,7 @@ module.exports = (function ( grunt ) {
          *
          */
         setEnv: function () {
-            this._env = (grunt.option( "env" ) || ( this._task === "deploy" ) ? "production" : "development");
+            this._env = (flags.env || ( this._task === "deploy" ) ? "production" : "development");
         },
 
         /**
@@ -778,7 +784,7 @@ module.exports = (function ( grunt ) {
          */
         doPreTasks: function ( cb ) {
             if ( ender ) {
-                __func__ = _.once( cb );
+                onAfterEnder = _.once( cb );
 
                 // Waiting for pull request
                 // https://github.com/endium/grunt-ender/pull/4
@@ -836,7 +842,7 @@ module.exports = (function ( grunt ) {
             grunt.file.write( file, script );
         }
 
-        __func__();
+        onAfterEnder();
     });
 
 
