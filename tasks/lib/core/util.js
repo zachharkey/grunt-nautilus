@@ -14,7 +14,7 @@ module.exports = (function ( g ) {
         options = g.config.get( "nautilus" ).options,
         nodeFs = require( "fs" ),
         coreLogger = require( "./logger" );
-    
+
     return {
         camelCase: function ( str ) {
             return str.replace( /[-|_]([a-z]|[0-9])/ig, function ( all, letter ) {
@@ -77,7 +77,7 @@ module.exports = (function ( g ) {
                     task: task
                 });
             }
-            
+
             return tasks;
         },
 

@@ -248,6 +248,8 @@ module.exports = (function ( grunt ) {
             }
 
             grunt.task.run( tasks );
+
+            return modules;
         },
 
         /**
@@ -260,7 +262,7 @@ module.exports = (function ( grunt ) {
          */
         taskWatch: function ( modules ) {
             var scriptTasks = core.util.mergeTasks( "watch", ["nautilus:build", "clean:nautilus"] ),
-                stylesTasks = "compass:" + this._env,
+                stylesTasks = "compass:" + instance._env,
                 watch = {
                     scripts: {
                         files: coreTasks.watchJs,
@@ -273,6 +275,8 @@ module.exports = (function ( grunt ) {
                 };
 
             core.config.watch( watch );
+
+            return modules;
         },
 
         /**
@@ -287,6 +291,8 @@ module.exports = (function ( grunt ) {
             core.config.clean({
                 "nautilus": [__tmp__]
             });
+
+            return modules;
         },
 
         /**
@@ -371,6 +377,8 @@ module.exports = (function ( grunt ) {
             });
 
             core.config.jshint( jshint );
+
+            return modules;
         },
 
         /**
