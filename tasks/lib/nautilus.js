@@ -306,7 +306,11 @@ module.exports = (function ( grunt ) {
          */
         taskHint: function ( modules ) {
             var config = grunt.config.get( "jshint" ),
-                jshint = {};
+                jshint = {
+                    gruntfile: {
+                        src: "Gruntfile.js"
+                    }
+                };
 
             if ( config && config.options ) {
                 jshint.options = _.extend( jshintrc, config.options );
@@ -321,10 +325,6 @@ module.exports = (function ( grunt ) {
             } else {
                 jshint.options.globals = options.jsGlobals;
             }
-
-            jshint.gruntfile = {
-                src: "Gruntfile.js"
-            };
 
             if ( _.isArray( options.hintAt ) && options.hintAt.length ) {
                 jshint.hintAt = {
@@ -360,7 +360,10 @@ module.exports = (function ( grunt ) {
             }
 
             _.each( modules, function ( module, key ) {
-                var raw = [];
+                var raw = [],
+                    parsed = [],
+                    pre = key + "-PRE-COMPILED",
+                    post = key + "-POST-COMPILED";
 
                 _.each( module.dependencies, function ( dep, key ) {
                     if ( rApp.test( key ) ) {
@@ -368,15 +371,27 @@ module.exports = (function ( grunt ) {
                     }
                 });
 
-                // lint raw es6 style js files
-                jshint[ key + "-PRE-COMPILED" ] = raw;
-
-                // lint parsed .tmp js files
-                jshint[ key + "-POST-COMPILED" ] = _.filter( module.dist.src, function ( el ) {
+                _.each( module.dist.src, function ( el ) {
                     if ( rAppModule.test( el ) ) {
-                        return el;
+                        parsed.push( el );
                     }
                 });
+
+                // lint raw es6 style js files
+                jshint[ pre ] = {
+                    src: raw,
+
+                    // es6-module-transpiler
+                    // adds a closure + "use strict" statement for parsed
+                    options: {
+                        strict: false
+                    }
+                };
+
+                // lint parsed .tmp js files
+                jshint[ post ] = {
+                    src: parsed
+                };
             });
 
             core.config.jshint( jshint );
