@@ -20,7 +20,7 @@ module.exports = function ( grunt ) {
     grunt.initConfig({
         // Project meta.
         meta: {
-            version: "0.6.0"
+            version: "0.6.1"
         },
 
 
@@ -162,6 +162,12 @@ module.exports = function ( grunt ) {
         ];
 
         grunt.task.run( tasks );
+    });
+
+
+    // Config built.
+    grunt.event.on( "grunt-nautilus-done", function () {
+        //console.log( grunt.config.get() );
     });
 
 

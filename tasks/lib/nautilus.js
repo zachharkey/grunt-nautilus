@@ -322,6 +322,10 @@ module.exports = (function ( grunt ) {
                 jshint.options.globals = options.jsGlobals;
             }
 
+            jshint.gruntfile = {
+                src: "Gruntfile.js"
+            };
+
             if ( _.isArray( options.hintAt ) && options.hintAt.length ) {
                 jshint.hintAt = {
                     src: []
@@ -356,20 +360,19 @@ module.exports = (function ( grunt ) {
             }
 
             _.each( modules, function ( module, key ) {
-                /* @todo: lint raw js files
                 var raw = [];
 
-                _.each( module.dependencies, function ( dep, key, list ) {
+                _.each( module.dependencies, function ( dep, key ) {
                     if ( rApp.test( key ) ) {
                         raw.push( dep.src );
                     }
                 });
 
-                jshint[ key + "-RAW" ] = raw;
-                */
+                // lint raw es6 style js files
+                jshint[ key + "-PRE-COMPILED" ] = raw;
 
                 // lint parsed .tmp js files
-                jshint[ key + "-PARSED" ] = _.filter( module.dist.src, function ( el ) {
+                jshint[ key + "-POST-COMPILED" ] = _.filter( module.dist.src, function ( el ) {
                     if ( rAppModule.test( el ) ) {
                         return el;
                     }

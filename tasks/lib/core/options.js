@@ -36,7 +36,6 @@ module.exports = (function ( g ) {
                 module: true
             },
             jsRoot: undefined,
-            jsTemplate: undefined,
             main: [
                 "app.js",
                 "controllers/**/*.js"
