@@ -360,37 +360,35 @@ module.exports = (function ( grunt ) {
             }
 
             _.each( modules, function ( module, key ) {
-                var raw = [],
-                    parsed = [],
-                    pre = key + "-PRE-COMPILED",
-                    post = key + "-POST-COMPILED";
+                var transpiled = [],
+                    //source = [],
+                    //keySource = key + "-SOURCE",
+                    keyTranspiled = key + "-TRANSPILED";
 
+                /** Still too much to account for here...
                 _.each( module.dependencies, function ( dep, key ) {
                     if ( rApp.test( key ) ) {
-                        raw.push( dep.src );
+                        source.push( dep.src );
                     }
                 });
 
-                _.each( module.dist.src, function ( el ) {
-                    if ( rAppModule.test( el ) ) {
-                        parsed.push( el );
-                    }
-                });
+                jshint[ keySource ] = {
+                    src: source,
 
-                // lint raw es6 style js files
-                jshint[ pre ] = {
-                    src: raw,
-
-                    // es6-module-transpiler
-                    // adds a closure + "use strict" statement for parsed
                     options: {
                         strict: false
                     }
                 };
+                */
 
-                // lint parsed .tmp js files
-                jshint[ post ] = {
-                    src: parsed
+                _.each( module.dist.src, function ( el ) {
+                    if ( rAppModule.test( el ) ) {
+                        transpiled.push( el );
+                    }
+                });
+
+                jshint[ keyTranspiled ] = {
+                    src: transpiled
                 };
             });
 
