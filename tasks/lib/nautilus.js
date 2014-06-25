@@ -34,7 +34,6 @@ module.exports = (function ( grunt ) {
     var _ = grunt.util._,
 
         // Core node
-        nodeFs = require( "fs" ),
         nodePath = require( "path" ),
 
         // 3rd party node
@@ -70,7 +69,6 @@ module.exports = (function ( grunt ) {
         rLib = /^lib\//,
         rApp = /^app\//,
         rGlob = /\*/,
-        rDot = /\//g,
 
         // Use .jshintrc for jshint settings
         jshintrc = JSON.parse( grunt.file.read( nodePath.join( core.dirs.root, ".jshintrc" ) ) ),
@@ -164,7 +162,7 @@ module.exports = (function ( grunt ) {
             var packageJson = grunt.file.read( nodePath.join( core.dirs.root, "package.json" ) ),
                 peerPackages = JSON.parse( packageJson ).peerDependencies;
             
-            _.each( peerPackages, function ( val, key, list ) {
+            _.each( peerPackages, function ( val, key ) {
                 if ( key !== "grunt" ) {
                     grunt.loadNpmTasks( key );
                     
@@ -200,11 +198,11 @@ module.exports = (function ( grunt ) {
                         core.module,
                         flags.path.split( "/" )
                     );
-                break;
+                    break;
 
                 case "whitespace":
                     this.doCleanLines();
-                break;
+                    break;
 
                 // Default is to compile javascript
                 default:
@@ -225,7 +223,7 @@ module.exports = (function ( grunt ) {
                         // Everything starts from nothing
                         build( {} );
                     });
-                break;
+                    break;
             }
         },
 
@@ -235,6 +233,7 @@ module.exports = (function ( grunt ) {
          * @memberof Nautilus
          * @method taskCompile
          * @param {object} modules The build modules object
+         * @fires grunt-nautilus-done
          *
          */
         taskCompile: function ( modules ) {
@@ -248,6 +247,8 @@ module.exports = (function ( grunt ) {
             }
 
             grunt.task.run( tasks );
+
+            grunt.event.emit( "grunt-nautilus-done" );
 
             return modules;
         },
@@ -318,7 +319,6 @@ module.exports = (function ( grunt ) {
                 jshint.options.globals = _.extend( jshint.options.globals, options.jsGlobals );
 
             } else {
-                jshint.options = jshintrc;
                 jshint.options.globals = options.jsGlobals;
             }
 
@@ -327,7 +327,7 @@ module.exports = (function ( grunt ) {
                     src: []
                 };
 
-                _.each( options.hintAt, function ( el, i, list ) {
+                _.each( options.hintAt, function ( el ) {
                     if ( rGlob.test( el ) ) {
                         var files = grunt.file.expand( el );
 
@@ -355,10 +355,10 @@ module.exports = (function ( grunt ) {
                 });
             }
 
-            _.each( modules, function ( module, key, list ) {
+            _.each( modules, function ( module, key ) {
+                /* @todo: lint raw js files
                 var raw = [];
 
-                /* @todo: lint raw js files
                 _.each( module.dependencies, function ( dep, key, list ) {
                     if ( rApp.test( key ) ) {
                         raw.push( dep.src );
@@ -391,7 +391,6 @@ module.exports = (function ( grunt ) {
          */
         moduleLoad: function ( modules ) {
             var main = ( _.isArray( options.main ) ) ? options.main : [options.main],
-                namespace,
                 match;
 
             main = main.map(function ( el ) {
@@ -422,7 +421,7 @@ module.exports = (function ( grunt ) {
          *
          */
         moduleParse: function ( modules ) {
-            _.each( modules, function ( val, key, list ) {
+            _.each( modules, function ( val, key ) {
                 val.compiler = core.compiler.transpile( val.src, key );
 
                 modules[ key ] = val;
@@ -446,13 +445,13 @@ module.exports = (function ( grunt ) {
 
                     var imports = [];
 
-                    _.each( module.compiler.imports, function ( el, i, list ) {
+                    _.each( module.compiler.imports, function ( el ) {
                         imports.push( el.source.value );
                     });
 
                     imports = _.uniq( imports );
 
-                    _.each( imports, function ( el, i, list ) {
+                    _.each( imports, function ( el ) {
                         var path, paths;
 
                         // Matched lib import    
@@ -465,7 +464,7 @@ module.exports = (function ( grunt ) {
 
                         // Try looking in pubRoot or jsRoot or Gruntfile root
                         } else {
-                            _.each( [__js__, __pub__, __cwd__], function ( root, i, list ) {
+                            _.each( [__js__, __pub__, __cwd__], function ( root ) {
                                 var lookup = nodePath.join( root, el );
                                 
                                 if ( grunt.file.isFile( lookup + __ext__ ) || grunt.file.isDir( lookup ) ) {
@@ -492,7 +491,7 @@ module.exports = (function ( grunt ) {
                         } else if ( path && grunt.file.isDir( path ) ) {
                             paths = grunt.file.expand( nodePath.join( path, "**/*" + __ext__ ) );
 
-                            _.each( paths, function ( el, i, list ) {
+                            _.each( paths, function ( el ) {
                                 var moduleName = core.util.moduleName( el ),
                                     nameSpace = core.util.nameSpace( el );
 
@@ -520,7 +519,7 @@ module.exports = (function ( grunt ) {
                     return deps;
                 };
 
-            _.each( modules, function ( val, key, list ) {
+            _.each( modules, function ( val, key ) {
                 var path = nodePath.join( __js__, key + __ext__ );
 
                 val.dependencies = {};
@@ -557,10 +556,10 @@ module.exports = (function ( grunt ) {
          *
          */
         moduleCompile: function ( modules ) {
-            _.each( modules, function ( module, key, list ) {
+            _.each( modules, function ( module, key ) {
                 var topKey = key;
 
-                _.each( module.dependencies, function ( val, key, list ) {
+                _.each( module.dependencies, function ( val, key ) {
                     var file = val.compiler.string;
 
                     val.fileContent = file;
@@ -610,7 +609,7 @@ module.exports = (function ( grunt ) {
          *
          */
         moduleWrite: function ( modules ) {
-            _.each( modules, function ( module, key, list ) {
+            _.each( modules, function ( module, key ) {
                 var moduleName = core.util.moduleName( key ),
 
                     // Create the uniquely compiled app framework file
@@ -627,7 +626,7 @@ module.exports = (function ( grunt ) {
                     dest: nodePath.join( __dist__, moduleName + __ext__ )
                 };
 
-                _.each( module.dependencies, function ( val, key, list ) {
+                _.each( module.dependencies, function ( val ) {
                     if ( val.compiler && val.compiler.imports.length ) {
                         _.each( val.compiler.imports, function ( imp ) {
                             var mod = module.dependencies[ imp.source.value ];
@@ -674,7 +673,7 @@ module.exports = (function ( grunt ) {
                 }
             };
 
-            _.each( modules, function ( module, key, list ) {
+            _.each( modules, function ( module, key ) {
                 config[ key ] = module.dist;
             });
 
@@ -716,11 +715,11 @@ module.exports = (function ( grunt ) {
                 case "watch":
                 case "whitespace":
                     this._task = task;
-                break;
+                    break;
 
                 default:
                     core.logger.log( "INVALID_ARGUMENTS" );
-                break;
+                    break;
             }
         },
 
@@ -768,11 +767,11 @@ module.exports = (function ( grunt ) {
             var files = [];
 
             if ( options.whitespace && options.whitespace.files ) {
-                _.each( options.whitespace.files, function ( el, i, list ) {
+                _.each( options.whitespace.files, function ( el ) {
                     files = files.concat( grunt.file.expand( el ) );
                 });
 
-                _.each( files, function ( el, i, list ) {
+                _.each( files, function ( el ) {
                     core.util.cleanWhiteSpace( el );
 
                     core.logger.log( "WHITESPACE_CLEANED", {

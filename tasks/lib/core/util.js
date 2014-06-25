@@ -10,6 +10,8 @@
  */
 module.exports = (function ( g ) {
 
+    "use strict";
+
     var _ = g.util._,
         options = g.config.get( "nautilus" ).options,
         nodeFs = require( "fs" ),

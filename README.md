@@ -15,10 +15,10 @@ grunt-nautilus
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
 [es6-module-transpiler]: https://github.com/square/es6-module-transpiler
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
+[grunt-nautilus-demo]: http://grunt-nautilus.blkpdx.com
 
-### Built on grunt-nautilus
-- [Nike Community](http://nike.com/community/) - Tagged  Version [0.3.20](https://github.com/kitajchuk/grunt-nautilus/releases/tag/v0.3.20)
-- [WordsUp Communication](http://wordsupcommunication.com/) - Latest Version
+### Demo
+- [grunt-nautilus-demo][]
 
 
 ## Getting Started
@@ -39,6 +39,7 @@ grunt.loadNpmTasks( "grunt-nautilus" );
 
 ### Peer dependencies
 This plugin loads a handful of other grunt plugins as peer dependencies. If you're using this plugin, you won't need to load any of the following yourself:
+ - [grunt][]
  - [grunt-contrib-jshint][]
  - [grunt-contrib-concat][]
  - [grunt-contrib-uglify][]
@@ -140,10 +141,6 @@ Default: ```js{app: true, console: true, module: true}```
 
 Same as `jshint.options.globals`. Your globals will be merged with the defaults.
 
-#### jsTemplate
-Type: `Object`  
-Default: `undefined`
-
 Configuration to be used with [grunt-sails-linker][].
 
 #### main
@@ -241,9 +238,6 @@ module.exports = function ( grunt ) {
                 },
                 jsLibRoot: libRoot,
                 jsRoot: jsRoot,
-                jsTemplate: {
-                    myApp: "index.html"
-                },
                 main: [
                     "myApp.js"
                 ],
@@ -307,7 +301,7 @@ In terms of looking up module imports, grunt-nautilus will look in the following
 ### Example application module
 To create a new `index` controller module for you application run the following:
 ```shell
-grunt nautilus:app:controller:index
+grunt nautilus:module --path "controllers/index"
 ```
 A new module controller will be generated for you at app/controllers/index.js within your jsRoot.
 ```js

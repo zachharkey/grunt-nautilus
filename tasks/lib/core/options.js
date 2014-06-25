@@ -15,6 +15,9 @@
 // path: string
 // Merge task options with defaults and return
 module.exports = (function ( g ) {
+
+    "use strict";
+
     var _ = g.util._,
         d = {
             hintAt: [],
@@ -45,7 +48,7 @@ module.exports = (function ( g ) {
         c = g.config.get( "nautilus" ),
         o = (c.options || {});
 
-    _.each( d, function ( v, k, l ) {
+    _.each( d, function ( v, k ) {
         // Use user value or merge
         if ( o[ k ] ) {
             if ( _.isArray( v ) ) {

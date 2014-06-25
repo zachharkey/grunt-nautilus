@@ -10,43 +10,24 @@
  */
 
 
-"use strict";
-
-
 module.exports = function ( grunt ) {
 
 
-    var _ = grunt.util._;
+    "use strict";
 
 
     // Project configuration.
     grunt.initConfig({
         // Project meta.
         meta: {
-            version: "0.5.8"
+            version: "0.6.0"
         },
-
-
-        // Project banner.
-        banner:
-            "/*!\n"+
-            " * \n"+
-            " * \n"+
-            " * Grunt Nautilus - v<%= meta.version %> - <%= grunt.template.today('yyyy-mm-dd') %>\n"+
-            " * @author: Brandon Lee Kitajchuk\n"+
-            " * @url: http://github.com/kitajchuk/\n"+
-            " * Copyright (c) <%= grunt.template.today('yyyy') %>\n"+
-            " * Licensed MIT\n"+
-            " * \n"+
-            " * \n"+
-            " */\n"+
-            "\n",
 
 
         // Jshint config.
         jshint: {
             plugin: [
-                //"Gruntfile.js",
+                "Gruntfile.js",
                 "tasks/**/*.js"
             ]
         },
@@ -173,10 +154,14 @@ module.exports = function ( grunt ) {
 
     // Register the test task.
     grunt.registerTask( "test", "Test each nautilus task", function () {
-        grunt.task.run( "jshint:plugin" );
-        grunt.task.run( "clean:plugin" );
-        grunt.task.run( "nautilus:build" );
-        grunt.task.run( "nodeunit:plugin" );
+        var tasks = [
+            "jshint:plugin",
+            "clean:plugin",
+            "nautilus:build",
+            "nodeunit:plugin"
+        ];
+
+        grunt.task.run( tasks );
     });
 
 

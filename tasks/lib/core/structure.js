@@ -11,6 +11,8 @@
 // Build the default file structure
 module.exports = (function ( g ) {
 
+    "use strict";
+
     var o = g.config.get( "nautilus" ).options,
         compass = g.config.get( "compass" ),
         env = (g.option( "env" ) || "development"),
@@ -39,14 +41,14 @@ module.exports = (function ( g ) {
             g.file.mkdir( compass.sassDir );
         }
 
-            if ( !g.file.exists( compass.sassDir + "/screen.scss" ) ) {
-                g.file.copy( coreDirs.app + "/templates/screen.scss", compass.sassDir + "/screen.scss" );
-            }
+        if ( !g.file.exists( compass.sassDir + "/screen.scss" ) ) {
+            g.file.copy( coreDirs.app + "/templates/screen.scss", compass.sassDir + "/screen.scss" );
+        }
 
-            if ( !g.file.exists( compass.sassDir + "/controllers" ) ) {
-                g.file.mkdir( compass.sassDir + "/controllers" );
-                g.file.write( compass.sassDir + "/controllers/.gitkeep" );
-            }
+        if ( !g.file.exists( compass.sassDir + "/controllers" ) ) {
+            g.file.mkdir( compass.sassDir + "/controllers" );
+            g.file.write( compass.sassDir + "/controllers/.gitkeep" );
+        }
     }
 
     // Test/make jsRoot
@@ -60,9 +62,9 @@ module.exports = (function ( g ) {
         g.file.write( o.jsRoot + "/app/.gitkeep" );
     }
 
-        if ( !g.file.exists( o.jsRoot + "/app/app.js" ) ) {
-            g.file.copy( coreDirs.app + "/howto.js", o.jsRoot + "/app/app.js" );
-        }
+    if ( !g.file.exists( o.jsRoot + "/app/app.js" ) ) {
+        g.file.copy( coreDirs.app + "/howto.js", o.jsRoot + "/app/app.js" );
+    }
 
     if ( !g.file.exists( o.jsRoot + "/app/controllers" ) ) {
         g.file.mkdir( o.jsRoot + "/app/controllers" );

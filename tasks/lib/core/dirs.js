@@ -10,6 +10,8 @@
  */
 module.exports = (function ( p ) {
 
+    "use strict";
+
     return {
         app: p.join( __dirname, "../../../app" ),
         root: p.join( __dirname, "../../../" ),

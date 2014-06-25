@@ -10,11 +10,11 @@
  */
 module.exports = (function ( g ) {
 
+    "use strict";
+
     var _ = g.util._,
 
         options = g.config.get( "nautilus" ).options,
-        coreUtils = require( "./util" ),
-        coreLogger = require( "./logger" ),
         coreLibs = require( "./libs" ),
         coreArgs = require( "./args" ),
         rExports = new RegExp( "__exports__\\..*?(?=\\s=)", "g" ),
@@ -23,7 +23,6 @@ module.exports = (function ( g ) {
         rLastLine = /\n(.*?)$/,
         rFirstLine = /^(.*?)\n/,
         rSlashDot = /\/|\./g,
-        rNew = /\n|\r/g,
         rConsoleCall = /console\.log\(/g,
         appDotLogCall = "app.log(",
         closureOpen = "(function ( <%= params %> ) {",
@@ -66,7 +65,7 @@ module.exports = (function ( g ) {
 
             // Handle replacing the parameters and arguments for the function closure
             if ( firsts.length && lasts.length ) {
-                _.each( lasts, function ( el, i, list ) {
+                _.each( lasts, function ( el, i ) {
                     var module = el.split( rSlashDot ).reverse()[ 0 ],
                         modlow = module.toLowerCase(),
                         globalArg,
@@ -79,7 +78,7 @@ module.exports = (function ( g ) {
                             globalArg = (coreLibs[ modlow ].shorthand || coreLibs[ modlow ].context);
 
                         } else if ( options.jsGlobals ) {
-                            _.each( options.jsGlobals, function ( val, key, list ) {
+                            _.each( options.jsGlobals, function ( val, key ) {
                                 if ( key.toLowerCase() === modlow ) {
                                     globalParam = key;
                                     globalArg = key;
@@ -117,7 +116,7 @@ module.exports = (function ( g ) {
             }
 
             // Handle all dependency replacements
-            _.each( replaceDependencies, function ( el, i, list ) {
+            _.each( replaceDependencies, function ( el ) {
                 file = file.replace( new RegExp( el.__dependency__, "g" ), el.replacement );
             });
 

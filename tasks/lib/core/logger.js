@@ -10,6 +10,8 @@
  */
 module.exports = (function ( g ) {
 
+    "use strict";
+
     var _ = g.util._,
         logs = {
             MISSING_MODULE: {

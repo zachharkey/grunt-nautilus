@@ -8,11 +8,11 @@
  *
  *
  */
-module.exports = (function ( g ) {
+module.exports = (function () {
 
-    var _ = g.util._,
-        coreLogger = require( "./logger" ),
-        coreUitls = require( "./util" );
+    "use strict";
+
+    var coreUitls = require( "./util" );
 
     return {
         watch: function ( opts ) {
@@ -33,4 +33,4 @@ module.exports = (function ( g ) {
         }
     };
 
-})( require( "grunt" ) );
+})();
