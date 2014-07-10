@@ -14,6 +14,7 @@ module.exports = (function ( g ) {
 
     var _ = g.util._,
 
+        nodePath = require( "path" ),
         coreLogger = require( "./logger" ),
         coreUtils = require( "./util" ),
         coreDirs = require( "./dirs" ),
@@ -36,14 +37,12 @@ module.exports = (function ( g ) {
                 options = g.config.get( "nautilus" ).options,
                 module = coreUtils.camelCase( args.pop() ),
                 namespace = args.join( "/" ),
-                filePath = (options.jsAppRoot + "/" + namespace + "/" + module + ".js").replace( rDub, "$1" ),
+                filePath = nodePath.join( options.jsAppRoot, namespace, (module + ".js") ).replace( rDub, "$1" ),
                 fileData = {
                     module: module,
                     namespace: namespace
                 },
                 template = coreDirs.app + "/templates/module.js",
-                compass = g.config.get( "compass" ),
-                env = (g.option( "env" ) || "development"),
                 sassPath,
                 contents;
 
@@ -73,10 +72,8 @@ module.exports = (function ( g ) {
             });
 
             // If compass options are valid, also spin up a partial...
-            if ( compass ) {
-                compass = compass.options || compass[ env ].options;
-                
-                sassPath = compass.sassDir + "/" + namespace + "/_" + module + ".scss";
+            if ( options.compass ) {
+                sassPath = nodePath.join( options.compass.sassRoot, namespace, ("/_" + module + ".scss") );
                 
                 g.file.write( sassPath, _.template( g.file.read( coreDirs.app + "/templates/partial.scss" ), fileData ));
                 

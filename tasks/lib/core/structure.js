@@ -14,40 +14,36 @@ module.exports = (function ( g ) {
     "use strict";
 
     var o = g.config.get( "nautilus" ).options,
-        compass = g.config.get( "compass" ),
-        env = (g.option( "env" ) || "development"),
         coreDirs = require( "./dirs" );
 
-    if ( compass ) {
-        compass = (compass.options || compass[ env ].options);
-
+    if ( o.compass ) {
         // Test/make css
-        if ( compass.cssDir && !g.file.exists( compass.cssDir ) ) {
-            g.file.mkdir( compass.cssDir );
+        if ( o.compass.cssRoot && !g.file.exists( o.compass.cssRoot ) ) {
+            g.file.mkdir( o.compass.cssRoot );
         }
 
         // Test/make img
-        if ( compass.imagesDir && !g.file.exists( compass.imagesDir ) ) {
-            g.file.mkdir( compass.imagesDir );
+        if ( o.compass.imgRoot && !g.file.exists( o.compass.imgRoot ) ) {
+            g.file.mkdir( o.compass.imgRoot );
         }
 
         // Test/make fonts
-        if ( compass.fontsDir && !g.file.exists( compass.fontsDir ) ) {
-            g.file.mkdir( compass.fontsDir );
+        if ( o.compass.fontsRoot && !g.file.exists( o.compass.fontsRoot ) ) {
+            g.file.mkdir( o.compass.fontsRoot );
         }
 
         // Test/make sass
-        if ( compass.sassDir && !g.file.exists( compass.sassDir ) ) {
-            g.file.mkdir( compass.sassDir );
+        if ( o.compass.sassRoot && !g.file.exists( o.compass.sassRoot ) ) {
+            g.file.mkdir( o.compass.sassRoot );
         }
 
-        if ( !g.file.exists( compass.sassDir + "/screen.scss" ) ) {
-            g.file.copy( coreDirs.app + "/templates/screen.scss", compass.sassDir + "/screen.scss" );
+        if ( !g.file.exists( o.compass.sassRoot + "/screen.scss" ) ) {
+            g.file.copy( coreDirs.app + "/templates/screen.scss", o.compass.sassRoot + "/screen.scss" );
         }
 
-        if ( !g.file.exists( compass.sassDir + "/controllers" ) ) {
-            g.file.mkdir( compass.sassDir + "/controllers" );
-            g.file.write( compass.sassDir + "/controllers/.gitkeep" );
+        if ( !g.file.exists( o.compass.sassRoot + "/controllers" ) ) {
+            g.file.mkdir( o.compass.sassRoot + "/controllers" );
+            g.file.write( o.compass.sassRoot + "/controllers/.gitkeep" );
         }
     }
 

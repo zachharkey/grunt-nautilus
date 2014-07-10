@@ -20,7 +20,7 @@ module.exports = function ( grunt ) {
     grunt.initConfig({
         // Project meta.
         meta: {
-            version: "0.6.3"
+            version: "0.7.0"
         },
 
 
@@ -86,30 +86,6 @@ module.exports = function ( grunt ) {
         },
 
 
-        /** Compass config. */
-        compass: {
-            options: {
-                cssDir: "test/out/css",
-                force: true,
-                httpPath: "/",
-                noLineComments: true,
-                sassDir: "test/src/sass"
-            },
-            development: {
-                options: {
-                    environment: "development",
-                    outputStyle: "expanded"
-                }
-            },
-            production: {
-                options: {
-                    environment: "production",
-                    outputStyle: "compressed"
-                }
-            }
-        },
-
-
         /** Nautilus config. */
         nautilus: {
             options: {
@@ -132,6 +108,10 @@ module.exports = function ( grunt ) {
                     ],
 
                     watch: true
+                },
+                compass: {
+                    cssRoot: "test/out/css",
+                    sassRoot: "test/src/sass"
                 }
             }
         }

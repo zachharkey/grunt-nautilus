@@ -27,6 +27,10 @@ module.exports = (function () {
             coreUitls.mergeConfig( "clean", opts );
         },
 
+        compass: function ( opts ) {
+            coreUitls.mergeConfig( "compass", opts );
+        },
+
         concatUglify: function ( opts ) {
             coreUitls.mergeConfig( "concat", opts );
             coreUitls.mergeConfig( "uglify", opts );

@@ -63,11 +63,11 @@ grunt.registerTask( "default", ["nautilus:build"] );
 
 
 ### Arguments
-This plugin has some reserved task arguments. You can think of them as super-powered task configuration that you don't have to configure yourself. Some of the tasks executed by the `build` and `deploy` arguments are optional. For instance, if you don't have anything specified for the `hintOn` option, jshint will not run. Likewise, if you don't have grunt config specified for `compass` or `ender` those will not run as well. This is the nice thing about this plugin. It does a lot but not too much. If you configure for what it looks for, you don't have to do much yourself.
+This plugin has some reserved task arguments. You can think of them as super-powered task configuration that you don't have to configure yourself.
 
 #### `nautilus:build`
 For development sandbox modes this argument runs nautilus core without uglification.  
-Tasks: `jshint`, `concat`, `clean`, `sails-linker`, `compass`, `ender`
+Tasks: `jshint`, `concat`, `clean`, `compass`, `ender`
 
 #### `nautilus:deploy`
 For real world environments, this argument runs nautilus core with uglification.  
@@ -75,9 +75,6 @@ Tasks: `jshint`, `uglify`, `clean`, `compass`, `ender`
 
 #### `nautilus:module [, flags...]`
 This argument creates templated module files for you using the es6 module syntax.
-
-#### `nautilus:whitespace`
-This argument uses the `whitespace` config settings to bulk clean trailing whitespace lines.
 
 
 ### Flags
@@ -99,7 +96,7 @@ Tell grunt-nautilus to log everything it is doing. This is handy for development
 Type: `String`  
 Default: `undefined`
 
-Tell grunt-nautilus to use this specified environment for executing `compass` on build and deploy. For example, if you prefer to use the environment `dev` over `development`, pass `grunt nautilus:build --env dev` or the equivalent `grunt nautilus:build --env=dev`.
+Tell grunt-nautilus to use this specified environment for executing `compass` on build and deploy.
 
 
 ### Options
@@ -161,11 +158,11 @@ Default: `undefined`
 
 A list of non-app files that you would like js linting to occur against.
 
-#### whitespace
+#### compass
 Type: `Object`  
 Default: `undefined`
 
-Set this with `files` array and `watch` flag properties if you would like trailing whitespace cleaned. The `files` property should be an array and supports standard Grunt globbing patterns.
+Set this with `cssRoot` and `sassRoot` properties if you would like compass configured and compiled using `grunt-contrib-compass`.
 
 
 
@@ -207,7 +204,7 @@ grunt.initConfig({
 ```
 
 ### Example Gruntfile with ALL specified options and configuration
-This is a helpful example of all the options and configuration grunt-nautilus will work with. The `compass` and `ender` config is totally optional. If present though, grunt-nautilus will execute `compass:development` on the build task and `compass:production` on the deploy task. Optionally, you can pass a `--env` flag with a value to override what compass environment is called. If the ender config is present than grunt-nautilus will execute your ender build on every build/deploy task execution ensuring your dist js is always up to date with your latest ender config.
+This is a helpful example of all the options and configuration grunt-nautilus will work with. The `ender` config is totally optional. If the ender config is present than grunt-nautilus will execute your ender build on every build/deploy task execution ensuring your dist js is always up to date with your latest ender config.
 ```js
 module.exports = function ( grunt ) {
     var pubRoot = ".",
@@ -241,31 +238,12 @@ module.exports = function ( grunt ) {
                 main: [
                     "myApp.js"
                 ],
-                pubRoot: pubRoot
-            }
-        },
-        // Compass config. ( optional )
-        compass: {
-            options: {
-                cssDir: cssRoot,
-                fontsDir: fontsRoot,
-                force: true,
-                httpPath: "/",
-                imagesDir: imgRoot,
-                javascriptsDir: jsRoot,
-                noLineComments: true,
-                sassDir: sassRoot
-            },
-            development: {
-                options: {
-                    environment: "development",
-                    outputStyle: "expanded"
-                }
-            },
-            production: {
-                options: {
-                    environment: "production",
-                    outputStyle: "compressed"
+                pubRoot: pubRoot,
+                compass: {
+                    cssRoot: cssRoot,
+                    sassRoot: sassRoot,
+                    imgRoot: imgRoot,
+                    fontsRoot: fontsRoot
                 }
             }
         },

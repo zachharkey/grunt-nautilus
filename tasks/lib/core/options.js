@@ -20,6 +20,7 @@ module.exports = (function ( g ) {
 
     var _ = g.util._,
         d = {
+            compass: undefined,
             hintAt: [],
             hintOn: [],
             jsAppRoot: undefined,

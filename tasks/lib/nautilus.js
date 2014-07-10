@@ -45,7 +45,6 @@ module.exports = (function ( grunt ) {
         // All the goodies :-)
         options = core.options,
         ender = grunt.config.get( "ender" ),
-        compass = grunt.config.get( "compass" ),
         flags = {
             env: grunt.option( "env" ),
             loud: grunt.option( "loud" ),
@@ -74,7 +73,7 @@ module.exports = (function ( grunt ) {
         jshintrc = JSON.parse( grunt.file.read( nodePath.join( core.dirs.root, ".jshintrc" ) ) ),
 
         // Write/read dirs
-        __sass__ = ( compass && compass.options ) ? ( compass[ flags.env ] ) ? compass[ flags.env ].options.sassDir : compass.options.sassDir : null,
+        __sass__ = ( options.compass && options.compass.sassRoot ) ? options.compass.sassRoot : undefined,
         __dist__ = options.jsDistRoot,
         __pub__ = options.pubRoot,
         __app__ = options.jsAppRoot,
@@ -161,11 +160,11 @@ module.exports = (function ( grunt ) {
         plugins: function () {
             var packageJson = grunt.file.read( nodePath.join( core.dirs.root, "package.json" ) ),
                 peerPackages = JSON.parse( packageJson ).peerDependencies;
-            
+
             _.each( peerPackages, function ( val, key ) {
                 if ( key !== "grunt" ) {
                     grunt.loadNpmTasks( key );
-                    
+
                     core.logger.log( "LOAD_PLUGIN", {
                         plugin: key
                     });
@@ -209,6 +208,7 @@ module.exports = (function ( grunt ) {
                     this.doPreTasks(function () {
                         build = _.compose(
                             instance.taskCompile,
+                            instance.taskCompass,
                             instance.taskHint,
                             instance.taskClean,
                             instance.taskWatch,
@@ -242,13 +242,61 @@ module.exports = (function ( grunt ) {
                 tasks = core.util.mergeTasks( task, [contrib, "clean:nautilus"] );
 
             // Check for compass
-            if ( compass ) {
+            if ( options.compass ) {
                 tasks.push( "compass:" + instance._env );
             }
 
             grunt.task.run( tasks );
 
             grunt.event.emit( "grunt-nautilus-done" );
+
+            return modules;
+        },
+
+        /**
+         *
+         * Nautilus execute the compass task config
+         * @memberof Nautilus
+         * @method taskCompass
+         * @param {object} modules The build modules object
+         *
+         */
+        taskCompass: function ( modules ) {
+            var config = {};
+
+            if ( options.compass && options.compass.cssRoot && options.compass.sassRoot ) {
+                config.options = {
+                    force: true,
+                    httpPath: "/",
+                    noLineComments: true,
+                    cssDir: options.compass.cssRoot,
+                    sassDir: options.compass.sassRoot
+                };
+
+                if ( options.compass.imgRoot ) {
+                    config.options.imagesDir = options.compass.imgRoot;
+                }
+
+                if ( options.compass.fontsRoot ) {
+                    config.options.fontsDir = options.compass.fontsRoot;
+                }
+
+                config.development = {
+                    options: {
+                        environment: "development",
+                        outputStyle: "expanded"
+                    }
+                };
+
+                config.production = {
+                    options: {
+                        environment: "production",
+                        outputStyle: "compressed"
+                    }
+                };
+
+                core.config.compass( config );
+            }
 
             return modules;
         },
