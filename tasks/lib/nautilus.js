@@ -203,15 +203,19 @@ module.exports = (function ( grunt ) {
                     this.doCleanLines();
                     break;
 
+                case "compass":
+                    this.taskCompass();
+                    break;
+
                 // Default is to compile javascript
                 default:
                     this.doPreTasks(function () {
                         build = _.compose(
                             instance.taskCompile,
-                            instance.taskCompass,
                             instance.taskHint,
                             instance.taskClean,
                             instance.taskWatch,
+                            instance.taskCompass,
                             instance.moduleDist,
                             instance.moduleWrite,
                             instance.moduleCompile,
@@ -225,32 +229,6 @@ module.exports = (function ( grunt ) {
                     });
                     break;
             }
-        },
-
-        /**
-         *
-         * Nautilus execute the final grunt task sequence
-         * @memberof Nautilus
-         * @method taskCompile
-         * @param {object} modules The build modules object
-         * @fires grunt-nautilus-done
-         *
-         */
-        taskCompile: function ( modules ) {
-            var task = ( instance._task === "deploy" ) ? instance._task : "build",
-                contrib = ( instance._task === "deploy" ) ? "uglify" : "concat",
-                tasks = core.util.mergeTasks( task, [contrib, "clean:nautilus"] );
-
-            // Check for compass
-            if ( options.compass ) {
-                tasks.push( "compass:" + instance._env );
-            }
-
-            grunt.task.run( tasks );
-
-            grunt.event.emit( "grunt-nautilus-done" );
-
-            return modules;
         },
 
         /**
@@ -311,7 +289,7 @@ module.exports = (function ( grunt ) {
          */
         taskWatch: function ( modules ) {
             var scriptTasks = core.util.mergeTasks( "watch", ["nautilus:build", "clean:nautilus"] ),
-                stylesTasks = "compass:" + instance._env,
+                stylesTasks = core.util.mergeTasks( "watch", ["nautilus:compass", ("compass:" + instance._env)] ),
                 watch = {
                     scripts: {
                         files: coreTasks.watchJs,
@@ -441,6 +419,32 @@ module.exports = (function ( grunt ) {
             });
 
             core.config.jshint( jshint );
+
+            return modules;
+        },
+
+        /**
+         *
+         * Nautilus execute the final grunt task sequence
+         * @memberof Nautilus
+         * @method taskCompile
+         * @param {object} modules The build modules object
+         * @fires grunt-nautilus-done
+         *
+         */
+        taskCompile: function ( modules ) {
+            var task = ( instance._task === "deploy" ) ? instance._task : "build",
+                contrib = ( instance._task === "deploy" ) ? "uglify" : "concat",
+                tasks = core.util.mergeTasks( task, [contrib, "clean:nautilus"] );
+
+            // Check for compass
+            if ( options.compass ) {
+                tasks.push( "compass:" + instance._env );
+            }
+
+            grunt.task.run( tasks );
+
+            grunt.event.emit( "grunt-nautilus-done" );
 
             return modules;
         },
@@ -777,6 +781,7 @@ module.exports = (function ( grunt ) {
                 case "build":
                 case "deploy":
                 case "watch":
+                case "compass":
                 case "whitespace":
                     this._task = task;
                     break;

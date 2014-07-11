@@ -20,7 +20,7 @@ module.exports = function ( grunt ) {
     grunt.initConfig({
         // Project meta.
         meta: {
-            version: "0.7.0"
+            version: "0.7.1"
         },
 
 
