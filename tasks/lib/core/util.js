@@ -54,7 +54,16 @@ module.exports = (function ( g ) {
 
             // 0.2 merge nautilus config with existing config for given task
             } else {
-                g.config.set( task, _.extend( config, settings ) );
+                // 0.2.1 merge options settings accordingly
+                if ( config.options ) {
+                    settings.options = _.extend( settings.options, config.options );
+                }
+
+                delete config.options;
+
+                settings = _.extend( settings, config );
+
+                g.config.set( task, settings );
 
                 coreLogger.log( "CONFIG_SET", {
                     task: task,
