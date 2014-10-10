@@ -164,6 +164,12 @@ Default: `undefined`
 
 Set this with `cssRoot` and `sassRoot` properties if you would like compass configured and compiled using `grunt-contrib-compass`.
 
+#### standAlone
+Type: `Array`  
+Default: `[]`
+
+Add file names here, extensionless and relative to the app javascript directory, to be compiled to `dist` without the app object compiled on top of them.
+
 
 
 

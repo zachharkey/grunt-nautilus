@@ -10,6 +10,10 @@
  * http://wiki.ecmascript.org/doku.php?id=harmony:modules
  *
  *
+ * @todo: use grunt.config.merge
+ * @todo: use grunt-contrib-watch atBegin option maybe...
+ *
+ *
  * @instance
  *  _env
  *  _args
@@ -68,6 +72,7 @@ module.exports = (function ( grunt ) {
         rLib = /^lib\//,
         rApp = /^app\//,
         rGlob = /\*/,
+        rJs = /\.js$/,
 
         // Use .jshintrc for jshint settings
         jshintrc = JSON.parse( grunt.file.read( nodePath.join( core.dirs.root, ".jshintrc" ) ) ),
@@ -389,7 +394,7 @@ module.exports = (function ( grunt ) {
                 var transpiled = [],
                     //source = [],
                     //keySource = key + "-SOURCE",
-                    keyTranspiled = key + "-TRANSPILED";
+                    keyTranspiled = key + "-TRANSPILED" + (module.standAlone ? "-STANDALONE" : "");
 
                 /** Still too much to account for here...
                 _.each( module.dependencies, function ( dep, key ) {
@@ -476,6 +481,19 @@ module.exports = (function ( grunt ) {
                     src: val
                 };
             });
+
+            if ( _.isArray( options.standAlone ) ) {
+                options.standAlone = options.standAlone.map(function ( el ) {
+                    return nodePath.join( __app__, core.util.front2Back( el ) );
+                });
+
+                _.each( options.standAlone, function ( val ) {
+                    modules[ core.util.nameSpace( val ) ] = {
+                        src: ( rJs.test( val ) ) ? val : (val + __ext__),
+                        standAlone: true
+                    };
+                });
+            }
 
             return modules;
         },
@@ -689,8 +707,9 @@ module.exports = (function ( grunt ) {
 
                 grunt.file.write( distFile, distFirst );
 
+                // For standAlone files, only compile what is imported
                 module.dist = {
-                    src: [distFile],
+                    src: (module.standAlone) ? [] : [distFile],
                     dest: nodePath.join( __dist__, moduleName + __ext__ )
                 };
 

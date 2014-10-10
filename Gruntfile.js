@@ -20,7 +20,7 @@ module.exports = function ( grunt ) {
     grunt.initConfig({
         // Project meta.
         meta: {
-            version: "0.7.2"
+            version: "0.7.3"
         },
 
 
@@ -89,10 +89,10 @@ module.exports = function ( grunt ) {
         /** Nautilus config. */
         nautilus: {
             options: {
+                pubRoot: "test/src",
                 jsDistRoot: "test/out/js/dist",
                 jsAppRoot: "test/src/js/app",
                 jsLibRoot: "test/src/js/lib",
-                pubRoot: "test/src",
                 jsRoot: "test/src/js",
                 jsGlobals: {
                     $: true
@@ -112,7 +112,8 @@ module.exports = function ( grunt ) {
                 compass: {
                     cssRoot: "test/out/css",
                     sassRoot: "test/src/sass"
-                }
+                },
+                standAlone: ["lynx", "foo/bar/baz"]
             }
         }
     });
