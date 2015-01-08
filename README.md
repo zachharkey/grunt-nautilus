@@ -15,7 +15,7 @@ grunt-nautilus
 [grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
 [es6-module-transpiler]: https://github.com/square/es6-module-transpiler
 [grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
-[grunt-nautilus-demo]: http://grunt-nautilus.blkpdx.com
+[grunt-nautilus-demo]: http://grunt-nautilus.blkpdx.com/slides/
 
 ### Demo
 - [grunt-nautilus-demo][]
