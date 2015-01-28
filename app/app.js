@@ -53,24 +53,26 @@ app.env = "<%= env %>";
  *
  */
 app.log = function () {
-    var args = [].slice.call( arguments, 0 );
-    
     if ( !/^dev/.test( app.env ) ) {
         return;
     }
     
-    if ( !args.length ) {
-        args.push( app );
-        
-    } else {
-        args.unshift( "[App]:" );
-    }
-    
-    // IE8 Doesn't support .call/.apply on console.log
-    if ( console.log.apply ) {
-        console.log.apply( console, args );
+    app.log.history.push( arguments );
+
+    if ( window.console && window.console.log ) {
+        console.log( [].slice.call( arguments, 0 ) );
     }
 };
+
+
+/**
+ *
+ * Log history
+ * @member history
+ * @memberof app.log
+ *
+ */
+app.log.history = [];
 
 
 /**
