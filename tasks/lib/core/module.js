@@ -27,13 +27,7 @@ module.exports = (function ( g ) {
 
     return {
         create: function () {
-            var args = _.toArray( arguments ).map(function ( el ) {
-                    if ( el === "controller" ) {
-                        el = "controllers";
-                    }
-
-                    return el;
-                }),
+            var args = _.toArray( arguments ),
                 options = g.config.get( "nautilus" ).options,
                 module = coreUtils.camelCase( args.pop() ),
                 namespace = args.join( "/" ),
@@ -43,7 +37,6 @@ module.exports = (function ( g ) {
                     namespace: namespace
                 },
                 template = coreDirs.app + "/templates/module.js",
-                sassPath,
                 contents;
 
             if ( _.contains( reserved, args[ 0 ] ) ) {
@@ -58,10 +51,6 @@ module.exports = (function ( g ) {
                 });
             }
 
-            if ( _.contains( args, "controllers" ) ) {
-                template = coreDirs.app + "/templates/controller.js";
-            }
-
             template = g.file.read( template );
             contents = _.template( template, fileData );
 
@@ -70,17 +59,6 @@ module.exports = (function ( g ) {
             coreLogger.log( "NEW_MODULE", {
                 path: filePath
             });
-
-            // If compass options are valid, also spin up a partial...
-            if ( options.compass ) {
-                sassPath = nodePath.join( options.compass.sassRoot, namespace, ("/_" + module + ".scss") );
-                
-                g.file.write( sassPath, _.template( g.file.read( coreDirs.app + "/templates/partial.scss" ), fileData ));
-                
-                coreLogger.log( "NEW_MODULE", {
-                    path: sassPath
-                });
-            }
         }
     };
 

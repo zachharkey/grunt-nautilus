@@ -16,35 +16,18 @@ module.exports = (function ( g ) {
     var o = g.config.get( "nautilus" ).options,
         coreDirs = require( "./dirs" );
 
-    if ( o.compass ) {
-        // Test/make css
-        if ( o.compass.cssRoot && !g.file.exists( o.compass.cssRoot ) ) {
-            g.file.mkdir( o.compass.cssRoot );
-        }
+    // Test/make css
+    if ( o.cssRoot && !g.file.exists( o.cssRoot ) ) {
+        g.file.mkdir( o.cssRoot );
+    }
 
-        // Test/make img
-        if ( o.compass.imgRoot && !g.file.exists( o.compass.imgRoot ) ) {
-            g.file.mkdir( o.compass.imgRoot );
-        }
+    // Test/make sass
+    if ( o.sassRoot && !g.file.exists( o.sassRoot ) ) {
+        g.file.mkdir( o.sassRoot );
+    }
 
-        // Test/make fonts
-        if ( o.compass.fontsRoot && !g.file.exists( o.compass.fontsRoot ) ) {
-            g.file.mkdir( o.compass.fontsRoot );
-        }
-
-        // Test/make sass
-        if ( o.compass.sassRoot && !g.file.exists( o.compass.sassRoot ) ) {
-            g.file.mkdir( o.compass.sassRoot );
-        }
-
-        if ( !g.file.exists( o.compass.sassRoot + "/screen.scss" ) ) {
-            g.file.copy( coreDirs.app + "/templates/screen.scss", o.compass.sassRoot + "/screen.scss" );
-        }
-
-        if ( !g.file.exists( o.compass.sassRoot + "/controllers" ) ) {
-            g.file.mkdir( o.compass.sassRoot + "/controllers" );
-            g.file.write( o.compass.sassRoot + "/controllers/.gitkeep" );
-        }
+    if ( !g.file.exists( o.sassRoot + "/screen.scss" ) ) {
+        g.file.copy( coreDirs.app + "/templates/screen.scss", o.sassRoot + "/screen.scss" );
     }
 
     // Test/make jsRoot
@@ -60,11 +43,6 @@ module.exports = (function ( g ) {
 
     if ( !g.file.exists( o.jsRoot + "/app/app.js" ) ) {
         g.file.copy( coreDirs.app + "/howto.js", o.jsRoot + "/app/app.js" );
-    }
-
-    if ( !g.file.exists( o.jsRoot + "/app/controllers" ) ) {
-        g.file.mkdir( o.jsRoot + "/app/controllers" );
-        g.file.write( o.jsRoot + "/app/controllers/.gitkeep" );
     }
 
     if ( !g.file.exists( o.jsRoot + "/lib" ) ) {

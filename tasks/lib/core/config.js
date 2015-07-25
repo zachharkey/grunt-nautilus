@@ -27,8 +27,16 @@ module.exports = (function () {
             coreUitls.mergeConfig( "clean", opts );
         },
 
-        compass: function ( opts ) {
-            coreUitls.mergeConfig( "compass", opts );
+        sass: function ( opts ) {
+            coreUitls.mergeConfig( "sass", opts );
+        },
+
+        postcss: function ( opts ) {
+            coreUitls.mergeConfig( "postcss", opts );
+        },
+
+        jsdoc: function ( opts ) {
+            coreUitls.mergeConfig( "jsdoc", opts );
         },
 
         concatUglify: function ( opts ) {

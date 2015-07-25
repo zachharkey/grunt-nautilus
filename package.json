@@ -1,7 +1,7 @@
 {
     "name": "grunt-nautilus",
     "description": "Build modular javascript applications and frameworks that make sense",
-    "version": "0.7.4",
+    "version": "0.8.0",
     "homepage": "https://github.com/kitajchuk/grunt-nautilus",
     "readmeFilename": "README.md",
     "author": {
@@ -16,12 +16,7 @@
     "bugs": {
         "url": "https://github.com/kitajchuk/grunt-nautilus/issues"
     },
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "https://github.com/kitajchuk/grunt-nautilus/blob/master/LICENSE-MIT"
-        }
-    ],
+    "license": "MIT",
     "main": "Gruntfile.js",
     "engines": {
         "node": ">= 0.8.0"
@@ -31,30 +26,20 @@
     },
     "dependencies": {
         "rimraf": "~2.2",
-        "es6-module-transpiler": "0.3.6"
-    },
-    "peerDependencies": {
-        "grunt": "~0.4",
-        "grunt-contrib-jshint": "~0.8",
-        "grunt-contrib-concat": "~0.3",
-        "grunt-contrib-uglify": "~0.3",
-        "grunt-contrib-watch": "~0.5",
-        "grunt-contrib-compass": "~0.7",
-        "grunt-contrib-clean": "~0.5",
-        "grunt-ender": "0.2.1"
+        "es6-module-transpiler": "0.3.6",
+        "autoprefixer-core": "^5.2.1"
     },
     "devDependencies": {
         "grunt": "~0.4",
-        "grunt-contrib-jshint": "~0.8",
-        "grunt-contrib-concat": "~0.3",
-        "grunt-contrib-uglify": "~0.3",
-        "grunt-contrib-watch": "~0.5",
-        "grunt-contrib-compass": "~0.7",
-        "grunt-contrib-clean": "~0.5",
-        "grunt-ender": "0.2.1",
-
+        "grunt-contrib-jshint": "~0.11",
+        "grunt-contrib-concat": "~0.5",
+        "grunt-contrib-uglify": "~0.9",
+        "grunt-contrib-watch": "~0.6",
+        "grunt-contrib-sass": "~0.9",
+        "grunt-contrib-clean": "~0.6",
+        "grunt-jsdoc": "~0.6",
         "grunt-contrib-nodeunit": "~0.2",
-        "express": "~4.1"
+        "grunt-postcss": "^0.5.4"
     },
     "keywords": [
         "grunt",
@@ -68,7 +53,6 @@
         "transpiler",
         "transpile",
         "ecmascript",
-        "ender",
         "gruntnautilus",
         "grunt-init-gruntnautilus",
         "compile",

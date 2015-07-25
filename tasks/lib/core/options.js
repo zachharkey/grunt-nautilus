@@ -20,9 +20,10 @@ module.exports = (function ( g ) {
 
     var _ = g.util._,
         d = {
-            compass: undefined,
+            browsers: "last 2 versions", // For autoprefixer
             hintAt: [],
             hintOn: [],
+            jsdocs: true,
             jsAppRoot: undefined,
             jsLibRoot: undefined,
             jsDistRoot: undefined,
@@ -37,20 +38,16 @@ module.exports = (function ( g ) {
                 module: true
             },
             jsRoot: undefined,
-            main: [
-                "app.js",
-                "controllers/**/*.js"
-            ],
+            main: ["app.js"],
             pubRoot: undefined,
-            type: "globals", // Secret option for now
-            whitespace: undefined
+            type: "globals" // Secret option for now
         },
         c = g.config.get( "nautilus" ),
         o = (c.options || {});
 
     _.each( d, function ( v, k ) {
         // Use user value or merge
-        if ( o[ k ] ) {
+        if ( o[ k ] !== undefined ) {
             if ( _.isArray( v ) ) {
                 o[ k ] = _.union( o[ k ], v );
                 

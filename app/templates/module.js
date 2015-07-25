@@ -6,11 +6,34 @@
  *
  *
  */
+var <%= module %> = {
+    init: function () {
+        console.log( "<%= module %> initialized" );
+    },
 
-var <%= module %> = {};
+
+    isActive: function () {
+        // return value
+    },
+
+
+    onload: function () {
+        
+    },
+
+
+    unload: function () {
+        this.teardown();
+    },
+
+
+    teardown: function () {
+        
+    }
+};
 
 
 /******************************************************************************
  * Export
 *******************************************************************************/
-export { <%= module %> };
+export default <%= module %>;

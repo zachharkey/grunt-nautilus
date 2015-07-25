@@ -76,16 +76,6 @@ module.exports = function ( grunt ) {
         /////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////
-        /** Ender config. */
-        ender: {
-            options: {
-                srcmap: "/js/lib/ender/ender",
-                output: "test/src/js/lib/ender/ender",
-                dependencies: ["more-jeesh"]
-            }
-        },
-
-
         /** Nautilus config. */
         nautilus: {
             options: {
@@ -94,6 +84,8 @@ module.exports = function ( grunt ) {
                 jsAppRoot: "test/src/js/app",
                 jsLibRoot: "test/src/js/lib",
                 jsRoot: "test/src/js",
+                cssRoot: "test/out/css",
+                sassRoot: "test/src/sass",
                 jsGlobals: {
                     $: true
                 },
@@ -102,31 +94,26 @@ module.exports = function ( grunt ) {
                     "build",
                     "deploy"
                 ],
-                whitespace: {
-                    files: [
-                        "test/src/js/app/**/*.js"
-                    ],
-
-                    watch: true
-                },
-                compass: {
-                    cssRoot: "test/out/css",
-                    sassRoot: "test/src/sass"
-                },
                 standAlone: ["lynx", "foo/bar/baz"]
             }
         }
     });
 
 
+    // These plugins provide necessary tasks.
+    grunt.loadNpmTasks( "grunt-contrib-jshint" );
+    grunt.loadNpmTasks( "grunt-contrib-concat" );
+    grunt.loadNpmTasks( "grunt-contrib-uglify" );
+    grunt.loadNpmTasks( "grunt-contrib-watch" );
+    grunt.loadNpmTasks( "grunt-contrib-sass" );
+    grunt.loadNpmTasks( "grunt-contrib-clean" );
+    grunt.loadNpmTasks( "grunt-jsdoc" );
+    grunt.loadNpmTasks( "grunt-postcss" );
+    grunt.loadNpmTasks( "grunt-contrib-nodeunit" );
+
+
     // Actually load this plugin's task(s).
     grunt.loadTasks( "tasks" );
-
-
-    // These plugins provide necessary tasks.
-    grunt.loadNpmTasks( "grunt-contrib-clean" );
-    grunt.loadNpmTasks( "grunt-contrib-nodeunit" );
-    grunt.loadNpmTasks( "grunt-contrib-jshint" );
 
 
     // Register default task.

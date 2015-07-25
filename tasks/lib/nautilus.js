@@ -37,6 +37,9 @@ module.exports = (function ( grunt ) {
 
     var _ = grunt.util._,
 
+        // Autoprefixer
+        autoprefixer = require( "autoprefixer-core" ),
+
         // Core node
         nodePath = require( "path" ),
 
@@ -48,12 +51,10 @@ module.exports = (function ( grunt ) {
 
         // All the goodies :-)
         options = core.options,
-        ender = grunt.config.get( "ender" ),
         flags = {
             env: grunt.option( "env" ),
             loud: grunt.option( "loud" ),
-            path: grunt.option( "path" ),
-            
+            path: grunt.option( "path" )
         },
 
         // Compile types
@@ -61,11 +62,7 @@ module.exports = (function ( grunt ) {
             globals: "toGlobals"
         },
 
-        // Pre-compile Process function
-        onAfterEnder = function () {},
-
         // Regex
-        rEnderSrcMap = /\/\/#\ssourceMappingURL=(.*?)ender\.js\.map/,
         rAppModule = /\.tmp\/module-\d{1,2}-app-|\.tmp\/\.app\.js/,
         rController = /controller/,
         rQuoted = /"|'/g,
@@ -78,13 +75,17 @@ module.exports = (function ( grunt ) {
         jshintrc = JSON.parse( grunt.file.read( nodePath.join( core.dirs.root, ".jshintrc" ) ) ),
 
         // Write/read dirs
-        __sass__ = ( options.compass && options.compass.sassRoot ) ? options.compass.sassRoot : undefined,
+        __css__ = options.cssRoot,
+        __sass__ = options.sassRoot,
         __dist__ = options.jsDistRoot,
         __pub__ = options.pubRoot,
         __app__ = options.jsAppRoot,
         __lib__ = options.jsLibRoot,
         __js__ = options.jsRoot,
         __cwd__ = ".",
+
+        // Jsdoc destination
+        __docs__ = nodePath.join( __js__, "docs" ),
 
         // File extenstion for app
         __ext__ = ".js",
@@ -97,7 +98,7 @@ module.exports = (function ( grunt ) {
 
         // Core globs for app dev
         coreTasks = {
-            watchJs: [__js__ + "/**/*.js", "!" + __js__ + "/dist/*.js"],
+            watchJs: [__js__ + "/**/*.js", "!" + __js__ + "/dist/*.js", "!" + __js__ + "/docs/*.js"],
             watchSass: [__sass__ + "/**/*.scss"],
             jshint: [__app__ + "/**/*.js"]
         },
@@ -150,31 +151,6 @@ module.exports = (function ( grunt ) {
              *
              */
             this._args = null;
-
-            // Load the peer packages
-            this.plugins();
-        },
-
-        /**
-         *
-         * Nautilus plugin loader
-         * @memberof Nautilus
-         * @method plugins
-         *
-         */
-        plugins: function () {
-            var packageJson = grunt.file.read( nodePath.join( core.dirs.root, "package.json" ) ),
-                peerPackages = JSON.parse( packageJson ).peerDependencies;
-
-            _.each( peerPackages, function ( val, key ) {
-                if ( key !== "grunt" ) {
-                    grunt.loadNpmTasks( key );
-
-                    core.logger.log( "LOAD_PLUGIN", {
-                        plugin: key
-                    });
-                }
-            });
         },
 
         /**
@@ -204,81 +180,99 @@ module.exports = (function ( grunt ) {
                     );
                     break;
 
-                case "whitespace":
-                    this.doCleanLines();
-                    break;
-
-                case "compass":
-                    this.taskCompass();
-                    break;
-
                 // Default is to compile javascript
                 default:
-                    this.doPreTasks(function () {
-                        build = _.compose(
-                            instance.taskCompile,
-                            instance.taskHint,
-                            instance.taskClean,
-                            instance.taskWatch,
-                            instance.taskCompass,
-                            instance.moduleDist,
-                            instance.moduleWrite,
-                            instance.moduleCompile,
-                            instance.moduleRecurse,
-                            instance.moduleParse,
-                            instance.moduleLoad
-                        );
+                    build = _.compose(
+                        instance.taskCompile,
+                        instance.taskHint,
+                        instance.taskClean,
+                        instance.taskWatch,
+                        instance.taskSass,
+                        instance.taskJsdoc,
+                        instance.moduleDist,
+                        instance.moduleWrite,
+                        instance.moduleCompile,
+                        instance.moduleRecurse,
+                        instance.moduleParse,
+                        instance.moduleLoad
+                    );
 
-                        // Everything starts from nothing
-                        build( {} );
-                    });
+                    // Everything starts from nothing
+                    build( {} );
                     break;
             }
         },
 
         /**
          *
-         * Nautilus execute the compass task config
+         * Nautilus execute the jsdoc task config
          * @memberof Nautilus
-         * @method taskCompass
+         * @method taskJsdoc
          * @param {object} modules The build modules object
          *
          */
-        taskCompass: function ( modules ) {
-            var config = {};
+        taskJsdoc: function ( modules ) {
+            if ( options.jsdocs ) {
+                core.config.jsdoc({
+                    source: {
+                        src: [__tmp__],
 
-            if ( options.compass && options.compass.cssRoot && options.compass.sassRoot ) {
-                config.options = {
-                    force: true,
-                    httpPath: "/",
-                    noLineComments: true,
-                    cssDir: options.compass.cssRoot,
-                    sassDir: options.compass.sassRoot
-                };
-
-                if ( options.compass.imgRoot ) {
-                    config.options.imagesDir = options.compass.imgRoot;
-                }
-
-                if ( options.compass.fontsRoot ) {
-                    config.options.fontsDir = options.compass.fontsRoot;
-                }
-
-                config.development = {
-                    options: {
-                        environment: "development",
-                        outputStyle: "expanded"
+                        options: {
+                            destination: __docs__
+                        }
                     }
+                });
+            }
+
+            return modules;
+        },
+
+        /**
+         *
+         * Nautilus execute the sass task config
+         * @memberof Nautilus
+         * @method taskSass
+         * @param {object} modules The build modules object
+         *
+         */
+        taskSass: function ( modules ) {
+            var config = {
+                styles: {}
+            };
+
+            if ( options.cssRoot && options.sassRoot ) {
+                config.styles.options = {
+                    style: (instance._env === "development" ? "expanded" : "compressed"),
+                    sourcemap: "none"
                 };
 
-                config.production = {
-                    options: {
-                        environment: "production",
-                        outputStyle: "compressed"
+                config.styles.files = {};
+
+                grunt.file.recurse( __sass__, function ( abspath, rootdir, subdir, filename ) {
+                    // Ignore partials
+                    if ( !/^_|^\./.test( filename ) ) {
+                        var cssFile = nodePath.join( __css__, filename.replace( /\.scss|\.sass/g, ".css" ) );
+
+                        console.log( cssFile );
+
+                        config.styles.files[ cssFile ] = abspath;
                     }
-                };
+                });
 
-                core.config.compass( config );
+                core.config.sass( config );
+
+                // Setup postcss for autoprefixer
+                core.config.postcss({
+                    options: {
+                        processors: [
+                            autoprefixer( {browsers: options.browsers} )
+                        ]
+                    },
+
+                    dist: {
+                        src: (__css__ + "/*.css")
+                    }
+                });
             }
 
             return modules;
@@ -294,13 +288,13 @@ module.exports = (function ( grunt ) {
          */
         taskWatch: function ( modules ) {
             var scriptTasks = core.util.mergeTasks( "watch", ["nautilus:build", "clean:nautilus"] ),
-                stylesTasks = core.util.mergeTasks( "watch", ["nautilus:compass", ("compass:" + instance._env)] ),
+                stylesTasks = core.util.mergeTasks( "watch", ["nautilus:sass"] ),
                 watch = {
                     scripts: {
                         files: coreTasks.watchJs,
                         tasks: scriptTasks
                     },
-                    compass: {
+                    styles: {
                         files: coreTasks.watchSass,
                         tasks: stylesTasks
                     }
@@ -392,25 +386,7 @@ module.exports = (function ( grunt ) {
 
             _.each( modules, function ( module, key ) {
                 var transpiled = [],
-                    //source = [],
-                    //keySource = key + "-SOURCE",
                     keyTranspiled = key + "-TRANSPILED" + (module.standAlone ? "-STANDALONE" : "");
-
-                /** Still too much to account for here...
-                _.each( module.dependencies, function ( dep, key ) {
-                    if ( rApp.test( key ) ) {
-                        source.push( dep.src );
-                    }
-                });
-
-                jshint[ keySource ] = {
-                    src: source,
-
-                    options: {
-                        strict: false
-                    }
-                };
-                */
 
                 _.each( module.dist.src, function ( el ) {
                     if ( rAppModule.test( el ) ) {
@@ -440,12 +416,15 @@ module.exports = (function ( grunt ) {
         taskCompile: function ( modules ) {
             var task = ( instance._task === "deploy" ) ? instance._task : "build",
                 contrib = ( instance._task === "deploy" ) ? "uglify" : "concat",
-                tasks = core.util.mergeTasks( task, [contrib, "clean:nautilus"] );
+                tasks = [contrib];
 
-            // Check for compass
-            if ( options.compass ) {
-                tasks.push( "compass:" + instance._env );
+            if ( options.jsdocs ) {
+                tasks.push( "jsdoc" );
             }
+
+            tasks.concat( ["clean:nautilus", "sass", "postcss"] );
+
+            tasks = core.util.mergeTasks( task, tasks );
 
             grunt.task.run( tasks );
 
@@ -800,8 +779,6 @@ module.exports = (function ( grunt ) {
                 case "build":
                 case "deploy":
                 case "watch":
-                case "compass":
-                case "whitespace":
                     this._task = task;
                     break;
 
@@ -846,53 +823,6 @@ module.exports = (function ( grunt ) {
 
         /**
          *
-         * Nautilus parse and cleanout whitespace in application javascript
-         * @memberof Nautilus
-         * @method doCleanLines
-         *
-         */
-        doCleanLines: function () {
-            var files = [];
-
-            if ( options.whitespace && options.whitespace.files ) {
-                _.each( options.whitespace.files, function ( el ) {
-                    files = files.concat( grunt.file.expand( el ) );
-                });
-
-                _.each( files, function ( el ) {
-                    core.util.cleanWhiteSpace( el );
-
-                    core.logger.log( "WHITESPACE_CLEANED", {
-                        file: el
-                    });
-                });
-            }
-        },
-
-        /**
-         *
-         * Nautilus execute async pre-compile necessary tasks before compiling
-         * @memberof Nautilus
-         * @method doPreTasks
-         * @param {function} cb The callback to fire
-         *
-         */
-        doPreTasks: function ( cb ) {
-            if ( ender ) {
-                onAfterEnder = _.once( cb );
-
-                // Waiting for pull request
-                // https://github.com/endium/grunt-ender/pull/4
-                // grunt.task.run( "ender:refresh" );
-                grunt.task.run( "ender" );
-
-            } else {
-                cb();
-            }
-        },
-
-        /**
-         *
          * Nautilus test the compile type, currently only "globals" is supported
          * @memberof Nautilus
          * @method tryType
@@ -906,52 +836,6 @@ module.exports = (function ( grunt ) {
             }
         }
     };
-
-
-    // grunt event management
-
-    /**
-     * 
-     * Listen for ender builds to finish.
-     * Added to grunt-ender:
-     * https://github.com/endium/grunt-ender/pull/2
-     * Ender.js files that are created on build:
-     * ender.js
-     * ender.js.map
-     * ender.min.js
-     * ender.min.js.map
-     *
-     */
-    grunt.event.on( "grunt_ender_build_done", function () {
-        // This would need to know how to serve static assets, for instance on a caribou project:
-        // //# sourceMappingURL=resources/public/js/lib/ender/ender.js.map would need to actually be:
-        // //# sourceMappingURL=/js/lib/ender/ender.js.map
-
-        // The only way to do this is to have the plugin user define that for us.
-        // This is an unofficial grunt-ender option we'll use to accomplish this.
-        if ( ender.options.srcmap ) {
-            var file = (ender.options.output + __ext__),
-                srcmap = ("//# sourceMappingURL=" + ender.options.srcmap + __ext__ + ".map"),
-                script = grunt.file.read( file ).replace( rEnderSrcMap, srcmap );
-            
-            grunt.file.write( file, script );
-        }
-
-        onAfterEnder();
-    });
-
-
-    /**
-     * 
-     * Listen for watch event.
-     * Cleans whitespace lines from files if option is set to true.
-     *
-     */
-    grunt.event.on( "watch", function ( action, filepath ) {
-        if ( options.whitespace && options.whitespace.watch ) {
-            core.util.cleanWhiteSpace( filepath );
-        }
-    });
 
 
     // Return the instance

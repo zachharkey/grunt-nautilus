@@ -1,24 +1,23 @@
 grunt-nautilus
 ==============
 
-> Build modular javascript applications and frameworks that make sense
+> Build modular javascript applications and frameworks that make sense.
 
-[ender]: http://ender.jit.su/
-[compass]: http://compass-style.org
-[grunt]: http://github.com/gruntjs/grunt
-[grunt-ender]: https://github.com/endium/grunt-ender
-[grunt-contrib-watch]: http://github.com/gruntjs/grunt-contrib-watch
-[grunt-contrib-clean]: https://github.com/gruntjs/grunt-contrib-clean
-[grunt-contrib-concat]: http://github.com/gruntjs/grunt-contrib-concat
-[grunt-contrib-uglify]: http://github.com/gruntjs/grunt-contrib-uglify
-[grunt-contrib-jshint]: http://github.com/gruntjs/grunt-contrib-jshint
-[grunt-contrib-compass]: http://github.com/gruntjs/grunt-contrib-compass
-[es6-module-transpiler]: https://github.com/square/es6-module-transpiler
-[grunt-init-gruntnautilus]: http://github.com/kitajchuk/grunt-init-gruntnautilus
-[grunt-nautilus-demo]: http://grunt-nautilus.blkpdx.com/slides/
+[grunt-init-gruntnautilus]: 
+[grunt-nautilus-demo]: 
 
 ### Demo
-- [grunt-nautilus-demo][]
+- [grunt-nautilus-demo][http://github.com/kitajchuk/grunt-init-gruntnautilus]
+
+
+
+## About
+Grunt Nautilus is a tool to configure your Grunt config. This means you get to focus on making beautiful web apps, not setting them up.
+
+It also manages a smart, micro client-side application structure for consistency in development across projects. You'll get Javascript and SASS management using contrib plugins. Nautilus uses [autoprefixer] and [postcss] in conjunction with SASS for targeting browser support on your app.
+
+Nautilus compiles your application into a single browser global: `app`. This scope houses all that you author for your app in a nice little package.
+
 
 
 ## Getting Started
@@ -26,36 +25,15 @@ This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin in one of two ways:
 
-The recommended install is via the init template. Checkout [grunt-init-gruntnautilus][] for info on installing the template and how to use it. The other way is to simply install with npm and configure your Gruntfile:
+The recommended install is via the init template. Checkout [grunt-init-gruntnautilus][http://grunt-nautilus.blkpdx.com/slides/] for info on installing the template and how to use it.
 
-```shell
-npm install grunt-nautilus --save-dev
-```
-Once the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
-
-```js
-grunt.loadNpmTasks( "grunt-nautilus" );
-```
-
-### Peer dependencies
-This plugin loads a handful of other grunt plugins as peer dependencies. If you're using this plugin, you won't need to load any of the following yourself:
- - [grunt][]
- - [grunt-contrib-jshint][]
- - [grunt-contrib-concat][]
- - [grunt-contrib-uglify][]
- - [grunt-contrib-watch][]
- - [grunt-contrib-compass][]
- - [grunt-contrib-clean][]
- - [grunt-ender]
 
 
 
 ## Nautilus task
 _Run this task with the `grunt nautilus` command._
 
-Task targets, files and options may be specified according to the grunt [Configuring tasks](http://gruntjs.com/configuring-tasks) guide.
-
-This is the recommended default task implementation and also what you'll see in your Gruntfle if you used the init template:
+Task targets, files and options may be specified according to the grunt [Configuring tasks](http://gruntjs.com/configuring-tasks) guide. This is the recommended default task implementation and also what you'll see in your Gruntfile after using the init template:
 
 ```js
 grunt.registerTask( "default", ["nautilus:build"] );
@@ -66,15 +44,15 @@ grunt.registerTask( "default", ["nautilus:build"] );
 This plugin has some reserved task arguments. You can think of them as super-powered task configuration that you don't have to configure yourself.
 
 #### `nautilus:build`
-For development sandbox modes this argument runs nautilus core without uglification.  
-Tasks: `jshint`, `concat`, `clean`, `compass`, `ender`
+For development sandbox modes this argument runs nautilus core without concat and expanded css.  
+Tasks: `jshint`, `jsdoc`, `concat`, `clean`, `sass`, `poscss`
 
 #### `nautilus:deploy`
-For real world environments, this argument runs nautilus core with uglification.  
-Tasks: `jshint`, `uglify`, `clean`, `compass`, `ender`
+For real world environments, this argument runs nautilus core with uglification and compressed css. 
+Tasks: `jshint`, `jsdoc`, `uglify`, `clean`, `sass`, `poscss`
 
 #### `nautilus:module [, flags...]`
-This argument creates templated module files for you using the es6 module syntax.
+This argument creates a template module file for you to start from.
 
 
 ### Flags
@@ -90,17 +68,23 @@ This flag is used alongside the module argument to create new modules, `grunt na
 Type: `Boolean`  
 Default: `undefined`
 
-Tell grunt-nautilus to log everything it is doing. This is handy for development of the plugin and for understanding how the plugin works from a user's perspective. But, ultimately, these logs will become cumbersome to see and you likely won't want this running all the time.
+Tell grunt-nautilus to log everything it is doing. This is handy for development when working on grunt-nautilus.
 
 #### --env
 Type: `String`  
 Default: `undefined`
 
-Tell grunt-nautilus to use this specified environment for executing `compass` on build and deploy.
+Tell grunt-nautilus to use this specified environment for executing `sass` on build and deploy.
 
 
 ### Options
-These are the supported options for this plugin. It may be helpfull to glance over an example of a [Gruntfile with all available options and configuration specified](#example-gruntfile-with-all-specified-options-and-configuration) to get an idea of what all you can let grunt-nautilus handle for you.
+These are the supported options for this plugin.
+
+#### pubRoot
+Type: `String`  
+Default: `undefined`
+
+Specifies the target public resources directory. Your js root is usually in this directory.
 
 #### jsRoot
 Type: `String`  
@@ -126,19 +110,11 @@ Default: `undefined`
 
 Specifies the target dist directory within the js root.
 
-#### pubRoot
-Type: `String`  
-Default: `undefined`
-
-Specifies the target public resources directory. Your js root is usually in this directory.
-
 #### jsGlobals
 Type: `Object`  
 Default: ```js{app: true, console: true, module: true}```
 
 Same as `jshint.options.globals`. Your globals will be merged with the defaults.
-
-Configuration to be used with [grunt-sails-linker][].
 
 #### main
 Type: `Array`  
@@ -158,242 +134,65 @@ Default: `undefined`
 
 A list of non-app files that you would like js linting to occur against.
 
-#### compass
-Type: `Object`  
-Default: `undefined`
-
-Set this with `cssRoot` and `sassRoot` properties if you would like compass configured and compiled using `grunt-contrib-compass`.
-
 #### standAlone
 Type: `Array`  
 Default: `[]`
 
-Add file names here, extensionless and relative to the app javascript directory, to be compiled to `dist` without the app object compiled on top of them.
+Add file names here, extension-less and relative to the app javascript directory, to be compiled to `dist` without the app object compiled on top of them.
+
+#### browsers
+Type: `String`  
+Default: `"last 2 versions"`
+
+Add the browser support you want autoprefixer-core to use.
+
+#### jsdocs
+Type: `Boolean`  
+Default: `true`
+
+Generate jsdocs for your application. Destination is to `docs` at the `jsRoot` directory.
 
 
 
 
 ### Usage examples
-
-#### Using jsGlobals
-The jsGlobals option is an object that will be merged with jshint.options.globals.
+This is an example of what all nautilus options look like in context.
 ```js
 grunt.initConfig({
     nautilus: {
         options: {
+            pubRoot: "test/src",
+            jsDistRoot: "test/out/js/dist",
+            jsAppRoot: "test/src/js/app",
+            jsLibRoot: "test/src/js/lib",
+            jsRoot: "test/src/js",
+            cssRoot: "test/out/css",
+            sassRoot: "test/src/sass",
             jsGlobals: {
-                $: true,
-                jQuery: true
-            }
-        }
-    }
-});
-```
-
-#### Using hintOn and hintAt
-The hintOn option specifies tasks you want linting to run on. The hintAt option specifies files outside of your authored app you want to be linted.
-```js
-grunt.initConfig({
-    nautilus: {
-        options: {
+                Hammer: true,
+                require: true
+            },
             hintOn: [
                 "watch",
                 "build",
                 "deploy"
             ],
             hintAt: [
-                "lib/plugins/**/*.js"
-            ]
+                "lib/proper.js"
+            ],
+            standAlone: ["complex"],
+            browsers: "last 3 versions",
+            jsdocs: false
         }
     }
 });
 ```
 
-### Example Gruntfile with ALL specified options and configuration
-This is a helpful example of all the options and configuration grunt-nautilus will work with. The `ender` config is totally optional. If the ender config is present than grunt-nautilus will execute your ender build on every build/deploy task execution ensuring your dist js is always up to date with your latest ender config.
-```js
-module.exports = function ( grunt ) {
-    var pubRoot = ".",
-        sassRoot = "./sass",
-        cssRoot = "./css",
-        fontsRoot = "./fonts",
-        imgRoot = "./img",
-        jsRoot = "./js",
-        appRoot = jsRoot+"/app",
-        libRoot = jsRoot+"/lib",
-        distRoot = jsRoot+"/dist";
-        
-    grunt.initConfig({
-        // Nautilus config.
-        nautilus: {
-            options: {
-                hintAt: [],
-                hintOn: [
-                    "watch",
-                    "build",
-                    "deploy"
-                ],
-                jsAppRoot: appRoot,
-                jsDistRoot: distRoot,
-                jsGlobals: {
-                    $: true,
-                    ender: true
-                },
-                jsLibRoot: libRoot,
-                jsRoot: jsRoot,
-                main: [
-                    "myApp.js"
-                ],
-                pubRoot: pubRoot,
-                compass: {
-                    cssRoot: cssRoot,
-                    sassRoot: sassRoot,
-                    imgRoot: imgRoot,
-                    fontsRoot: fontsRoot
-                }
-            }
-        },
-        // Ender config. ( optional )
-        ender: {
-            options: {
-                output: libRoot+"/ender/ender",
-                dependencies: ["jeesh"]
-            }
-        }
-    });
-    
-    grunt.loadNpmTasks( "grunt-nautilus" );
-    
-    grunt.registerTask( "default", ["nautilus:build"] );
-};
-```
 
 
-
-
-## Authoring applications
-This plugin uses the [es6-module-transpiler][] to parse es6 syntax within your application files. This means you get to write clean, modular applicational code that compiles into a full application object for the browser. I highly recommend checking out the documentation on [supported es6 syntax](https://github.com/square/es6-module-transpiler#supported-es6-module-syntax) for the module. This plugin supports all syntax the module supports but implements a custom compiled output. The `globals` output is used internally, however it undergoes extra parsing to output a clean application object to the global scope of the browser document.
-
-Any application schema can be created using the `app` argument and passing it any number of additional arguments. The arguments are parsed into a directory path with the last argument being the module js file. A core application file will preceed all your modules in the dependency stack for dist js builds. This file creates the base global app that is used for the custom compiled output of your application. You can review that core file [here](https://github.com/kitajchuk/grunt-nautilus/blob/master/app/app.js).
-
-Module import paths will be relative to your `jsRoot` option:
- - `import { baz } from "app/foo/bar/baz";`
- - `import "lib/ender/ender";`
-
-In terms of looking up module imports, grunt-nautilus will look in the following places: `jsAppRoot`, `jsRoot`, `pubRoot` and lastly from the `Gruntfile` location. This should be more than enough in terms of application organization in conjunction with using third party package managers like npm or bower. When using third party imports that don't utilize the es6 export syntax, grunt-nautilus will try to find a global to match it to. A config of popular js libs is maintained internally to try to do this. If your import is not found there, the `jsGlobals` option will be referenced. If no match is found, the import will be assumed global and included in the dist stack but not sandboxed into the current modules closure.
-
-### Example application module
-To create a new `index` controller module for you application run the following:
-```shell
-grunt nautilus:module --path "controllers/index"
-```
-A new module controller will be generated for you at app/controllers/index.js within your jsRoot.
-```js
-var index = {
-    init: function () {
-        
-    }
-};
-
-export default = index;
-```
-Now run `grunt nautilus:build` and you're controller will compile to this:
-```js
-(function( window, document, undefined ) {
-  "use strict";
-  
-  var index = {
-      init: function () {
-          
-      }
-  };
-
-  window.app.controllers.index = index;
-})( window, window.document );
-```
-Now add an import, say you're managing your jQuery build with bower:
-```js
-import "bower_components/jquery/jquery";
-
-var index = {
-    init: function () {
-        
-    }
-};
-
-export default = index;
-```
-Which will compile to the following, sandboxing jQuery as $ into your closure for this module and ensuring jQuery is compiled into your dist js above your module in the stack:
-```js
-(function( window, document, $, undefined ) {
-  "use strict";
-  
-  var index = {
-      init: function () {
-          
-      }
-  };
-
-  window.app.controllers.index = index;
-})( window, window.document, window.jQuery );
-```
-
-### Assigning modules to variables
-You can directly assign a module to a variable for use in your application. This syntax would assume the baz module is an object with properties that can be individually imported:
-```js
-import { bot } from "app/foo/bar/baz";
-
-var index = {
-    init: function () {
-        
-    }
-};
-
-export default = index;
-```
-This will compile to the following:
-```js
-(function( window, document, baz, undefined ) {
-  "use strict";
-  
-  var bot = baz.bot;
-  
-  var index = {
-      init: function () {
-          
-      }
-  };
-
-  window.app.controllers.index = index;
-})( window, window.document, window.app.foo.bar.baz );
-```
-To put this in context, the baz module may look something like this:
-```js
-var bot = "bot";
-var bat = "bat";
-
-export { bot, bat };
-```
-
-### Assuming the global app
-Alternatively, the global `app` object is assumed for you application and you can do plain imports and reference modules in a global scope manner as well:
-```js
-import "app/foo/bar/baz";
-
-var index = {
-    init: function () {
-        console.log( app.foo.bar.baz );
-    }
-};
-
-export default = index;
-```
-This is a nice way to import third party scripts like jQuery or ender where you would want the sandboxed `$` as opposed to a variable assigned `$`.
-
-
-
-
-## Release History
-- 0.3.20 Stable early release
-- 0.4.0  Beta es6-module-transpiler release
-- 0.4.7  Stable es6-module-transpiler release
+### Pull Requests
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request

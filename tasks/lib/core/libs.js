@@ -46,9 +46,5 @@ module.exports = {
 
     hammer: {
         context: "Hammer"
-    },
-
-    funpack: {
-        context: "funpack"
     }
 };
