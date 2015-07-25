@@ -3,18 +3,17 @@ grunt-nautilus
 
 > Build modular javascript applications and frameworks that make sense.
 
-[grunt-init-gruntnautilus]: 
-[grunt-nautilus-demo]: 
+
 
 ### Demo
-- [grunt-nautilus-demo][http://github.com/kitajchuk/grunt-init-gruntnautilus]
+- [grunt-nautilus-demo](http://grunt-nautilus.blkpdx.com/slides/)
 
 
 
 ## About
 Grunt Nautilus is a tool to configure your Grunt config. This means you get to focus on making beautiful web apps, not setting them up.
 
-It also manages a smart, micro client-side application structure for consistency in development across projects. You'll get Javascript and SASS management using contrib plugins. Nautilus uses [autoprefixer] and [postcss] in conjunction with SASS for targeting browser support on your app.
+It also manages a smart, micro client-side application structure for consistency in development across projects. You'll get Javascript and SASS management using contrib plugins. Nautilus uses [autoprefixer](https://github.com/postcss/autoprefixer-core) and [postcss](https://github.com/postcss/postcss) in conjunction with SASS for targeting browser support on your app.
 
 Nautilus compiles your application into a single browser global: `app`. This scope houses all that you author for your app in a nice little package.
 
@@ -25,7 +24,7 @@ This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin in one of two ways:
 
-The recommended install is via the init template. Checkout [grunt-init-gruntnautilus][http://grunt-nautilus.blkpdx.com/slides/] for info on installing the template and how to use it.
+The recommended install is via the init template. Checkout [grunt-init-gruntnautilus](http://github.com/kitajchuk/grunt-init-gruntnautilus) for info on installing the template and how to use it.
 
 
 
