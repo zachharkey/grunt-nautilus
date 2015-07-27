@@ -388,7 +388,13 @@ module.exports = (function ( grunt ) {
                     keyTranspiled = key + "-TRANSPILED" + (module.standalone ? "-STANDALONE" : "");
 
                 _.each( module.dist.src, function ( el ) {
-                    transpiled.push( el );
+                    var splits = el.split( __tmp__ ),
+                        file = splits[ 1 ];
+
+                    // Restrict jshint to javascript in the jsApp directory
+                    if ( file && grunt.file.exists( nodePath.join( __app__, file ) ) ) {
+                        transpiled.push( el );
+                    }
                 });
 
                 jshint[ keyTranspiled ] = {
