@@ -3,7 +3,7 @@
  * grunt-nautilus logger
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  *
@@ -16,7 +16,7 @@ module.exports = (function ( g ) {
         logs = {
             MISSING_MODULE: {
                 type: "fatal",
-                log: "Could not locate import found in <%= file %>"
+                log: "Could not locate import `<%= path %>` found in `<%= file %>`"
             },
 
             MISSING_IMPORT: {
@@ -67,11 +67,6 @@ module.exports = (function ( g ) {
             MISSING_HINTAT: {
                 type: "warn",
                 log: "Pattern for options.hintAt not matched: <%= el %>"
-            },
-
-            MERGE_BUILDIN: {
-                type: "ok",
-                log: "Merging buildIn <%= buildIn %> for <%= script %>"
             },
 
             GLOBAL_UNDEFINED: {

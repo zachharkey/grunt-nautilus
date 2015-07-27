@@ -94,7 +94,7 @@ module.exports = function ( grunt ) {
                     "build",
                     "deploy"
                 ],
-                standAlone: ["lynx", "foo/bar/baz"]
+                standalone: ["lynx"]
             }
         }
     });

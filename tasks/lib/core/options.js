@@ -3,7 +3,7 @@
  * grunt-nautilus options
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  *
@@ -39,6 +39,7 @@ module.exports = (function ( g ) {
             },
             jsRoot: undefined,
             main: ["app.js"],
+            namespace: "app",
             pubRoot: undefined,
             type: "globals" // Secret option for now
         },

@@ -3,7 +3,7 @@
  * grunt-nautilus init
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  *
@@ -22,12 +22,14 @@ module.exports = (function ( g ) {
     }
 
     // Test/make sass
-    if ( o.sassRoot && !g.file.exists( o.sassRoot ) ) {
-        g.file.mkdir( o.sassRoot );
-    }
+    if ( o.sassRoot && o.cssRoot ) {
+        if ( o.sassRoot && !g.file.exists( o.sassRoot ) ) {
+            g.file.mkdir( o.sassRoot );
+        }
 
-    if ( !g.file.exists( o.sassRoot + "/screen.scss" ) ) {
-        g.file.copy( coreDirs.app + "/templates/screen.scss", o.sassRoot + "/screen.scss" );
+        if ( !g.file.exists( o.sassRoot + "/screen.scss" ) ) {
+            g.file.copy( coreDirs.app + "/templates/screen.scss", o.sassRoot + "/screen.scss" );
+        }
     }
 
     // Test/make jsRoot
@@ -42,7 +44,7 @@ module.exports = (function ( g ) {
     }
 
     if ( !g.file.exists( o.jsRoot + "/app/app.js" ) ) {
-        g.file.copy( coreDirs.app + "/howto.js", o.jsRoot + "/app/app.js" );
+        g.file.copy( coreDirs.app + "/hello-world.js", o.jsRoot + "/app/app.js" );
     }
 
     if ( !g.file.exists( o.jsRoot + "/lib" ) ) {

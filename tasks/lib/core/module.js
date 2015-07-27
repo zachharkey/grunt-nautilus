@@ -3,7 +3,7 @@
  * grunt-nautilus module
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  *
@@ -21,8 +21,7 @@ module.exports = (function ( g ) {
         rDub = /\/(\/)/g,
         reserved = [
             "env",
-            "log",
-            "exec"
+            "log"
         ];
 
     return {
@@ -30,11 +29,11 @@ module.exports = (function ( g ) {
             var args = _.toArray( arguments ),
                 options = g.config.get( "nautilus" ).options,
                 module = coreUtils.camelCase( args.pop() ),
-                namespace = args.join( "/" ),
-                filePath = nodePath.join( options.jsAppRoot, namespace, (module + ".js") ).replace( rDub, "$1" ),
+                filePath = nodePath.join( options.jsAppRoot, args.join( "/" ), (module + ".js") ).replace( rDub, "$1" ),
                 fileData = {
-                    module: module,
-                    namespace: namespace
+                    moduleName: module,
+                    globalName: options.namespace,
+                    modulePath: args.join( "." )
                 },
                 template = coreDirs.app + "/templates/module.js",
                 contents;

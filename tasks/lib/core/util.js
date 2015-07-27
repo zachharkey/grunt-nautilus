@@ -3,7 +3,7 @@
  * grunt-nautilus utils
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  *
@@ -37,7 +37,7 @@ module.exports = (function ( g ) {
         },
 
         tempName: function ( str ) {
-            return [_.uniqueId( "module-" )].concat( str.split( "/" ) ).join( "-" ); 
+            return str.replace( /^app\//, "" );
         },
 
         mergeConfig: function ( task, settings ) {
@@ -117,54 +117,6 @@ module.exports = (function ( g ) {
             walker( directory );
 
             return object;
-        },
-
-        mergeBuildIn: function ( filesArray, module ) {
-            if ( !options.buildIn ) {
-                return filesArray;
-            }
-
-            _.each( options.buildIn, function ( buildIn, name ) {
-                var builds = ( _.isString( buildIn.builds ) ) ? [buildIn.builds] : buildIn.builds,
-                    files = ( _.isString( buildIn.files ) ) ? [buildIn.files] : buildIn.files;
-
-                if ( _.contains( builds, module ) ) {
-                    if ( buildIn.priority > 0 ) {
-                        filesArray = filesArray.concat( files );
-
-                    } else {
-                        filesArray = files.concat( filesArray );
-                    }
-
-                    coreLogger.log( "MERGE_BUILDIN", {
-                        buildIn: name,
-                        script: module
-                    });
-                }
-            });
-            
-            return filesArray;
-        },
-
-        cleanWhiteSpace: function ( filepath ) {
-            var regex = /^\s+$/m,
-                rspace = /\s/g,
-                content = g.file.read( filepath ),
-                matched = content.match( regex ),
-                match,
-                index,
-                length;
-
-            while ( matched ) {
-                match = matched[ 0 ];
-                length = match.length;
-                index = matched.index;
-                
-                content = content.substr( 0, index ) + match.replace( rspace, "" ) + content.substr( index + length );
-                matched = content.match( regex );
-            }
-
-            g.file.write( filepath, content );
         }
     };
 

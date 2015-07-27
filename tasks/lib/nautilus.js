@@ -3,7 +3,7 @@
  * grunt-nautilus
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  * Resources
@@ -11,7 +11,6 @@
  *
  *
  * @todo: use grunt.config.merge
- * @todo: use grunt-contrib-watch atBegin option maybe...
  *
  *
  * @instance
@@ -19,6 +18,7 @@
  *  _args
  *  _task
  *  _schema
+ *
  *
  * @module
  *  src
@@ -63,8 +63,6 @@ module.exports = (function ( grunt ) {
         },
 
         // Regex
-        rAppModule = /\.tmp\/module-\d{1,2}-app-|\.tmp\/\.app\.js/,
-        rController = /controller/,
         rQuoted = /"|'/g,
         rLib = /^lib\//,
         rApp = /^app\//,
@@ -169,7 +167,7 @@ module.exports = (function ( grunt ) {
             this.setEnv();
             this.doClean();
             this.tryType();
-            this.setScheme();
+            this.setSchema();
 
             // What are we really doing here?
             switch ( this._task ) {
@@ -215,7 +213,7 @@ module.exports = (function ( grunt ) {
             if ( options.jsdocs ) {
                 core.config.jsdoc({
                     source: {
-                        src: [__tmp__],
+                        src: [__tmp__ + "/**/*.js"],
 
                         options: {
                             destination: __docs__
@@ -252,8 +250,6 @@ module.exports = (function ( grunt ) {
                     // Ignore partials
                     if ( !/^_|^\./.test( filename ) ) {
                         var cssFile = nodePath.join( __css__, filename.replace( /\.scss|\.sass/g, ".css" ) );
-
-                        console.log( cssFile );
 
                         config.styles.files[ cssFile ] = abspath;
                     }
@@ -293,12 +289,15 @@ module.exports = (function ( grunt ) {
                     scripts: {
                         files: coreTasks.watchJs,
                         tasks: scriptTasks
-                    },
-                    styles: {
-                        files: coreTasks.watchSass,
-                        tasks: stylesTasks
                     }
                 };
+
+            if ( options.cssRoot && options.sassRoot ) {
+                watch.styles = {
+                    files: coreTasks.watchSass,
+                    tasks: stylesTasks
+                };
+            }
 
             core.config.watch( watch );
 
@@ -386,12 +385,10 @@ module.exports = (function ( grunt ) {
 
             _.each( modules, function ( module, key ) {
                 var transpiled = [],
-                    keyTranspiled = key + "-TRANSPILED" + (module.standAlone ? "-STANDALONE" : "");
+                    keyTranspiled = key + "-TRANSPILED" + (module.standalone ? "-STANDALONE" : "");
 
                 _.each( module.dist.src, function ( el ) {
-                    if ( rAppModule.test( el ) ) {
-                        transpiled.push( el );
-                    }
+                    transpiled.push( el );
                 });
 
                 jshint[ keyTranspiled ] = {
@@ -419,10 +416,17 @@ module.exports = (function ( grunt ) {
                 tasks = [contrib];
 
             if ( options.jsdocs ) {
+                // Fresh clean on the jsdocs dir
+                rimraf.sync( __docs__ );
+
                 tasks.push( "jsdoc" );
             }
 
-            tasks.concat( ["clean:nautilus", "sass", "postcss"] );
+            tasks.push( "clean:nautilus" );
+
+            if ( options.cssRoot && options.sassRoot ) {
+                tasks = tasks.concat( ["sass", "postcss"] );
+            }
 
             tasks = core.util.mergeTasks( task, tasks );
 
@@ -461,15 +465,15 @@ module.exports = (function ( grunt ) {
                 };
             });
 
-            if ( _.isArray( options.standAlone ) ) {
-                options.standAlone = options.standAlone.map(function ( el ) {
+            if ( _.isArray( options.standalone ) ) {
+                options.standalone = options.standalone.map(function ( el ) {
                     return nodePath.join( __app__, core.util.front2Back( el ) );
                 });
 
-                _.each( options.standAlone, function ( val ) {
+                _.each( options.standalone, function ( val ) {
                     modules[ core.util.nameSpace( val ) ] = {
                         src: ( rJs.test( val ) ) ? val : (val + __ext__),
-                        standAlone: true
+                        standalone: true
                     };
                 });
             }
@@ -519,7 +523,7 @@ module.exports = (function ( grunt ) {
                     _.each( imports, function ( el ) {
                         var path, paths;
 
-                        // Matched lib import    
+                        // Matched lib import
                         if ( rLib.test( el ) ) {
                             path = nodePath.join( __lib__, el.replace( rLib, "" ) );
 
@@ -552,7 +556,7 @@ module.exports = (function ( grunt ) {
                                 deps[ el ] = dep;
                             }
 
-                        // Matched a dir    
+                        // Matched a dir
                         } else if ( path && grunt.file.isDir( path ) ) {
                             paths = grunt.file.expand( nodePath.join( path, "**/*" + __ext__ ) );
 
@@ -573,10 +577,11 @@ module.exports = (function ( grunt ) {
                                 }
                             });
 
-                        // No matches in available locations    
+                        // No matches in available locations
                         } else {
                             core.logger.log( "MISSING_MODULE", {
-                                file: module.src
+                                file: module.src,
+                                path: path
                             });
                         }
                     });
@@ -633,7 +638,7 @@ module.exports = (function ( grunt ) {
                     if ( rApp.test( key ) || key === "app" ) {
                         file = val.compiler[ es6Types[ options.type ] ]();
                         file = core.parser[ options.type ]( key, file );
-                        
+
                         val.fileContent = file;
                         val.tmp = nodePath.join( __tmp__, core.util.tempName( key ) + __ext__ );
 
@@ -646,18 +651,6 @@ module.exports = (function ( grunt ) {
 
                     module.dependencies[ key ] = val;
                 });
-
-                if ( rController.test( key ) ) {
-                    var exec = core.compiler.closure( "app.exec( \"" + core.util.moduleName( key ) + "\" );" ),
-                        path = nodePath.join( __tmp__, core.util.tempName( key + "/exec" ) + __ext__ );
-                    
-                    module.dependencies[ key + "/exec" ] = {
-                        src: path,
-                        fileContent: exec,
-                        compiler: null,
-                        tmp: path
-                    };
-                }
 
                 modules[ topKey ] = module;
             });
@@ -680,15 +673,16 @@ module.exports = (function ( grunt ) {
                     // Create the uniquely compiled app framework file
                     distFirst = _.template( __dep__, {
                         env: instance._env,
-                        schema: JSON.stringify( module.schema, null, 4 ).replace( rQuoted, "" )
+                        schema: JSON.stringify( module.schema, null, 4 ).replace( rQuoted, "" ),
+                        namespace: options.namespace
                     }),
-                    distFile = nodePath.join( __tmp__, ".app-" + moduleName + __ext__ );
+                    distFile = nodePath.join( __tmp__, ("app-core" + __ext__) );
 
                 grunt.file.write( distFile, distFirst );
 
-                // For standAlone files, only compile what is imported
+                // For standalone files, only compile what is imported
                 module.dist = {
-                    src: (module.standAlone) ? [] : [distFile],
+                    src: (module.standalone) ? [] : [distFile],
                     dest: nodePath.join( __dist__, moduleName + __ext__ )
                 };
 
@@ -715,7 +709,6 @@ module.exports = (function ( grunt ) {
                     }
                 });
 
-                module.dist.src = core.util.mergeBuildIn( module.dist.src, moduleName );
                 module.dist.src = _.uniq( module.dist.src );
 
                 modules[ key ] = module;
@@ -803,10 +796,10 @@ module.exports = (function ( grunt ) {
          *
          * Nautilus set the application object layout
          * @memberof Nautilus
-         * @method setScheme
+         * @method setSchema
          *
          */
-        setScheme: function () {
+        setSchema: function () {
             this._schema = core.util.getWalkedDirectory( __app__ );
         },
 

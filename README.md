@@ -5,17 +5,12 @@ grunt-nautilus
 
 
 
-### Demo
-- [grunt-nautilus-demo](http://grunt-nautilus.blkpdx.com/slides/)
-
-
-
 ## About
 Grunt Nautilus is a tool to configure your Grunt config. This means you get to focus on making beautiful web apps, not setting them up.
 
 It also manages a smart, micro client-side application structure for consistency in development across projects. You'll get Javascript and SASS management using contrib plugins. Nautilus uses [autoprefixer](https://github.com/postcss/autoprefixer-core) and [postcss](https://github.com/postcss/postcss) in conjunction with SASS for targeting browser support on your app.
 
-Nautilus compiles your application into a single browser global: `app`. This scope houses all that you author for your app in a nice little package.
+Nautilus compiles your application into a single browser global: `app`. This scope houses all that you author for your app in a nice little package. On top of that, if you provide accurate documentation of your code using the [jsdoc](http://usejsdoc.org/index.html) format, Nautilus will generate and refresh your documentation for you as your develop your app.
 
 
 
@@ -39,7 +34,7 @@ grunt.registerTask( "default", ["nautilus:build"] );
 ```
 
 
-### Arguments
+## Arguments
 This plugin has some reserved task arguments. You can think of them as super-powered task configuration that you don't have to configure yourself.
 
 #### `nautilus:build`
@@ -54,7 +49,7 @@ Tasks: `jshint`, `jsdoc`, `uglify`, `clean`, `sass`, `poscss`
 This argument creates a template module file for you to start from.
 
 
-### Flags
+## Flags
 There are a few optional flags available when working with grunt-nautilus.
 
 #### --path
@@ -76,8 +71,8 @@ Default: `undefined`
 Tell grunt-nautilus to use this specified environment for executing `sass` on build and deploy.
 
 
-### Options
-These are the supported options for this plugin.
+## File path options
+These are the options that point the Nautilus plugin in the right place to manage your app.
 
 #### pubRoot
 Type: `String`  
@@ -109,6 +104,17 @@ Default: `undefined`
 
 Specifies the target dist directory within the js root.
 
+
+
+## Configuration options
+These are the options that give you control over the tools that are streamlined by the plugin.
+
+#### namespace
+Type: `String`  
+Default: `"app"`
+
+This defines the browser global namespace you would like your app compiled to.
+
 #### jsGlobals
 Type: `Object`  
 Default: ```js{app: true, console: true, module: true}```
@@ -117,7 +123,7 @@ Same as `jshint.options.globals`. Your globals will be merged with the defaults.
 
 #### main
 Type: `Array`  
-Default: ```js["app.js", "controllers/**/*.js"]```
+Default: ```js["app.js"]```
 
 Specifies target control js relative to `jsAppRoot`. Your dist files are compiled from these.
 
@@ -133,7 +139,7 @@ Default: `undefined`
 
 A list of non-app files that you would like js linting to occur against.
 
-#### standAlone
+#### standalone
 Type: `Array`  
 Default: `[]`
 
@@ -154,19 +160,83 @@ Generate jsdocs for your application. Destination is to `docs` at the `jsRoot` d
 
 
 
-### Usage examples
+## Using JSDocs
+When using the built in jsdoc functionality, you'll want to make sure you document your code correctly. Some magic happens with Nautilus to make your app compile to the global `app` namespace. So you'll want to ensure your docs reflect that layout. Say you have a module called `navi`:
+
+```javascript
+/**
+ *
+ * @public
+ * @namespace app.navi
+ * @memberof app
+ * @description Follows Link around, can be rather annoying at times.
+ *
+ */
+```
+
+The above documentation ensures that the namespace field dictates the module is `app.navi`, not just `navi`. It also ensures that it is documented as a member of `app`.
+
+When nesting namespaces, you can provide a dummy file that will bridge the gap between the global `app` namespace and nested modules. Say you run the following:
+
+```shell
+grunt nautilus:module --path players/audio
+```
+
+You'll get your module at `players/audio` but you won't have a place for the players namespace to be documented. For now you can create a file in the players directory called players with your documentation:
+
+```javascript
+/**
+ *
+ * @public
+ * @namespace app.players
+ * @memberof app
+ * @description Holds the different media players for this app.
+ *
+ */
+```
+
+Subsequently, you could prepend this same documentation comment to one of the players sub-modules and achieve the same result:
+
+```javascript
+/**
+ *
+ * @public
+ * @namespace app.players
+ * @memberof app
+ * @description Holds the different media players for this app.
+ *
+ */
+ 
+ 
+ /**
+ *
+ * @public
+ * @namespace app.players.audio
+ * @memberof app.players
+ * @description Handles playing audio for this app.
+ *
+ */
+```
+
+It is up to you which method works best. Also note that there is an issue being tracked to bake this into Nautilus for you [here](https://github.com/kitajchuk/grunt-nautilus/issues/15).
+
+
+
+
+## Usage examples
 This is an example of what all nautilus options look like in context.
 ```js
 grunt.initConfig({
     nautilus: {
         options: {
-            pubRoot: "test/src",
-            jsDistRoot: "test/out/js/dist",
-            jsAppRoot: "test/src/js/app",
-            jsLibRoot: "test/src/js/lib",
-            jsRoot: "test/src/js",
-            cssRoot: "test/out/css",
-            sassRoot: "test/src/sass",
+            namespace: "kiki",
+            pubRoot: "src",
+            jsDistRoot: "out/js/dist",
+            jsAppRoot: "src/js/app",
+            jsLibRoot: "src/js/lib",
+            jsRoot: "src/js",
+            cssRoot: "out/css",
+            sassRoot: "src/sass",
             jsGlobals: {
                 Hammer: true,
                 require: true
@@ -179,7 +249,7 @@ grunt.initConfig({
             hintAt: [
                 "lib/proper.js"
             ],
-            standAlone: ["complex"],
+            standalone: ["complex"],
             browsers: "last 3 versions",
             jsdocs: false
         }
@@ -189,7 +259,7 @@ grunt.initConfig({
 
 
 
-### Pull Requests
+## Pull Requests
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)

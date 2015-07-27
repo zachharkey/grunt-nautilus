@@ -3,63 +3,66 @@
  * grunt-nautilus
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  *
  */
-(function ( window, undefined ) {
+(function ( context, undefined ) {
 
 
-var app,
-    
-    // Keep track of controller modules
-    controllers = [],
-    
-    // Keep track of executed modules
-    executed = {},
-    
+"use strict";
+
+
+var <%= namespace %>,
+
     // Handle console fallback
-    console = (window.console || {
+    console = (context.console || {
         log: function () {}
     });
 
 
 /**
  *
- * App {object}
- * @namespace app
- * @memberof! <global>
+ * @public
+ * @global
+ * @type {object}
+ * @namespace <%= namespace %>
+ * @description Global application container.
  *
  */
-app = <%= schema %>;
+<%= namespace %> = <%= schema %>;
 
 
 /**
  *
- * Environment setting
+ * @public
  * @member env
- * @memberof app
+ * @memberof <%= namespace %>
+ * @description Environment setting for application logging.
  *
  */ 
-app.env = "<%= env %>";
+<%= namespace %>.env = "<%= env %>";
 
 
 /**
  *
- * Console.log polyfill
+ * @public
  * @method log
- * @memberof app
+ * @memberof <%= namespace %>
+ * @param {arguments} args The arguments passed to `console.log`
+ * @description Console log wrapper for application.
  *
  */
-app.log = function () {
-    if ( !/^dev/.test( app.env ) ) {
+<%= namespace %>.log = function () {
+    // Suppress logs if not on a `dev` environment
+    if ( !/^dev/.test( <%= namespace %>.env ) ) {
         return;
     }
-    
-    app.log.history.push( arguments );
 
-    if ( window.console && window.console.log ) {
+    <%= namespace %>.log.history.push( arguments );
+
+    if ( context.console && context.console.log ) {
         console.log( [].slice.call( arguments, 0 ) );
     }
 };
@@ -67,52 +70,21 @@ app.log = function () {
 
 /**
  *
- * Log history
+ * @public
  * @member history
- * @memberof app.log
+ * @memberof <%= namespace %>.log
+ * @desctiption Reverse chronological log history a la {@link http://www.paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/}
  *
  */
-app.log.history = [];
+<%= namespace %>.log.history = [];
 
 
 /**
  *
- * Controller executor
- * @method exec
- * @param {string} module The name of the module controller to execute
- * @memberof app
- * @example app.exec( "foo" )
+ * Expose to the global scope
  *
  */
-app.exec = function ( module ) {
-    var moduleName = module;
-    
-    if ( app.controllers && app.controllers[ module ] ) {
-        module = app.controllers[ module ];
-        
-    } else {
-        module = undefined;
-    }
-    
-    if ( executed[ moduleName ] ) {
-            app.log( "Module " + moduleName + " already executed! Backing out..." );
-            
-    } else if ( module && (typeof module.init === "function") ) {
-        module.init();
-        
-        executed[ moduleName ] = true;
-    }
-    
-    return module;
-};
+context.<%= namespace %> = <%= namespace %>;
 
 
-/**
- *
- * Expose app to global scope
- *
- */
-window.app = app;
-
-
-})( window );
+})( this );

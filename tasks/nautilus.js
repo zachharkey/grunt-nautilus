@@ -3,7 +3,7 @@
  * grunt-nautilus
  * https://github.com/kitajchuk/grunt-nautilus
  *
- * Copyright (c) 2013 Brandon Kitajchuk
+ * Copyright (c) 2015 Brandon Kitajchuk
  * Licensed under the MIT license.
  *
  *
@@ -32,7 +32,7 @@ module.exports = function ( grunt ) {
     // Hijack the watch task.
     g.renameTask( "watch", "nautilus-watch" );
     g.registerTask( "watch", function () {
-        var watches = ["scripts", "compass", "gruntfile"],
+        var watches = ["scripts", "sass", "gruntfile"],
             task = "nautilus-watch",
             arg = _.first( this.args );
 
@@ -48,7 +48,7 @@ module.exports = function ( grunt ) {
     // Register the nautilus task.
     g.registerTask(
         "nautilus",
-        "Build modular javascript applications and frameworks that make sense",
+        "Build modular javascript applications and frameworks that make sense.",
         function () {
             n.compile( this.args );
         }
