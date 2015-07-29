@@ -675,16 +675,21 @@ module.exports = (function ( grunt ) {
         moduleWrite: function ( modules ) {
             _.each( modules, function ( module, key ) {
                 var moduleName = core.util.moduleName( key ),
+                    distFirst,
+                    distFile;
 
+                if ( !module.standalone ) {
                     // Create the uniquely compiled app framework file
                     distFirst = _.template( __dep__, {
                         env: instance._env,
                         schema: JSON.stringify( module.schema, null, 4 ).replace( rQuoted, "" ),
                         namespace: options.namespace
-                    }),
+                    });
+
                     distFile = nodePath.join( __tmp__, ("app-core" + __ext__) );
 
-                grunt.file.write( distFile, distFirst );
+                    grunt.file.write( distFile, distFirst );
+                }
 
                 // For standalone files, only compile what is imported
                 module.dist = {
