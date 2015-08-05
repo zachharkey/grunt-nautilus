@@ -783,6 +783,7 @@ module.exports = (function ( grunt ) {
                 case "build":
                 case "deploy":
                 case "watch":
+                case "sass":
                     this._task = task;
                     break;
 

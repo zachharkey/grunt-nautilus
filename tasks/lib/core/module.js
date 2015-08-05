@@ -31,9 +31,9 @@ module.exports = (function ( g ) {
                 module = coreUtils.camelCase( args.pop() ),
                 filePath = nodePath.join( options.jsAppRoot, args.join( "/" ), (module + ".js") ).replace( rDub, "$1" ),
                 fileData = {
-                    moduleName: module,
-                    globalName: options.namespace,
-                    modulePath: args.join( "." )
+                    module: module,
+                    namespace: [ options.namespace ].concat( args ).concat( [ module ] ).join( "." ),
+                    memberof: [ options.namespace ].concat( args ).join( "." )
                 },
                 template = coreDirs.app + "/templates/module.js",
                 contents;

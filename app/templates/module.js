@@ -1,17 +1,17 @@
 /**
  *
  * @public
- * @namespace <%= globalName %>.<%= modulePath %>.<%= moduleName %>
- * @memberof <%= globalName %>.<%= modulePath %>
+ * @namespace <%= namespace %>
+ * @memberof <%= memberof %>
  * @description A nice description of what this module does...
  *
  */
-var <%= moduleName %> = {
+var <%= module %> = {
     /**
      *
      * @public
      * @method init
-     * @memberof <%= globalName %>.<%= modulePath %>.<%= moduleName %>
+     * @memberof <%= namespace %>
      * @description Method runs once when window loads.
      *
      */
@@ -24,7 +24,7 @@ var <%= moduleName %> = {
      *
      * @public
      * @method isActive
-     * @memberof <%= globalName %>.<%= modulePath %>.<%= moduleName %>
+     * @memberof <%= namespace %>
      * @description Method informs PageController of active status.
      * @returns {boolean}
      *
@@ -38,7 +38,7 @@ var <%= moduleName %> = {
      *
      * @public
      * @method onload
-     * @memberof <%= globalName %>.<%= modulePath %>.<%= moduleName %>
+     * @memberof <%= namespace %>
      * @description Method performs onloading actions for this module.
      *
      */
@@ -51,7 +51,7 @@ var <%= moduleName %> = {
      *
      * @public
      * @method unload
-     * @memberof <%= globalName %>.<%= modulePath %>.<%= moduleName %>
+     * @memberof <%= namespace %>
      * @description Method performs unloading actions for this module.
      *
      */
@@ -64,7 +64,7 @@ var <%= moduleName %> = {
      *
      * @public
      * @method teardown
-     * @memberof <%= globalName %>.<%= modulePath %>.<%= moduleName %>
+     * @memberof <%= namespace %>
      * @description Method performs cleanup after this module. Remmoves events, null vars etc...
      *
      */
@@ -77,4 +77,4 @@ var <%= moduleName %> = {
 /******************************************************************************
  * Export
 *******************************************************************************/
-export default <%= moduleName %>;
+export default <%= module %>;
